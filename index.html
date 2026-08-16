@@ -15,7 +15,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .hdr small{font-size:11px;color:#9ca3af;}
 .hdr-r{display:flex;gap:5px;align-items:center;}
 .tabs{background:var(--sec);display:flex;padding:0 12px;border-bottom:2px solid var(--pri);overflow-x:auto;}
-.tab{padding:8px 14px;color:#9ca3af;cursor:pointer;font-size:12px;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;}
+.tab{padding:10px 20px;color:#9ca3af;cursor:pointer;font-size:11px;font-weight:800;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;letter-spacing:1.2px;text-transform:uppercase;}
 .tab:hover{color:#fff;}.tab.active{color:#fff;border-bottom-color:var(--pri);}
 .cnt{padding:14px 16px;max-width:1100px;}
 .pnl{display:none;}.pnl.active{display:block;}
@@ -59,6 +59,7 @@ input[type=checkbox]{width:auto;accent-color:var(--pri);}
 .dc-steps{font-size:11px;color:#166534;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:4px 8px;margin-top:4px;white-space:pre-wrap;line-height:1.5;}
 .dc-tip{font-size:11px;color:#5b21b6;background:#ede9fe;border-radius:4px;padding:3px 7px;margin-top:4px;line-height:1.4;}
 .dc-drawing{width:100%;max-height:160px;object-fit:contain;border-radius:4px;border:1px solid var(--brd);margin-top:6px;cursor:pointer;}
+.dc-drawing-sm{width:100px;height:68px;object-fit:contain;border-radius:4px;border:1px solid var(--brd);cursor:pointer;flex-shrink:0;}
 .srow{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:9px 13px;display:flex;align-items:center;gap:9px;cursor:pointer;margin-bottom:6px;}
 .srow:hover{border-color:var(--pri);background:#fff8f5;}
 .sdt{font-size:10px;color:var(--mut);min-width:62px;}
@@ -146,11 +147,11 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
 </div>
 
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('teams')">👥 Teams</div>
-  <div class="tab" onclick="switchTab('season')">📅 Saisonplan</div>
-  <div class="tab" onclick="switchTab('drills')">📚 Bibliothek</div>
-  <div class="tab" onclick="switchTab('sessions')">📋 Einheiten</div>
-  <div class="tab" onclick="switchTab('builder')">➕ Neue Einheit</div>
+  <div class="tab active" onclick="switchTab('teams')">Teams</div>
+  <div class="tab" onclick="switchTab('season')">Saison</div>
+  <div class="tab" onclick="switchTab('drills')">Bibliothek</div>
+  <div class="tab" onclick="switchTab('sessions')">Trainings</div>
+  <div class="tab" onclick="switchTab('builder')">+ Neu</div>
 </div>
 
 <div class="cnt">
@@ -207,8 +208,8 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
 <!-- EINHEITEN -->
 <div class="pnl" id="pnl-sessions">
   <div class="flex jb ac mb3">
-    <div class="shd">📋 Trainingseinheiten</div>
-    <button class="btn btn-pri btn-sm" onclick="switchTab('builder');clearBuilder();">+ Neue Einheit</button>
+    <div class="shd">Trainings</div>
+    <button class="btn btn-pri btn-sm" onclick="switchTab('builder');clearBuilder();">+ Neues Training</button>
   </div>
   <div class="fb" id="sess-team-filter"></div>
   <div id="sess-list"></div>
@@ -217,7 +218,7 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
 <!-- BUILDER -->
 <div class="pnl" id="pnl-builder">
   <div class="flex jb ac mb4">
-    <div class="shd" id="builder-title">➕ Neue Trainingseinheit</div>
+    <div class="shd" id="builder-title">Neues Training</div>
   </div>
   <div class="card">
     <div class="cht">Details</div>
@@ -404,6 +405,11 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   </div>
   <div id="draw-text-inp" class="hidden" style="margin-bottom:6px;">
     <input type="text" id="draw-text-val" placeholder="Text eingeben, Enter zum Platzieren">
+  </div>
+  <div class="draw-tb" style="margin-top:4px;margin-bottom:6px;">
+    <span style="font-size:11px;color:var(--mut);margin-right:4px;">Vorlage:</span>
+    <button class="dtool on" id="tpl-half" onclick="setCourtTemplate('half')">Halbfeld</button>
+    <button class="dtool" id="tpl-full" onclick="setCourtTemplate('full')">Vollfeld</button>
   </div>
   <canvas id="draw-canvas" width="660" height="430"></canvas>
   <div class="draw-hint">💡 Klick zum Platzieren · Ziehen für Linien &amp; Pfeile</div>
@@ -621,7 +627,7 @@ async function saveTeam(){
   await sbUpsert('teams',toDB.team(team));
 }
 async function deleteTeam(id){
-  if(!confirm('Team und alle zugehörigen Einheiten löschen?'))return;
+  if(!confirm('Team und alle zugehörigen Trainings löschen?'))return;
   db.teams=db.teams.filter(t=>t.id!==id);
   db.sessions=db.sessions.filter(s=>s.teamId!==id);
   renderTeams();populateBuilderTeamSel();renderSessions();
@@ -787,17 +793,21 @@ function dcHTML(d){
       <div class="dc-name" style="margin-left:6px;">${d.name}${isSys&&d.systemType?` <span class="sysb">${d.systemType}</span>`:''}</div>
       <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;">
         <span class="mut">${d.dur}min</span><span style="font-size:10px;">${stars}</span>
-        <button class="ico" onclick="openDrawMdl('${d.id}')" title="Zeichnung">🎨</button>
+        <button class="ico" onclick="openDrawMdl('${d.id}')" title="Zeichnung" style="font-size:14px;">🖊</button>
         ${isCustom
           ?`<button class="ico" onclick="openDrillMdl('${d.id}',${isSys})">✏️</button><button class="ico" onclick="deleteDrill('${d.id}')">🗑️</button>`
-          :`<button class="ico" onclick="toggleHide('${d.id}')" title="${isHidden?'Anzeigen':'Ausblenden'}">${isHidden?'👁️':'🙈'}</button>`}
+          :`<button class="ico" onclick="toggleHide('${d.id}')" title="${isHidden?'Einblenden':'Ausblenden'}" style="font-size:12px;opacity:.6;">${isHidden?'EIN':'AUS'}</button>`}
       </div>
     </div>
     <div class="mut" style="font-size:10px;margin-bottom:3px;">👥 min. ${d.players} · ${(d.ag||[]).join(', ')}${isSys&&d.formation?` · ${d.formation}`:''}</div>
-    ${d.desc?`<div class="dc-desc">${d.desc}</div>`:''}
-    ${isSys&&d.steps?`<div class="dc-steps">${d.steps}</div>`:''}
-    ${d.coaching?`<div class="dc-tip">💡 ${d.coaching}</div>`:''}
-    ${drawing?`<img src="${drawing}" class="dc-drawing" onclick="openDrawMdl('${d.id}')">`:''}</div>`;
+    <div style="display:flex;gap:8px;align-items:flex-start;">
+      <div style="flex:1;min-width:0;">
+        ${d.desc?`<div class="dc-desc">${d.desc}</div>`:''}
+        ${isSys&&d.steps?`<div class="dc-steps">${d.steps}</div>`:''}
+        ${d.coaching?`<div class="dc-tip">💡 ${d.coaching}</div>`:''}
+      </div>
+      ${drawing?`<img src="${drawing}" class="dc-drawing-sm" onclick="openDrawMdl('${d.id}')" title="Zeichnung anzeigen/bearbeiten">`:''}
+    </div></div>`;
 }
 async function toggleHide(id){
   const isHiding=!db.hiddenDrills.includes(id);
@@ -867,7 +877,7 @@ function populateBuilderTeamSel(){
 }
 function clearBuilder(){
   currentBlocks=[];editSessId=null;
-  document.getElementById('builder-title').textContent='➕ Neue Trainingseinheit';
+  document.getElementById('builder-title').textContent='Neues Training';
   document.getElementById('s-date').value=new Date().toISOString().slice(0,10);
   ['s-title','s-loc','s-goal','s-notes'].forEach(id=>document.getElementById(id).value='');
   populateBuilderTeamSel();renderBlocks();
@@ -979,7 +989,7 @@ function viewSess(id){
   openM('m-sdet');
 }
 async function delCurSess(){
-  if(!confirm('Einheit löschen?'))return;
+  if(!confirm('Training löschen?'))return;
   db.sessions=db.sessions.filter(s=>s.id!==viewSessId);
   closeM('m-sdet');renderSessions();
   await sbDelete('sessions','id',viewSessId);
@@ -987,7 +997,7 @@ async function delCurSess(){
 function editCurSess(){
   const s=db.sessions.find(s=>s.id===viewSessId);if(!s)return;
   editSessId=s.id;
-  document.getElementById('builder-title').textContent='✏️ Einheit bearbeiten';
+  document.getElementById('builder-title').textContent='Training bearbeiten';
   populateBuilderTeamSel();
   document.getElementById('s-team').value=s.teamId;
   document.getElementById('s-title').value=s.title;
@@ -1000,7 +1010,7 @@ function editCurSess(){
 }
 
 // ── DRAW ──────────────────────────────────────────────────
-const DM={canvas:null,ctx:null,tool:'pen',color:'#E85D04',size:2,isDrawing:false,startX:0,startY:0,history:[],snapshot:null,offNum:1,defNum:1,editId:null};
+const DM={canvas:null,ctx:null,tool:'pen',color:'#E85D04',size:2,isDrawing:false,startX:0,startY:0,history:[],snapshot:null,offNum:1,defNum:1,editId:null,courtTemplate:'half'};
 const DRAW_COLORS=['#E85D04','#1a1a2e','#2563eb','#16a34a','#dc2626'];
 
 function initDrawColors(){
@@ -1042,6 +1052,62 @@ function drawCourt(ctx,W,H){
   ctx.beginPath();ctx.moveTo(M,midY);ctx.lineTo(W-M,midY);ctx.stroke();
   ctx.beginPath();ctx.arc(cx,midY,68,Math.PI,0);ctx.stroke();
 }
+function setCourtTemplate(t){
+  DM.courtTemplate=t;
+  document.getElementById('tpl-half').classList.toggle('on',t==='half');
+  document.getElementById('tpl-full').classList.toggle('on',t==='full');
+  const c=DM.canvas;
+  if(t==='full'){c.height=820;}else{c.height=430;}
+  drawCourtTemplate(DM.ctx,c.width,c.height);
+  DM.history=[];DM.offNum=1;DM.defNum=1;snapHistory();
+}
+function drawCourtTemplate(ctx,W,H){
+  if(DM.courtTemplate==='full')drawFullCourt(ctx,W,H);
+  else drawCourt(ctx,W,H);
+}
+function drawFullCourt(ctx,W,H){
+  ctx.fillStyle='#EDD89A';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#8B6200';ctx.lineWidth=2;ctx.lineCap='round';ctx.setLineDash([]);
+  const M=8,cx=W/2,halfH=H/2;
+  ctx.strokeRect(M,M,W-2*M,H-2*M);
+  // Mittellinie
+  ctx.beginPath();ctx.moveTo(M,halfH);ctx.lineTo(W-M,halfH);ctx.stroke();
+  // Mittelkreis
+  ctx.beginPath();ctx.arc(cx,halfH,60,0,Math.PI*2);ctx.stroke();
+  // Mittelpunkt
+  ctx.beginPath();ctx.arc(cx,halfH,5,0,Math.PI*2);ctx.fillStyle='#8B6200';ctx.fill();
+  // Oberes Halbfeld
+  drawHalfCourt(ctx,W,M,1);
+  // Unteres Halbfeld (gespiegelt)
+  drawHalfCourt(ctx,W,H-M,-1);
+}
+function drawHalfCourt(ctx,W,baseY,dir){
+  const M=8,cx=W/2;
+  const kH=dir*145,kW=165,kL=cx-kW/2;
+  // Key/Paint
+  ctx.strokeStyle='#8B6200';ctx.lineWidth=2;ctx.setLineDash([]);
+  ctx.strokeRect(kL,baseY,kW,kH);
+  // Freiwurflinie (Halbkreis)
+  const ftY=baseY+kH;
+  ctx.beginPath();ctx.arc(cx,ftY,kW/2,dir>0?Math.PI:0,dir>0?0:Math.PI,dir<0);ctx.stroke();
+  ctx.setLineDash([6,6]);ctx.beginPath();ctx.arc(cx,ftY,kW/2,dir>0?0:Math.PI,dir>0?Math.PI:0,dir<0);ctx.stroke();ctx.setLineDash([]);
+  // Korb
+  const bkY=baseY+dir*16;
+  ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(cx-28,bkY);ctx.lineTo(cx+28,bkY);ctx.stroke();
+  ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(cx,baseY+dir*30,11,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,baseY+dir*41);ctx.lineTo(cx,baseY+dir*52);ctx.stroke();
+  // 3-Punkte-Linie
+  const c3L=M+40,c3R=W-M-40,c3endY=baseY+dir*118;
+  ctx.beginPath();ctx.moveTo(c3L,baseY);ctx.lineTo(c3L,c3endY);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(c3R,baseY);ctx.lineTo(c3R,c3endY);ctx.stroke();
+  const arcR=Math.sqrt((c3L-cx)**2+(c3endY-(baseY+dir*30))**2);
+  const a1=Math.atan2(c3endY-(baseY+dir*30),c3L-cx);
+  const a2=Math.atan2(c3endY-(baseY+dir*30),c3R-cx);
+  ctx.beginPath();ctx.arc(cx,baseY+dir*30,arcR,a1,a2,dir<0);ctx.stroke();
+  // No-charge Halbkreis
+  ctx.beginPath();ctx.arc(cx,baseY+dir*30,38,dir>0?Math.PI:0,dir>0?0:Math.PI,dir<0);ctx.stroke();
+}
 function getPos(e){
   const r=DM.canvas.getBoundingClientRect(),sx=DM.canvas.width/r.width,sy=DM.canvas.height/r.height;
   if(e.touches)return{x:(e.touches[0].clientX-r.left)*sx,y:(e.touches[0].clientY-r.top)*sy};
@@ -1049,7 +1115,7 @@ function getPos(e){
 }
 function snapHistory(){DM.history.push(DM.ctx.getImageData(0,0,DM.canvas.width,DM.canvas.height));if(DM.history.length>25)DM.history.shift();}
 function undoDraw(){if(DM.history.length<=1)return;DM.history.pop();DM.ctx.putImageData(DM.history[DM.history.length-1],0,0);}
-function clearDraw(){if(!confirm('Zeichnung löschen?'))return;drawCourt(DM.ctx,DM.canvas.width,DM.canvas.height);DM.history=[];DM.offNum=1;DM.defNum=1;snapHistory();}
+function clearDraw(){if(!confirm('Zeichnung löschen?'))return;drawCourtTemplate(DM.ctx,DM.canvas.width,DM.canvas.height);DM.history=[];DM.offNum=1;DM.defNum=1;snapHistory();}
 
 function drawArrow(ctx,x1,y1,x2,y2,dashed){
   ctx.save();ctx.strokeStyle=DM.color;ctx.fillStyle=DM.color;ctx.lineWidth=DM.size+1;ctx.lineCap='round';
@@ -1127,7 +1193,8 @@ function openDrawMdl(drillId){
   openM('m-draw');
   setTimeout(()=>{
     DM.canvas=document.getElementById('draw-canvas');DM.ctx=DM.canvas.getContext('2d');
-    drawCourt(DM.ctx,DM.canvas.width,DM.canvas.height);
+    DM.courtTemplate='half';document.getElementById('tpl-half').classList.add('on');document.getElementById('tpl-full').classList.remove('on');
+    drawCourtTemplate(DM.ctx,DM.canvas.width,DM.canvas.height);
     const existing=db.drillDrawings[drillId];
     if(existing){const img=new Image();img.onload=()=>{DM.ctx.drawImage(img,0,0);snapHistory();};img.src=existing;}
     else snapHistory();
