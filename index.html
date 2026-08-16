@@ -339,6 +339,7 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   </div>
   <div class="fg"><label>Beschreibung</label><textarea id="d-desc" style="min-height:60px;"></textarea></div>
   <div class="fg"><label>Coaching-Punkte</label><textarea id="d-coach" style="min-height:48px;"></textarea></div>
+  <div class="fg"><label>Video-Link (YouTube o.ä.)</label><input type="url" id="d-link" placeholder="https://youtube.com/..."></div>
   <input type="hidden" id="d-id"><input type="hidden" id="d-ats" value="0">
   <div class="mft"><button class="btn btn-sec" onclick="closeM('m-drill')">Abbrechen</button><button class="btn btn-pri" id="dr-savebtn" onclick="saveDrill()">Speichern</button></div>
 </div></div>
@@ -427,6 +428,23 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   <div id="draw-text-inp" class="hidden" style="margin-bottom:6px;">
     <input type="text" id="draw-text-val" placeholder="Text eingeben, Enter zum Platzieren">
   </div>
+  <div class="draw-tb" style="margin-bottom:8px;">
+    <button class="dtool on" id="dmode-draw" onclick="setDrawMode('draw')">✏️ Zeichnen</button>
+    <button class="dtool" id="dmode-upload" onclick="setDrawMode('upload')">📷 Foto / Upload</button>
+  </div>
+  <div id="upload-section" style="display:none;">
+    <div class="flex g2 mb2" style="flex-wrap:wrap;">
+      <label class="btn btn-sec btn-sm" style="cursor:pointer;">📁 Datei wählen<input type="file" id="img-upload" accept="image/*" onchange="loadImageForCrop(event)" style="display:none;"></label>
+      <label class="btn btn-sec btn-sm" style="cursor:pointer;">📷 Kamera<input type="file" id="img-camera" accept="image/*" capture="environment" onchange="loadImageForCrop(event)" style="display:none;"></label>
+    </div>
+    <canvas id="crop-canvas" width="660" height="430" style="max-width:100%;display:none;border:1px solid var(--brd);border-radius:4px;cursor:crosshair;"></canvas>
+    <div id="crop-hint" style="display:none;font-size:11px;color:var(--mut);margin-top:4px;">💡 Ziehe zum Auswählen des Ausschnitts · Klick ohne Ziehen = ganzes Bild</div>
+    <div id="crop-actions" style="display:none;margin-top:8px;" class="flex g2">
+      <button class="btn btn-sec btn-sm" onclick="resetCrop()">Anderes Bild</button>
+      <button class="btn btn-pri btn-sm" onclick="confirmCrop()">✂️ Übernehmen</button>
+    </div>
+  </div>
+  <div id="draw-section">
   <div class="draw-tb" style="margin-top:4px;margin-bottom:6px;">
     <span style="font-size:11px;color:var(--mut);margin-right:4px;">Vorlage:</span>
     <button class="dtool on" id="tpl-half" onclick="setCourtTemplate('half')">Halbfeld</button>
@@ -434,6 +452,7 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   </div>
   <canvas id="draw-canvas" width="660" height="430"></canvas>
   <div class="draw-hint">💡 Klick zum Platzieren · Ziehen für Linien &amp; Pfeile</div>
+  </div><!-- /draw-section -->
   <div class="mft">
     <button class="btn btn-dan btn-sm" onclick="deleteDrawing()">Zeichnung löschen</button>
     <button class="btn btn-sec" onclick="closeM('m-draw')">Abbrechen</button>
@@ -469,13 +488,13 @@ async function sbDelete(table,col,val){
 const fromDB={
   team:r=>({id:r.id,name:r.name,cat:r.cat||'herren',age:r.age||'U16',emoji:r.emoji||'🏀',desc:r.description||''}),
   season:r=>({id:r.id,teamId:r.team_id,name:r.name,start:r.start_date,end:r.end_date,phases:r.phases||[],weeks:r.weeks||{}}),
-  drill:r=>({id:r.id,name:r.name,cat:r.cat,dur:r.dur||10,players:r.players||4,diff:r.diff||1,ag:r.age_groups||[],desc:r.description||'',coaching:r.coaching||'',systemType:r.system_type,formation:r.formation,steps:r.steps,custom:true}),
+  drill:r=>{const _p=(r.description||'').split('\u001F');return{id:r.id,name:r.name,cat:r.cat,dur:r.dur||10,players:r.players||4,diff:r.diff||1,ag:r.age_groups||[],desc:_p[0]||'',link:_p[1]||'',coaching:r.coaching||'',systemType:r.system_type,formation:r.formation,steps:r.steps,custom:true};},
   session:r=>({id:r.id,teamId:r.team_id,title:r.title,date:r.date,location:r.location||'',goal:r.goal||'',notes:r.notes||'',blocks:r.blocks||[],totalDur:r.total_dur||0}),
 };
 const toDB={
   team:t=>({id:t.id,name:t.name,cat:t.cat,age:t.age,emoji:t.emoji,description:t.desc||''}),
   season:s=>({id:s.id,team_id:s.teamId,name:s.name,start_date:s.start,end_date:s.end,phases:s.phases||[],weeks:s.weeks||{}}),
-  drill:d=>({id:d.id,name:d.name,cat:d.cat,dur:d.dur,players:d.players,diff:d.diff,age_groups:d.ag||[],description:d.desc||'',coaching:d.coaching||'',system_type:d.systemType||null,formation:d.formation||null,steps:d.steps||null}),
+  drill:d=>({id:d.id,name:d.name,cat:d.cat,dur:d.dur,players:d.players,diff:d.diff,age_groups:d.ag||[],description:d.link?(d.desc||'')+'\u001F'+d.link:(d.desc||''),coaching:d.coaching||'',system_type:d.systemType||null,formation:d.formation||null,steps:d.steps||null}),
   session:s=>({id:s.id,team_id:s.teamId,title:s.title,date:s.date||null,location:s.location||null,goal:s.goal||null,notes:s.notes||null,blocks:s.blocks||[],total_dur:s.totalDur||0}),
 };
 
@@ -821,6 +840,7 @@ function dcHTML(d){
       <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;">
         <span class="mut">${d.dur}min</span><span style="font-size:10px;">${stars}</span>
         <button class="ico" onclick="openDrawMdl('${d.id}',-1)" title="Zeichnung hinzufügen" style="font-size:14px;">🖊</button>
+        ${d.link?`<a href="${d.link}" target="_blank" class="ico" title="Video öffnen" style="text-decoration:none;font-size:14px;">▶</a>`:''}
         ${isCustom?`<button class="ico" onclick="openDrillMdl('${d.id}',${isSys})">✏️</button><button class="ico" onclick="deleteDrill('${d.id}')">🗑️</button>`:''}
       </div>
     </div>
@@ -850,6 +870,7 @@ function openDrillMdl(id,isSys,addToSession){
   document.getElementById('d-ad').checked=!d||(d.ag||[]).includes('damen');
   document.getElementById('d-desc').value=d?.desc||'';
   document.getElementById('d-coach').value=d?.coaching||'';
+  document.getElementById('d-link').value=d?.link||'';
   document.getElementById('sys-flds').classList.toggle('hidden',!isS);
   document.getElementById('d-stype').value=d?.systemType||'Angriffssystem';
   document.getElementById('d-form').value=d?.formation||'';
@@ -867,7 +888,7 @@ async function saveDrill(){
   const cat=document.getElementById('d-cat').value,isSys=cat==='systeme';
   const eid=document.getElementById('d-id').value;
   const ats=document.getElementById('d-ats').value==='1';
-  const drill={id:eid||Date.now().toString(),name,cat,dur:parseInt(document.getElementById('d-dur').value)||10,players:parseInt(document.getElementById('d-pl').value)||4,diff:parseInt(document.getElementById('d-diff').value)||1,ag:ags,desc:document.getElementById('d-desc').value.trim(),coaching:document.getElementById('d-coach').value.trim(),custom:true,
+  const drill={id:eid||Date.now().toString(),name,cat,dur:parseInt(document.getElementById('d-dur').value)||10,players:parseInt(document.getElementById('d-pl').value)||4,diff:parseInt(document.getElementById('d-diff').value)||1,ag:ags,desc:document.getElementById('d-desc').value.trim(),link:document.getElementById('d-link').value.trim(),coaching:document.getElementById('d-coach').value.trim(),custom:true,
     ...(isSys?{systemType:document.getElementById('d-stype').value,formation:document.getElementById('d-form').value.trim(),steps:document.getElementById('d-steps').value.trim()}:{})};
   const idx=db.drills.findIndex(d=>d.id===eid);
   if(idx>=0)db.drills[idx]=drill;else db.drills.push(drill);
@@ -1014,6 +1035,7 @@ function renderSessions(){
       <div style="flex:1;"><div class="stit">${s.title}</div>
       <div class="mut">${t?`${t.emoji} ${t.name}`:''} ${s.location?'· '+s.location:''}</div></div>
       <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();printSess('${s.id}')" title="PDF" style="padding:3px 7px;font-size:11px;">📄</button>
+      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();mobileExport('${s.id}')" title="Mobil-Ansicht" style="padding:3px 7px;font-size:11px;">📱</button>
       <div class="dpill">${s.totalDur} Min.</div></div>`;
   }).join('');
 }
@@ -1052,6 +1074,52 @@ function printSess(id){
   ${s.notes?`<div class="notes"><strong>Notizen:</strong> ${s.notes}</div>`:''}
   </body></html>`;
   const w=window.open('','_blank');w.document.write(html);w.document.close();w.focus();setTimeout(()=>{w.print();},350);
+}
+
+function mobileExport(id){
+  const s=db.sessions.find(s=>s.id===(id||viewSessId));if(!s)return;
+  const t=getTeam(s.teamId);
+  const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'';
+  const cc={aufwaermen:'#f97316',ballhandling:'#f59e0b',passspiel:'#10b981',technik:'#06b6d4',verteidigung:'#3b82f6',angriff:'#ef4444',kondition:'#8b5cf6',spielform:'#ec4899',systeme:'#6b7280'};
+  const blocksHtml=s.blocks.map(b=>b.type==='section'
+    ?`<div style="background:#1a1a2e;color:#fff;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin:18px 0 10px;">— ${b.name} —</div>`
+    :`<div style="border-left:5px solid ${cc[b.cat]||'#888'};padding:12px 15px;margin-bottom:10px;background:#f8f9fa;border-radius:0 8px 8px 0;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;flex-wrap:wrap;gap:4px;">
+        <strong style="font-size:16px;">${b.name}</strong>
+        <span style="font-size:13px;color:#666;">${b.dur} Min. · ${CL[b.cat]||b.cat}</span>
+      </div>
+      ${b.desc?`<div style="font-size:14px;color:#444;line-height:1.5;white-space:pre-line;">${b.desc}</div>`:''}
+      ${b.drillId&&db.drillDrawings[b.drillId]&&db.drillDrawings[b.drillId].length?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">${db.drillDrawings[b.drillId].map(url=>`<img src="${url}" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #ddd;">`).join('')}</div>`:''}</div>`
+  ).join('');
+  const html=`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>${s.title}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#111;font-size:16px;padding:0;}
+    .header{background:#1a1a2e;color:#fff;padding:16px;position:sticky;top:0;z-index:10;}
+    .header h1{font-size:18px;font-weight:800;margin-bottom:4px;}
+    .header .meta{font-size:13px;color:#9ca3af;}
+    .content{padding:14px;}
+    .goal{background:#fff8f0;border:1px solid #f0c080;border-radius:10px;padding:12px 15px;margin-bottom:14px;font-size:14px;}
+    .total{background:#E85D04;color:#fff;border-radius:8px;padding:8px 14px;font-weight:700;font-size:15px;margin-bottom:14px;text-align:center;}
+    .notes{margin-top:18px;background:#fff;border-radius:10px;padding:14px;font-size:14px;color:#555;}
+    .brand{text-align:center;color:#999;font-size:11px;padding:20px;}
+  </style></head><body>
+  <div class="header">
+    <h1>${s.title}</h1>
+    <div class="meta">${[t?`${t.emoji} ${t.name}`:'',d,s.location].filter(Boolean).join(' · ')}</div>
+  </div>
+  <div class="content">
+    ${s.goal?`<div class="goal"><strong>Trainingsziel:</strong><br>${s.goal}</div>`:''}
+    <div class="total">Gesamtdauer: ${s.totalDur} Min.</div>
+    ${blocksHtml}
+    ${s.notes?`<div class="notes"><strong>Notizen:</strong><br>${s.notes}</div>`:''}
+  </div>
+  <div class="brand">Knights Basketball Trainingsplaner</div>
+  </body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
 }
 function viewSess(id){
   viewSessId=id;const s=db.sessions.find(s=>s.id===id);if(!s)return;
@@ -1264,6 +1332,86 @@ document.addEventListener('keydown',e=>{
   }
 });
 
+
+const CS={img:null,sx:0,sy:0,ex:0,ey:0,drag:false,scale:1,ox:0,oy:0};
+function setDrawMode(m){
+  const isDraw=m==='draw';
+  document.getElementById('dmode-draw').classList.toggle('on',isDraw);
+  document.getElementById('dmode-upload').classList.toggle('on',!isDraw);
+  document.getElementById('draw-section').style.display=isDraw?'':'none';
+  document.getElementById('upload-section').style.display=isDraw?'none':'';
+}
+function loadImageForCrop(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const cc=document.getElementById('crop-canvas');
+      cc.style.display='block';
+      const W=660,H=430;cc.width=W;cc.height=H;
+      const sc=Math.min(W/img.width,H/img.height,1);
+      const w=img.width*sc,h=img.height*sc;
+      const ox=(W-w)/2,oy=(H-h)/2;
+      CS.img=img;CS.scale=sc;CS.ox=ox;CS.oy=oy;
+      CS.sx=ox;CS.sy=oy;CS.ex=ox+w;CS.ey=oy+h;
+      drawCropOverlay();
+      document.getElementById('crop-hint').style.display='';
+      document.getElementById('crop-actions').style.display='';
+      cc.onmousedown=cropStart;cc.onmousemove=cropMove;cc.onmouseup=cropEnd;
+      cc.ontouchstart=cropStart;cc.ontouchmove=cropMove;cc.ontouchend=cropEnd;
+    };img.src=e.target.result;
+  };reader.readAsDataURL(file);
+  ev.target.value='';
+}
+function cropPos(e){
+  const r=document.getElementById('crop-canvas').getBoundingClientRect();
+  const sc=660/r.width;
+  if(e.touches)return{x:(e.touches[0].clientX-r.left)*sc,y:(e.touches[0].clientY-r.top)*sc};
+  return{x:(e.clientX-r.left)*sc,y:(e.clientY-r.top)*sc};
+}
+function cropStart(e){e.preventDefault();const p=cropPos(e);CS.drag=true;CS.sx=p.x;CS.sy=p.y;CS.ex=p.x;CS.ey=p.y;}
+function cropMove(e){e.preventDefault();if(!CS.drag)return;const p=cropPos(e);CS.ex=p.x;CS.ey=p.y;drawCropOverlay();}
+function cropEnd(e){e.preventDefault();CS.drag=false;drawCropOverlay();}
+function drawCropOverlay(){
+  const cc=document.getElementById('crop-canvas');
+  const ctx=cc.getContext('2d');
+  const {img,scale,ox,oy}=CS;
+  const W=660,H=430;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,W,H);
+  ctx.drawImage(img,ox,oy,img.width*scale,img.height*scale);
+  ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,0,W,H);
+  const x1=Math.min(CS.sx,CS.ex),y1=Math.min(CS.sy,CS.ey);
+  const x2=Math.max(CS.sx,CS.ex),y2=Math.max(CS.sy,CS.ey);
+  const cw=x2-x1,ch=y2-y1;
+  if(cw>4&&ch>4){
+    ctx.drawImage(img,(x1-ox)/scale,(y1-oy)/scale,cw/scale,ch/scale,x1,y1,cw,ch);
+    ctx.strokeStyle='#E85D04';ctx.lineWidth=2;ctx.strokeRect(x1,y1,cw,ch);
+  }
+}
+function resetCrop(){
+  document.getElementById('crop-canvas').style.display='none';
+  document.getElementById('crop-hint').style.display='none';
+  document.getElementById('crop-actions').style.display='none';
+  CS.img=null;
+}
+function confirmCrop(){
+  if(!CS.img)return;
+  const {img,scale,ox,oy}=CS;
+  const x1=Math.min(CS.sx,CS.ex),y1=Math.min(CS.sy,CS.ey);
+  const x2=Math.max(CS.sx,CS.ex),y2=Math.max(CS.sy,CS.ey);
+  const useFullImage=(x2-x1)<5||(y2-y1)<5;
+  const srcX=useFullImage?0:(x1-ox)/scale;
+  const srcY=useFullImage?0:(y1-oy)/scale;
+  const srcW=useFullImage?img.width:(x2-x1)/scale;
+  const srcH=useFullImage?img.height:(y2-y1)/scale;
+  DM.ctx.clearRect(0,0,DM.canvas.width,DM.canvas.height);
+  DM.ctx.fillStyle='#fff';DM.ctx.fillRect(0,0,DM.canvas.width,DM.canvas.height);
+  DM.ctx.drawImage(img,srcX,srcY,srcW,srcH,0,0,DM.canvas.width,DM.canvas.height);
+  snapHistory();
+  resetCrop();
+  setDrawMode('draw');
+}
 function openDrawMdl(drillId,drawingIdx){
   DM.editId=drillId;DM.drawingIdx=(drawingIdx===undefined)?-1:drawingIdx;DM.offNum=1;DM.defNum=1;
   document.querySelectorAll('.dtool[data-tool]').forEach(x=>x.classList.remove('on'));
