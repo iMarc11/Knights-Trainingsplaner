@@ -873,10 +873,9 @@ function dcHTML(d){
       <span class="cat cat-${d.cat}">${CL[d.cat]}</span>
       <div class="dc-name" style="margin-left:6px;">${d.name}${isSys&&d.systemType?` <span class="sysb">${d.systemType}</span>`:''}</div>
       <div style="display:flex;gap:5px;align-items:center;flex-shrink:0;">
-        <span class="mut">${d.dur}min</span>
         ${d.link?`<a href="${d.link}" target="_blank" class="btn btn-sec btn-xs" style="text-decoration:none;">Link</a>`:''}
         <button class="btn btn-sec btn-xs" onclick="openDrawMdl('${d.id}',-1)">Zeichnen</button>
-        <button class="btn btn-sec btn-xs" onclick="openDrillMdl('${d.id}',${isSys})">Edit</button>
+        <button class="btn btn-sec btn-xs" onclick="openDrillMdl('${d.id}',${isSys})">Bearbeiten</button>
         ${isCustom?`<button class="btn btn-dan btn-xs" onclick="deleteDrill('${d.id}')">✕</button>`:''}
       </div>
     </div>
