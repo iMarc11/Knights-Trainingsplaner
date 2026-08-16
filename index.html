@@ -151,7 +151,7 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   <div class="tab" onclick="switchTab('season')">Saison</div>
   <div class="tab" onclick="switchTab('drills')">Bibliothek</div>
   <div class="tab" onclick="switchTab('sessions')">Trainings</div>
-  <div class="tab" onclick="switchTab('builder')">+ Neu</div>
+  <div class="tab" onclick="switchTab('builder')">+ Neues Training</div>
 </div>
 
 <div class="cnt">
@@ -199,7 +199,6 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   <div class="flex g2 mb3">
     <input type="text" id="dsearch" placeholder="Suchen…" style="width:200px;font-size:12px;" oninput="renderDrills()">
     <select id="dtf" onchange="renderDrills()" style="width:auto;font-size:12px;"><option value="">Alle</option></select>
-    <label class="flex ac g1" style="font-size:11px;cursor:pointer;"><input type="checkbox" id="show-hidden" onchange="renderDrills()"> Ausgeblendete zeigen</label>
   </div>
   <div class="fb" id="dcat-filter"></div>
   <div id="drill-list"></div>
@@ -287,6 +286,7 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
     <div class="fg"><label>Ende</label><input type="date" id="ph-e"></div>
   </div>
   <div class="fg"><label>Farbe</label><input type="color" id="ph-col" value="#E85D04"></div>
+  <div class="fg"><label>Themen / Schwerpunkte</label><textarea id="ph-topics" rows="3" placeholder="z.B.&#10;Pick &amp; Roll&#10;Transition Defense&#10;3-Punkte-Spiel" style="resize:vertical;font-size:12px;width:100%;border:1px solid var(--brd);border-radius:6px;padding:7px 10px;"></textarea></div>
   <input type="hidden" id="ph-id">
   <div class="mft"><button class="btn btn-sec" onclick="closeM('m-phase')">Abbrechen</button><button class="btn btn-pri" onclick="savePhase()">Speichern</button></div>
 </div></div>
@@ -373,6 +373,7 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   <div class="mft">
     <button class="btn btn-dan btn-sm" onclick="delCurSess()">Löschen</button>
     <button class="btn btn-sec" onclick="closeM('m-sdet')">Schliessen</button>
+    <button class="btn btn-sec btn-sm" onclick="printSess()" style="margin-left:auto;">📄 PDF</button>
     <button class="btn btn-pri" onclick="editCurSess()">Bearbeiten</button>
   </div>
 </div></div>
@@ -522,7 +523,7 @@ const BD=[
 ];
 
 // ── STATE ─────────────────────────────────────────────────
-let db={teams:[],seasons:[],drills:[],sessions:[],hiddenDrills:[],drillDrawings:{}};
+let db={teams:[],seasons:[],drills:[],sessions:[],drillDrawings:{}};
 
 function allDrills(){return[...BD,...db.drills];}
 function getTeam(id){return db.teams.find(t=>t.id===id);}
@@ -530,13 +531,12 @@ function getTeam(id){return db.teams.find(t=>t.id===id);}
 // ── LOAD / RELOAD ─────────────────────────────────────────
 async function loadAll(){
   try{
-    const[teams,seasons,drills,sessions,drawings,hidden]=await Promise.all([
+    const[teams,seasons,drills,sessions,drawings]=await Promise.all([
       SB.from('teams').select('*').order('created_at'),
       SB.from('seasons').select('*').order('created_at'),
       SB.from('custom_drills').select('*').order('created_at'),
       SB.from('sessions').select('*').order('created_at',{ascending:false}),
       SB.from('drill_drawings').select('*'),
-      SB.from('hidden_drills').select('*'),
     ]);
     db.teams=(teams.data||[]).map(fromDB.team);
     db.seasons=(seasons.data||[]).map(fromDB.season);
@@ -544,7 +544,7 @@ async function loadAll(){
     db.sessions=(sessions.data||[]).map(fromDB.session);
     db.drillDrawings={};
     (drawings.data||[]).forEach(r=>{db.drillDrawings[r.drill_id]=r.data_url;});
-    db.hiddenDrills=(hidden.data||[]).map(r=>r.drill_id);
+
     setSyncOk();
   }catch(e){setSyncErr();console.error('loadAll',e);}
 }
@@ -560,7 +560,7 @@ function renderAll(){
 
 // ── EXPORT / IMPORT / DOWNLOAD ────────────────────────────
 function exportData(){
-  const d=JSON.stringify({teams:db.teams,seasons:db.seasons,drills:db.drills,sessions:db.sessions,hiddenDrills:db.hiddenDrills},null,2);
+  const d=JSON.stringify({teams:db.teams,seasons:db.seasons,drills:db.drills,sessions:db.sessions},null,2);
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d],{type:'application/json'}));
   a.download=`knights-${new Date().toISOString().slice(0,10)}.json`;a.click();
 }
@@ -686,15 +686,16 @@ function openPhaseMdl(eid){
   document.getElementById('ph-e').value=p?.end||s.end;
   const cols=['#E85D04','#2563eb','#16a34a','#7c3aed','#db2777','#0891b2'];
   document.getElementById('ph-col').value=p?.color||cols[s.phases.length%cols.length];
+  document.getElementById('ph-topics').value=(p?.topics||[]).join('\n');
   openM('m-phase');
 }
 async function savePhase(){
   const s=getCurSeason();if(!s)return;
-  const name=document.getElementById('ph-name').value.trim(),start=document.getElementById('ph-s').value,end=document.getElementById('ph-e').value,color=document.getElementById('ph-col').value;
+  const name=document.getElementById('ph-name').value.trim(),start=document.getElementById('ph-s').value,end=document.getElementById('ph-e').value,color=document.getElementById('ph-col').value,topics=document.getElementById('ph-topics').value.split('\n').map(t=>t.trim()).filter(Boolean);
   if(!name||!start||!end)return alert('Alle Felder ausfüllen.');
   const eid=document.getElementById('ph-id').value;
-  if(eid){const idx=s.phases.findIndex(p=>p.id===eid);if(idx>=0)s.phases[idx]={...s.phases[idx],name,start,end,color};}
-  else s.phases.push({id:Date.now().toString(),name,start,end,color});
+  if(eid){const idx=s.phases.findIndex(p=>p.id===eid);if(idx>=0)s.phases[idx]={...s.phases[idx],name,start,end,color,topics};}
+  else s.phases.push({id:Date.now().toString(),name,start,end,color,topics});
   closeM('m-phase');renderSeason();
   await sbUpsert('seasons',toDB.season(s));
 }
@@ -713,6 +714,7 @@ function renderSeason(){
     :s.phases.map(p=>`<div class="ppill" style="background:${p.color}22;border:1px solid ${p.color}55;">
         <div class="pdot" style="background:${p.color}"></div>
         <span style="color:${p.color};">${p.name}</span>
+        ${p.topics&&p.topics.length?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;">${p.topics.map(t=>`<span style="font-size:9px;background:${p.color}22;color:${p.color};padding:1px 5px;border-radius:10px;">${t}</span>`).join('')}</div>`:''}
         <button class="ico" onclick="openPhaseMdl('${p.id}')">✏️</button>
         <button class="ico" onclick="removePhase('${p.id}')">✕</button>
       </div>`).join('');
@@ -771,12 +773,10 @@ function renderDrills(){
   renderDrillCatFilter();
   const q=(document.getElementById('dsearch').value||'').toLowerCase();
   const tc=document.getElementById('dtf').value;
-  const showHidden=document.getElementById('show-hidden').checked;
   let drills=allDrills();
   if(aDrillCat)drills=drills.filter(d=>d.cat===aDrillCat);
   if(q)drills=drills.filter(d=>d.name.toLowerCase().includes(q)||(d.desc||'').toLowerCase().includes(q));
   if(tc)drills=drills.filter(d=>(d.ag||[]).includes(tc));
-  if(!showHidden)drills=drills.filter(d=>!db.hiddenDrills.includes(d.id));
   const el=document.getElementById('drill-list');
   if(drills.length===0){el.innerHTML='<div class="empty">Keine Einträge.</div>';return;}
   el.innerHTML=drills.map(d=>dcHTML(d)).join('');
@@ -784,7 +784,6 @@ function renderDrills(){
 function dcHTML(d){
   const stars='⭐'.repeat(d.diff)+'<span style="opacity:.18;">'+'⭐'.repeat(3-d.diff)+'</span>';
   const isSys=d.cat==='systeme';
-  const isHidden=db.hiddenDrills.includes(d.id);
   const isCustom=!!d.custom;
   const drawing=db.drillDrawings[d.id];
   return`<div class="dc">
@@ -796,7 +795,7 @@ function dcHTML(d){
         <button class="ico" onclick="openDrawMdl('${d.id}')" title="Zeichnung" style="font-size:14px;">🖊</button>
         ${isCustom
           ?`<button class="ico" onclick="openDrillMdl('${d.id}',${isSys})">✏️</button><button class="ico" onclick="deleteDrill('${d.id}')">🗑️</button>`
-          :`<button class="ico" onclick="toggleHide('${d.id}')" title="${isHidden?'Einblenden':'Ausblenden'}" style="font-size:12px;opacity:.6;">${isHidden?'EIN':'AUS'}</button>`}
+          :''}
       </div>
     </div>
     <div class="mut" style="font-size:10px;margin-bottom:3px;">👥 min. ${d.players} · ${(d.ag||[]).join(', ')}${isSys&&d.formation?` · ${d.formation}`:''}</div>
@@ -808,12 +807,6 @@ function dcHTML(d){
       </div>
       ${drawing?`<img src="${drawing}" class="dc-drawing-sm" onclick="openDrawMdl('${d.id}')" title="Zeichnung anzeigen/bearbeiten">`:''}
     </div></div>`;
-}
-async function toggleHide(id){
-  const isHiding=!db.hiddenDrills.includes(id);
-  if(isHiding){db.hiddenDrills.push(id);await sbUpsert('hidden_drills',{drill_id:id});}
-  else{db.hiddenDrills=db.hiddenDrills.filter(x=>x!==id);await sbDelete('hidden_drills','drill_id',id);}
-  renderDrills();
 }
 function onDCatChange(){
   document.getElementById('sys-flds').classList.toggle('hidden',document.getElementById('d-cat').value!=='systeme');
@@ -939,7 +932,7 @@ function renderPickerCats(){
 function setPkCat(c){pickerCat=c;renderPickerCats();renderPicker();}
 function renderPicker(){
   const q=(document.getElementById('pk-search').value||'').toLowerCase();
-  let drills=allDrills().filter(d=>!db.hiddenDrills.includes(d.id));
+  let drills=allDrills();
   if(pickerCat)drills=drills.filter(d=>d.cat===pickerCat);
   if(q)drills=drills.filter(d=>d.name.toLowerCase().includes(q));
   const el=document.getElementById('pk-list');
@@ -975,6 +968,41 @@ function renderSessions(){
       <div class="mut">${t?`${t.emoji} ${t.name}`:''} ${s.location?'· '+s.location:''}</div></div>
       <div class="dpill">${s.totalDur} Min.</div></div>`;
   }).join('');
+}
+function printSess(){
+  const s=db.sessions.find(s=>s.id===viewSessId);if(!s)return;
+  const t=getTeam(s.teamId);
+  const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'';
+  const cc={aufwaermen:'#f97316',ballhandling:'#f59e0b',passspiel:'#10b981',technik:'#06b6d4',verteidigung:'#3b82f6',angriff:'#ef4444',kondition:'#8b5cf6',spielform:'#ec4899',systeme:'#6b7280'};
+  const blocksHtml=s.blocks.map((b,i)=>`<div style="border-left:4px solid ${cc[b.cat]||'#888'};padding:9px 13px;margin-bottom:8px;background:#f8f9fa;border-radius:0 6px 6px 0;page-break-inside:avoid;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">
+      <strong style="font-size:13px;">${b.name}</strong>
+      <span style="font-size:11px;color:#666;white-space:nowrap;margin-left:8px;">${b.dur} Min. · ${CL[b.cat]||b.cat}</span>
+    </div>
+    ${b.desc?`<div style="font-size:12px;color:#444;white-space:pre-line;">${b.desc}</div>`:''}</div>`).join('');
+  const html=`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>${s.title}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:32px 36px;max-width:820px;margin:0 auto;color:#111;font-size:13px;}
+    h1{font-size:21px;font-weight:800;margin-bottom:5px;}
+    .meta{color:#555;font-size:12px;padding-bottom:12px;border-bottom:3px solid #E85D04;margin-bottom:16px;}
+    .goal{background:#fff8f0;border:1px solid #f0c080;border-radius:6px;padding:9px 13px;margin-bottom:14px;}
+    .total{font-weight:700;color:#E85D04;text-align:right;margin-bottom:14px;}
+    .notes{margin-top:18px;padding-top:12px;border-top:1px solid #ddd;color:#555;font-size:12px;}
+    .logo{font-size:10px;color:#999;}
+    @media print{body{padding:16px;}@page{margin:1.5cm;}}
+  </style></head><body>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+    <h1>${s.title}</h1>
+    <div class="logo">Knights Basketball</div>
+  </div>
+  <div class="meta">${[t?`${t.emoji} ${t.name}`:'',d,s.location].filter(Boolean).join(' &nbsp;·&nbsp; ')}</div>
+  ${s.goal?`<div class="goal"><strong>Trainingsziel:</strong> ${s.goal}</div>`:''}
+  <div class="total">Gesamtdauer: ${s.totalDur} Min.</div>
+  ${blocksHtml}
+  ${s.notes?`<div class="notes"><strong>Notizen:</strong> ${s.notes}</div>`:''}
+  </body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();w.focus();setTimeout(()=>{w.print();},350);
 }
 function viewSess(id){
   viewSessId=id;const s=db.sessions.find(s=>s.id===id);if(!s)return;
