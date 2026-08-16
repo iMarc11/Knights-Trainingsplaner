@@ -563,7 +563,15 @@ async function loadAll(){
     db.drills=(drills.data||[]).map(fromDB.drill);
     db.sessions=(sessions.data||[]).map(fromDB.session);
     db.drillDrawings={};
-    (drawings.data||[]).forEach(r=>{db.drillDrawings[r.drill_id]=r.data_url;});
+    (drawings.data||[]).forEach(r=>{
+      let urls=r.data_url;
+      if(typeof urls==='string'){
+        if(urls.startsWith('['))try{urls=JSON.parse(urls);}catch(e){urls=[urls];}
+        else urls=[urls];
+      }
+      if(!Array.isArray(urls))urls=[urls];
+      db.drillDrawings[r.drill_id]=urls.filter(Boolean);
+    });
 
     setSyncOk();
   }catch(e){setSyncErr();console.error('loadAll',e);}
@@ -869,7 +877,7 @@ async function saveDrill(){
   const idx=db.drills.findIndex(d=>d.id===eid);
   if(idx>=0)db.drills[idx]=drill;else db.drills.push(drill);
   closeM('m-drill');
-  if(ats){currentBlocks.push({cat:drill.cat,dur:drill.dur,name:drill.name,desc:drill.desc});renderBlocks();}
+  if(ats){currentBlocks.push({cat:drill.cat,dur:drill.dur,name:drill.name,desc:drill.desc,drillId:drill.id});renderBlocks();}
   if(document.getElementById('pnl-drills').classList.contains('active'))renderDrills();
   await sbUpsert('custom_drills',toDB.drill(drill));
 }
@@ -987,7 +995,7 @@ function renderPicker(){
 }
 function pickDrill(id){
   const d=allDrills().find(dr=>dr.id===id);if(!d)return;
-  currentBlocks.push({cat:d.cat,dur:d.dur,name:d.name,desc:d.desc});
+  currentBlocks.push({cat:d.cat,dur:d.dur,name:d.name,desc:d.desc,drillId:d.id});
   renderBlocks();closeM('m-picker');
 }
 
@@ -1010,11 +1018,12 @@ function renderSessions(){
       <div class="sdt">${d}</div>
       <div style="flex:1;"><div class="stit">${s.title}</div>
       <div class="mut">${t?`${t.emoji} ${t.name}`:''} ${s.location?'· '+s.location:''}</div></div>
+      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();printSess('${s.id}')" title="PDF" style="padding:3px 7px;font-size:11px;">📄</button>
       <div class="dpill">${s.totalDur} Min.</div></div>`;
   }).join('');
 }
-function printSess(){
-  const s=db.sessions.find(s=>s.id===viewSessId);if(!s)return;
+function printSess(id){
+  const s=db.sessions.find(s=>s.id===(id||viewSessId));if(!s)return;
   const t=getTeam(s.teamId);
   const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'';
   const cc={aufwaermen:'#f97316',ballhandling:'#f59e0b',passspiel:'#10b981',technik:'#06b6d4',verteidigung:'#3b82f6',angriff:'#ef4444',kondition:'#8b5cf6',spielform:'#ec4899',systeme:'#6b7280'};
@@ -1023,7 +1032,8 @@ function printSess(){
       <strong style="font-size:13px;">${b.name}</strong>
       <span style="font-size:11px;color:#666;white-space:nowrap;margin-left:8px;">${b.dur} Min. · ${CL[b.cat]||b.cat}</span>
     </div>
-    ${b.desc?`<div style="font-size:12px;color:#444;white-space:pre-line;">${b.desc}</div>`:''}</div>`).join('');
+    ${b.desc?`<div style="font-size:12px;color:#444;white-space:pre-line;">${b.desc}</div>`:''}
+    ${b.drillId&&db.drillDrawings[b.drillId]&&db.drillDrawings[b.drillId].length?`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">${db.drillDrawings[b.drillId].map(url=>`<img src="${url}" style="max-width:260px;max-height:190px;object-fit:contain;border-radius:6px;border:1px solid #ddd;">`).join('')}</div>`:''}</div>`).join('');
   const html=`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>${s.title}</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
@@ -1082,7 +1092,7 @@ function editCurSess(){
 }
 
 // ── DRAW ──────────────────────────────────────────────────
-const DM={canvas:null,ctx:null,tool:'pen',color:'#E85D04',size:2,isDrawing:false,startX:0,startY:0,history:[],snapshot:null,offNum:1,defNum:1,editId:null,courtTemplate:'half'};
+const DM={canvas:null,ctx:null,tool:'pen',color:'#E85D04',size:2,isDrawing:false,startX:0,startY:0,history:[],snapshot:null,offNum:1,defNum:1,editId:null,courtTemplate:'half',drawingIdx:-1};
 const DRAW_COLORS=['#E85D04','#1a1a2e','#2563eb','#16a34a','#dc2626'];
 
 function initDrawColors(){
@@ -1257,8 +1267,8 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-function openDrawMdl(drillId){
-  DM.editId=drillId;DM.offNum=1;DM.defNum=1;
+function openDrawMdl(drillId,drawingIdx){
+  DM.editId=drillId;DM.drawingIdx=(drawingIdx===undefined)?-1:drawingIdx;DM.offNum=1;DM.defNum=1;
   document.querySelectorAll('.dtool[data-tool]').forEach(x=>x.classList.remove('on'));
   document.querySelector('.dtool[data-tool="pen"]').classList.add('on');
   DM.tool='pen';DM.history=[];
@@ -1267,7 +1277,7 @@ function openDrawMdl(drillId){
     DM.canvas=document.getElementById('draw-canvas');DM.ctx=DM.canvas.getContext('2d');
     DM.courtTemplate='half';document.getElementById('tpl-half').classList.add('on');document.getElementById('tpl-full').classList.remove('on');
     drawCourtTemplate(DM.ctx,DM.canvas.width,DM.canvas.height);
-    const existing=db.drillDrawings[drillId];
+    const _drawings=db.drillDrawings[drillId]||[];const existing=DM.drawingIdx>=0?_drawings[DM.drawingIdx]:null;
     if(existing){const img=new Image();img.onload=()=>{DM.ctx.drawImage(img,0,0);snapHistory();};img.src=existing;}
     else snapHistory();
     DM.canvas.onmousedown=onDrawStart;DM.canvas.onmousemove=onDrawMove;DM.canvas.onmouseup=onDrawEnd;DM.canvas.onmouseleave=onDrawEnd;
@@ -1276,17 +1286,21 @@ function openDrawMdl(drillId){
 }
 async function saveDrawing(){
   const dataURL=DM.canvas.toDataURL('image/png');
-  db.drillDrawings[DM.editId]=dataURL;
+  if(!db.drillDrawings[DM.editId])db.drillDrawings[DM.editId]=[];
+  const drs=db.drillDrawings[DM.editId];
+  if(DM.drawingIdx>=0&&DM.drawingIdx<drs.length)drs[DM.drawingIdx]=dataURL;else drs.push(dataURL);
   closeM('m-draw');
   if(document.getElementById('pnl-drills').classList.contains('active'))renderDrills();
-  await sbUpsert('drill_drawings',{drill_id:DM.editId,data_url:dataURL,updated_at:new Date().toISOString()});
+  await sbUpsert('drill_drawings',{drill_id:DM.editId,data_url:JSON.stringify(drs),updated_at:new Date().toISOString()});
 }
 async function deleteDrawing(){
   if(!confirm('Zeichnung löschen?'))return;
-  delete db.drillDrawings[DM.editId];
+  const drs=db.drillDrawings[DM.editId]||[];
+  if(DM.drawingIdx>=0&&DM.drawingIdx<drs.length)drs.splice(DM.drawingIdx,1);
   closeM('m-draw');
   if(document.getElementById('pnl-drills').classList.contains('active'))renderDrills();
-  await sbDelete('drill_drawings','drill_id',DM.editId);
+  if(drs.length===0){delete db.drillDrawings[DM.editId];await sbDelete('drill_drawings','drill_id',DM.editId);}
+  else{db.drillDrawings[DM.editId]=drs;await sbUpsert('drill_drawings',{drill_id:DM.editId,data_url:JSON.stringify(drs),updated_at:new Date().toISOString()});}
 }
 
 // ── INIT ──────────────────────────────────────────────────
