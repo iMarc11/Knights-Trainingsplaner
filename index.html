@@ -1160,30 +1160,32 @@ function drawFullCourt(ctx,W,H){
 }
 function drawHalfCourt(ctx,W,baseY,dir){
   const M=8,cx=W/2;
-  const kH=dir*145,kW=165,kL=cx-kW/2;
   // Key/Paint
+  const kW=165,kH=dir*175,kL=cx-kW/2;
   ctx.strokeStyle='#8B6200';ctx.lineWidth=2;ctx.setLineDash([]);
   ctx.strokeRect(kL,baseY,kW,kH);
-  // Freiwurflinie (Halbkreis)
+  // Freiwurflinie (oberer Halbkreis = solide, unterer = gestrichelt)
   const ftY=baseY+kH;
   ctx.beginPath();ctx.arc(cx,ftY,kW/2,dir>0?Math.PI:0,dir>0?0:Math.PI,dir<0);ctx.stroke();
   ctx.setLineDash([6,6]);ctx.beginPath();ctx.arc(cx,ftY,kW/2,dir>0?0:Math.PI,dir>0?Math.PI:0,dir<0);ctx.stroke();ctx.setLineDash([]);
-  // Korb
-  const bkY=baseY+dir*16;
-  ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(cx-28,bkY);ctx.lineTo(cx+28,bkY);ctx.stroke();
+  // Korb & Rückwand
+  const bkY=baseY+dir*18;
+  ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(cx-30,bkY);ctx.lineTo(cx+30,bkY);ctx.stroke();
   ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(cx,baseY+dir*30,11,0,Math.PI*2);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(cx,baseY+dir*41);ctx.lineTo(cx,baseY+dir*52);ctx.stroke();
+  const bsY=baseY+dir*32;
+  ctx.beginPath();ctx.arc(cx,bsY,12,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,bsY+dir*12);ctx.lineTo(cx,bsY+dir*26);ctx.stroke();
   // 3-Punkte-Linie
-  const c3L=M+40,c3R=W-M-40,c3endY=baseY+dir*118;
+  const c3L=M+52,c3R=W-M-52,c3endY=baseY+dir*130;
   ctx.beginPath();ctx.moveTo(c3L,baseY);ctx.lineTo(c3L,c3endY);ctx.stroke();
   ctx.beginPath();ctx.moveTo(c3R,baseY);ctx.lineTo(c3R,c3endY);ctx.stroke();
-  const arcR=Math.sqrt((c3L-cx)**2+(c3endY-(baseY+dir*30))**2);
-  const a1=Math.atan2(c3endY-(baseY+dir*30),c3L-cx);
-  const a2=Math.atan2(c3endY-(baseY+dir*30),c3R-cx);
-  ctx.beginPath();ctx.arc(cx,baseY+dir*30,arcR,a1,a2,dir<0);ctx.stroke();
+  const arcR=Math.sqrt((c3L-cx)**2+(c3endY-bsY)**2);
+  const a1=Math.atan2(c3endY-bsY,c3L-cx);
+  const a2=Math.atan2(c3endY-bsY,c3R-cx);
+  // dir>0 (oben) = Bogen zieht nach unten = anticlockwise=true
+  ctx.beginPath();ctx.arc(cx,bsY,arcR,a1,a2,dir>0);ctx.stroke();
   // No-charge Halbkreis
-  ctx.beginPath();ctx.arc(cx,baseY+dir*30,38,dir>0?Math.PI:0,dir>0?0:Math.PI,dir<0);ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,bsY,40,dir>0?Math.PI:0,dir>0?0:Math.PI,dir<0);ctx.stroke();
 }
 function getPos(e){
   const r=DM.canvas.getBoundingClientRect(),sx=DM.canvas.width/r.width,sy=DM.canvas.height/r.height;
