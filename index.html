@@ -235,6 +235,7 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
       <div class="flex g1">
         <button class="btn btn-gho btn-sm" onclick="openPicker()">📚 Bibliothek</button>
         <button class="btn btn-gho btn-sm" onclick="openDrillMdl(null,false,true)">+ Neuer Drill</button>
+        <button class="btn btn-sec btn-sm" onclick="openSectionMdl()">＋ Abschnitt</button>
         <button class="btn btn-pri btn-sm" onclick="openBlockMdl(-1)">+ Manuell</button>
       </div>
     </div>
@@ -338,6 +339,23 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   <div class="fg"><label>Coaching-Punkte</label><textarea id="d-coach" style="min-height:48px;"></textarea></div>
   <input type="hidden" id="d-id"><input type="hidden" id="d-ats" value="0">
   <div class="mft"><button class="btn btn-sec" onclick="closeM('m-drill')">Abbrechen</button><button class="btn btn-pri" id="dr-savebtn" onclick="saveDrill()">Speichern</button></div>
+</div></div>
+
+<div class="mbk" id="m-section"><div class="mdl" style="max-width:380px;">
+  <h3>Abschnitt hinzufügen</h3>
+  <div class="bsec-presets">
+    <button class="btn btn-sec btn-sm" onclick="addSection('Aufwärmen')">Aufwärmen</button>
+    <button class="btn btn-sec btn-sm" onclick="addSection('Hauptteil')">Hauptteil</button>
+    <button class="btn btn-sec btn-sm" onclick="addSection('Abschluss')">Abschluss</button>
+    <button class="btn btn-sec btn-sm" onclick="addSection('Cool-down')">Cool-down</button>
+  </div>
+  <div class="fg"><label>Oder eigener Name</label>
+    <div class="flex g1">
+      <input type="text" id="sec-name" placeholder="z.B. Spielform Block" style="flex:1;">
+      <button class="btn btn-pri btn-sm" onclick="addSectionCustom()">OK</button>
+    </div>
+  </div>
+  <div class="mft"><button class="btn btn-sec" onclick="closeM('m-section')">Abbrechen</button></div>
 </div></div>
 
 <div class="mbk" id="m-block"><div class="mdl">
@@ -875,6 +893,19 @@ function clearBuilder(){
   ['s-title','s-loc','s-goal','s-notes'].forEach(id=>document.getElementById(id).value='');
   populateBuilderTeamSel();renderBlocks();
 }
+function openSectionMdl(){
+  document.getElementById('sec-name').value='';
+  openM('m-section');
+}
+function addSection(name){
+  currentBlocks.push({type:'section',name,dur:0,cat:'section'});
+  renderBlocks();closeM('m-section');
+}
+function addSectionCustom(){
+  const name=document.getElementById('sec-name').value.trim();
+  if(!name)return;
+  addSection(name);
+}
 function openBlockMdl(idx){
   const b=idx>=0?currentBlocks[idx]:null;
   document.getElementById('blk-title').textContent=b?'Block bearbeiten':'Block hinzufügen';
@@ -896,11 +927,21 @@ function saveBlock(){
 function moveBlock(i,d){const ni=i+d;if(ni<0||ni>=currentBlocks.length)return;[currentBlocks[i],currentBlocks[ni]]=[currentBlocks[ni],currentBlocks[i]];renderBlocks();}
 function delBlock(i){currentBlocks.splice(i,1);renderBlocks();}
 function renderBlocks(){
-  const total=currentBlocks.reduce((s,b)=>s+b.dur,0);
+  const total=currentBlocks.reduce((s,b)=>b.type==='section'?s:s+b.dur,0);
   document.getElementById('total-t').textContent=total+' Min.';
   const el=document.getElementById('block-list');
   if(currentBlocks.length===0){el.innerHTML='<div class="empty">Noch keine Blöcke.</div>';return;}
-  el.innerHTML=currentBlocks.map((b,i)=>`<div class="bli">
+  el.innerHTML=currentBlocks.map((b,i)=>{
+    if(b.type==='section'){
+      return`<div class="bsec">
+        <span>— ${b.name} —</span>
+        <div class="flex g1">
+          <button class="btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''}>↑</button>
+          <button class="btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''}>↓</button>
+          <button class="btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="delBlock(${i})">✕</button>
+        </div></div>`;
+    }
+    return`<div class="bli">
     <span class="btt type-${b.cat}">${CL[b.cat]||b.cat}</span>
     <span class="bdur">${b.dur}min</span>
     <div style="flex:1;"><div class="bname">${b.name}</div>${b.desc?`<div class="bdesc">${b.desc.length>80?b.desc.slice(0,80)+'…':b.desc}</div>`:''}</div>
@@ -909,7 +950,8 @@ function renderBlocks(){
       <button class="btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''}>↓</button>
       <button class="btn btn-sec btn-xs" onclick="openBlockMdl(${i})">✏️</button>
       <button class="btn btn-dan btn-xs" onclick="delBlock(${i})">✕</button>
-    </div></div>`).join('');
+    </div></div>`;
+  }).join('');
 }
 async function saveSession(){
   const title=document.getElementById('s-title').value.trim(),teamId=document.getElementById('s-team').value;
@@ -974,7 +1016,7 @@ function printSess(){
   const t=getTeam(s.teamId);
   const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'';
   const cc={aufwaermen:'#f97316',ballhandling:'#f59e0b',passspiel:'#10b981',technik:'#06b6d4',verteidigung:'#3b82f6',angriff:'#ef4444',kondition:'#8b5cf6',spielform:'#ec4899',systeme:'#6b7280'};
-  const blocksHtml=s.blocks.map((b,i)=>`<div style="border-left:4px solid ${cc[b.cat]||'#888'};padding:9px 13px;margin-bottom:8px;background:#f8f9fa;border-radius:0 6px 6px 0;page-break-inside:avoid;">
+  const blocksHtml=s.blocks.map((b,i)=>b.type==='section'?`<div style="background:#1a1a2e;color:#fff;padding:7px 13px;border-radius:5px;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin:14px 0 7px;">— ${b.name} —</div>`:`<div style="border-left:4px solid ${cc[b.cat]||'#888'};padding:9px 13px;margin-bottom:8px;background:#f8f9fa;border-radius:0 6px 6px 0;page-break-inside:avoid;">
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">
       <strong style="font-size:13px;">${b.name}</strong>
       <span style="font-size:11px;color:#666;white-space:nowrap;margin-left:8px;">${b.dur} Min. · ${CL[b.cat]||b.cat}</span>
@@ -1012,7 +1054,7 @@ function viewSess(id){
     <h3 style="margin-bottom:3px;">${s.title}</h3>
     <div class="mut" style="margin-bottom:10px;">${[t?`${t.emoji} ${t.name}`:'',d,s.location,`<strong>${s.totalDur} Min.</strong>`].filter(Boolean).join(' · ')}</div>
     ${s.goal?`<div style="background:#f4f5f7;border-radius:6px;padding:7px 11px;margin-bottom:10px;font-size:12px;"><strong>Ziel:</strong> ${s.goal}</div>`:''}
-    ${s.blocks.map(b=>`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||b.cat}</span><span class="bdur">${b.dur}min</span><div style="flex:1;"><div class="bname">${b.name}</div>${b.desc?`<div class="bdesc">${b.desc}</div>`:''}</div></div>`).join('')}
+    ${s.blocks.map(b=>b.type==='section'?`<div class="bsec" style="margin-top:8px;">— ${b.name} —</div>`:`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||b.cat}</span><span class="bdur">${b.dur}min</span><div style="flex:1;"><div class="bname">${b.name}</div>${b.desc?`<div class="bdesc">${b.desc}</div>`:''}</div></div>`).join('')}
     ${s.notes?`<hr><div class="mut" style="font-size:11px;margin-top:6px;"><strong>Notizen:</strong> ${s.notes}</div>`:''}`;
   openM('m-sdet');
 }
