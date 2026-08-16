@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knights Basketball – Trainingsplaner</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+:root{color-scheme:light;--pri:#E85D04;--prid:#C44D03;--sec:#1a1a2e;--bg:#f4f5f7;--card:#fff;--brd:#e2e4e8;--txt:#1e1e2e;--mut:#6b7280;--r:8px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+.hdr{background:var(--sec);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;}
+.hdr h1{font-size:15px;font-weight:700;}
+.hdr small{font-size:11px;color:#9ca3af;}
+.hdr-r{display:flex;gap:5px;align-items:center;}
+.tabs{background:var(--sec);display:flex;padding:0 12px;border-bottom:2px solid var(--pri);overflow-x:auto;}
+.tab{padding:8px 14px;color:#9ca3af;cursor:pointer;font-size:12px;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;}
+.tab:hover{color:#fff;}.tab.active{color:#fff;border-bottom-color:var(--pri);}
+.cnt{padding:14px 16px;max-width:1100px;}
+.pnl{display:none;}.pnl.active{display:block;}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;}
+.cht{font-size:13px;font-weight:700;color:var(--sec);margin-bottom:10px;}
+.btn{padding:6px 12px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .12s;}
+.btn-pri{background:var(--pri);color:#fff;}.btn-pri:hover{background:var(--prid);}
+.btn-sec{background:#f0f1f3;color:var(--txt);}.btn-sec:hover{background:#e2e4e8;}
+.btn-gho{background:transparent;color:#9ca3af;border:1px solid #444;}.btn-gho:hover{background:#2a2a3e;color:#fff;}
+.btn-dan{background:#fee2e2;color:#b91c1c;}.btn-dan:hover{background:#fecaca;}
+.btn-sm{padding:4px 9px;font-size:11px;}.btn-xs{padding:2px 6px;font-size:10px;}
+.ico{background:transparent;border:none;cursor:pointer;padding:2px 4px;font-size:12px;opacity:.55;}.ico:hover{opacity:1;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.form-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;}
+.fg{margin-bottom:8px;}
+label{display:block;font-size:10px;font-weight:700;color:var(--mut);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px;}
+input[type=text],input[type=date],input[type=number],select,textarea{width:100%;padding:6px 9px;border:1px solid var(--brd);border-radius:6px;font-size:13px;color:var(--txt);background:#fff;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri);}
+textarea{resize:vertical;min-height:52px;}
+input[type=color]{width:100%;height:34px;padding:2px 3px;border:1px solid var(--brd);border-radius:6px;cursor:pointer;}
+input[type=checkbox]{width:auto;accent-color:var(--pri);}
+.flex{display:flex;}.g1{gap:5px;}.g2{gap:9px;}.ac{align-items:center;}.jb{justify-content:space-between;}.f1{flex:1;}.wrap{flex-wrap:wrap;}
+.mb2{margin-bottom:7px;}.mb3{margin-bottom:11px;}.mb4{margin-bottom:14px;}
+.shd{font-size:14px;font-weight:700;color:var(--sec);}
+.mut{color:var(--mut);font-size:12px;}
+.empty{text-align:center;padding:26px 14px;color:var(--mut);font-size:13px;}
+.cat{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;}
+.cat-aufwaermen,.type-aufwaermen{background:#fff3cd;color:#92600a;}
+.cat-ballhandling,.type-ballhandling{background:#dbeafe;color:#1e40af;}
+.cat-passspiel,.type-passspiel{background:#dcfce7;color:#166534;}
+.cat-technik,.type-technik{background:#ede9fe;color:#5b21b6;}
+.cat-verteidigung,.type-verteidigung{background:#fee2e2;color:#991b1b;}
+.cat-angriff,.type-angriff{background:#fce7f3;color:#9d174d;}
+.cat-kondition,.type-kondition{background:#ffedd5;color:#c2410c;}
+.cat-spielform,.type-spielform{background:#e0f2fe;color:#075985;}
+.cat-systeme,.type-systeme{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;}
+.dc{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:11px 13px;margin-bottom:7px;}
+.dc-top{display:flex;align-items:flex-start;gap:7px;margin-bottom:4px;}
+.dc-name{font-size:13px;font-weight:600;flex:1;}
+.dc-desc{font-size:11px;color:var(--mut);margin-top:3px;line-height:1.45;}
+.dc-steps{font-size:11px;color:#166534;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:4px 8px;margin-top:4px;white-space:pre-wrap;line-height:1.5;}
+.dc-tip{font-size:11px;color:#5b21b6;background:#ede9fe;border-radius:4px;padding:3px 7px;margin-top:4px;line-height:1.4;}
+.dc-drawing{width:100%;max-height:160px;object-fit:contain;border-radius:4px;border:1px solid var(--brd);margin-top:6px;cursor:pointer;}
+.srow{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:9px 13px;display:flex;align-items:center;gap:9px;cursor:pointer;margin-bottom:6px;}
+.srow:hover{border-color:var(--pri);background:#fff8f5;}
+.sdt{font-size:10px;color:var(--mut);min-width:62px;}
+.stit{font-size:13px;font-weight:600;flex:1;}
+.dpill{background:var(--bg);border:1px solid var(--brd);border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600;}
+.bli{background:var(--bg);border:1px solid var(--brd);border-radius:6px;padding:8px 10px;display:flex;gap:8px;align-items:flex-start;margin-bottom:5px;}
+.btt{padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap;min-width:82px;text-align:center;}
+.bdur{font-size:11px;font-weight:700;color:var(--mut);min-width:35px;padding-top:2px;}
+.bname{font-size:12px;font-weight:600;margin-bottom:1px;}
+.bdesc{font-size:11px;color:var(--mut);}
+.bact{display:flex;gap:2px;flex-shrink:0;}
+.tbar{background:var(--sec);color:#fff;border-radius:6px;padding:7px 12px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;margin-bottom:8px;}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin-bottom:10px;}
+.tc{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:12px;}
+.te{font-size:18px;margin-bottom:4px;}
+.tn{font-size:13px;font-weight:700;}
+.tm{font-size:10px;color:var(--mut);margin-top:2px;}
+.fb{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:9px;}
+.chip{padding:3px 10px;border-radius:14px;border:1px solid var(--brd);background:#fff;font-size:11px;font-weight:600;cursor:pointer;}
+.chip:hover{border-color:#aaa;}.chip.on{background:var(--pri);color:#fff;border-color:var(--pri);}
+.wgrid{display:grid;grid-template-columns:82px 1fr;gap:2px 6px;}
+.wlbl{font-size:9px;color:var(--mut);display:flex;align-items:center;flex-direction:column;justify-content:center;line-height:1.3;}
+.wbar{height:28px;border-radius:4px;cursor:pointer;display:flex;align-items:center;padding:0 8px;font-size:10px;gap:4px;border:1px solid transparent;}
+.wbar:hover{filter:brightness(.9);}
+.wnote{opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.plgd{display:flex;gap:6px;flex-wrap:wrap;}
+.ppill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;}
+.pdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.mbk{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;}
+.mbk.open{display:flex;}
+.mdl{background:#fff;border-radius:10px;padding:16px 18px;width:490px;max-width:96vw;max-height:90vh;overflow-y:auto;}
+.mdl.wide{width:680px;}.mdl.draw-mdl{width:700px;max-width:98vw;}
+.mdl h3{font-size:14px;font-weight:700;margin-bottom:11px;}
+.mft{display:flex;gap:7px;justify-content:flex-end;margin-top:11px;border-top:1px solid var(--brd);padding-top:9px;}
+hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
+.pkl{max-height:260px;overflow-y:auto;border:1px solid var(--brd);border-radius:6px;}
+.pkr{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid #f0f1f3;cursor:pointer;}
+.pkr:last-child{border-bottom:none;}.pkr:hover{background:#fff8f5;}
+.pkrn{font-size:12px;font-weight:600;flex:1;}.pkrd{font-size:10px;color:var(--mut);white-space:nowrap;}
+.sysf{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:9px;margin-top:2px;}
+.sysb{display:inline-block;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:4px;padding:1px 6px;font-size:10px;color:#166534;font-weight:700;margin-left:4px;}
+#draw-canvas{display:block;cursor:crosshair;border:1px solid var(--brd);border-radius:4px;max-width:100%;}
+.draw-tb{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;padding:8px;background:#f8f9fa;border-radius:6px;border:1px solid var(--brd);}
+.dtool{padding:4px 9px;border-radius:5px;border:1px solid var(--brd);background:#fff;font-size:12px;cursor:pointer;white-space:nowrap;}
+.dtool:hover{border-color:#aaa;}.dtool.on{background:var(--sec);color:#fff;border-color:var(--sec);}
+.dcolors{display:flex;gap:4px;align-items:center;margin-bottom:6px;}
+.dcsw{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+.dcsw.on{border-color:#333;transform:scale(1.2);}
+.dsize{display:flex;gap:3px;align-items:center;}
+.dsz{padding:2px 8px;border-radius:4px;border:1px solid var(--brd);background:#fff;cursor:pointer;font-size:11px;}
+.dsz.on{background:var(--sec);color:#fff;}
+.draw-hint{font-size:10px;color:var(--mut);margin-top:4px;}
+/* Sync dot */
+.sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.s-ok{background:#22c55e;}
+.s-save{background:#f59e0b;animation:blink 1s infinite;}
+.s-err{background:#ef4444;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+/* Loading */
+.loading-ov{position:fixed;inset:0;background:rgba(26,26,46,.9);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:14px;}
+.spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ibar{background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r);padding:9px 13px;display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;font-size:12px;}
+::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px;}
+.hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-ov" id="loading-ov">
+  <div class="spinner"></div>
+  <div style="font-size:14px;font-weight:600;">Verbinde mit Datenbank…</div>
+</div>
+
+<div class="hdr">
+  <div class="flex ac g2">
+    <span style="font-size:20px;">🏀</span>
+    <div><h1>Knights Basketball – Trainingsplaner</h1><small>Teams · Saisonplan · Drills · Einheiten</small></div>
+  </div>
+  <div class="hdr-r">
+    <div class="sync-dot s-ok" id="sync-dot" title="Sync-Status"></div>
+    <button class="btn btn-gho btn-sm" onclick="reloadAll()">🔄</button>
+    <button class="btn btn-gho btn-sm" onclick="downloadApp()">🌐 Web-App</button>
+    <button class="btn btn-gho btn-sm" onclick="exportData()">📤 Export</button>
+    <label class="btn btn-gho btn-sm" style="cursor:pointer;">📥 Import<input type="file" accept=".json" onchange="importData(event)" style="display:none;"></label>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('teams')">👥 Teams</div>
+  <div class="tab" onclick="switchTab('season')">📅 Saisonplan</div>
+  <div class="tab" onclick="switchTab('drills')">📚 Bibliothek</div>
+  <div class="tab" onclick="switchTab('sessions')">📋 Einheiten</div>
+  <div class="tab" onclick="switchTab('builder')">➕ Neue Einheit</div>
+</div>
+
+<div class="cnt">
+
+<!-- TEAMS -->
+<div class="pnl active" id="pnl-teams">
+  <div class="flex jb ac mb4">
+    <div class="shd">👥 Teams</div>
+    <button class="btn btn-pri btn-sm" onclick="openTeamMdl()">+ Team erstellen</button>
+  </div>
+  <div class="ibar"><span>☁️</span><div>Alle Daten werden in Echtzeit mit Supabase synchronisiert. Änderungen sind sofort für alle Trainer sichtbar.</div></div>
+  <div class="tgrid" id="team-grid"></div>
+  <div id="team-empty" class="empty hidden">Noch keine Teams. Erstelle dein erstes Team.</div>
+</div>
+
+<!-- SAISONPLAN -->
+<div class="pnl" id="pnl-season">
+  <div class="flex jb ac mb4">
+    <div class="shd">📅 Saisonplan</div>
+    <div class="flex g2 ac">
+      <select id="ss-team" onchange="onSsTeamChange()" style="width:auto;font-size:11px;"></select>
+      <select id="ss-sel" onchange="renderSeason()" style="width:auto;font-size:11px;"></select>
+      <button class="btn btn-sec btn-sm" onclick="openSeasonMdl()">+ Saison</button>
+      <button class="btn btn-sec btn-sm" onclick="openPhaseMdl()">+ Phase</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="flex ac mb3 g2 wrap">
+      <span style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.4px;">Phasen:</span>
+      <div class="plgd" id="phase-legend"></div>
+    </div>
+    <hr style="margin-bottom:10px;">
+    <div id="season-grid"></div>
+  </div>
+</div>
+
+<!-- BIBLIOTHEK -->
+<div class="pnl" id="pnl-drills">
+  <div class="flex jb ac mb3">
+    <div class="shd">📚 Drill- &amp; Systeme-Bibliothek</div>
+    <div class="flex g1">
+      <button class="btn btn-gho btn-sm" onclick="openDrillMdl(null,false)">+ Drill</button>
+      <button class="btn btn-pri btn-sm" onclick="openDrillMdl(null,true)">+ System</button>
+    </div>
+  </div>
+  <div class="flex g2 mb3">
+    <input type="text" id="dsearch" placeholder="Suchen…" style="width:200px;font-size:12px;" oninput="renderDrills()">
+    <select id="dtf" onchange="renderDrills()" style="width:auto;font-size:12px;"><option value="">Alle</option></select>
+    <label class="flex ac g1" style="font-size:11px;cursor:pointer;"><input type="checkbox" id="show-hidden" onchange="renderDrills()"> Ausgeblendete zeigen</label>
+  </div>
+  <div class="fb" id="dcat-filter"></div>
+  <div id="drill-list"></div>
+</div>
+
+<!-- EINHEITEN -->
+<div class="pnl" id="pnl-sessions">
+  <div class="flex jb ac mb3">
+    <div class="shd">📋 Trainingseinheiten</div>
+    <button class="btn btn-pri btn-sm" onclick="switchTab('builder');clearBuilder();">+ Neue Einheit</button>
+  </div>
+  <div class="fb" id="sess-team-filter"></div>
+  <div id="sess-list"></div>
+</div>
+
+<!-- BUILDER -->
+<div class="pnl" id="pnl-builder">
+  <div class="flex jb ac mb4">
+    <div class="shd" id="builder-title">➕ Neue Trainingseinheit</div>
+  </div>
+  <div class="card">
+    <div class="cht">Details</div>
+    <div class="form-row3">
+      <div class="fg"><label>Team *</label><select id="s-team"></select></div>
+      <div class="fg"><label>Datum</label><input type="date" id="s-date"></div>
+      <div class="fg"><label>Ort</label><input type="text" id="s-loc" placeholder="z.B. Sporthalle 1"></div>
+    </div>
+    <div class="fg"><label>Titel *</label><input type="text" id="s-title" placeholder="z.B. Verteidigung &amp; Transition"></div>
+    <div class="fg"><label>Trainingsziel</label><textarea id="s-goal" placeholder="Was soll heute erreicht werden?"></textarea></div>
+  </div>
+  <div class="card">
+    <div class="flex jb ac mb3">
+      <div class="cht" style="margin:0;">Trainingsblöcke</div>
+      <div class="flex g1">
+        <button class="btn btn-gho btn-sm" onclick="openPicker()">📚 Bibliothek</button>
+        <button class="btn btn-gho btn-sm" onclick="openDrillMdl(null,false,true)">+ Neuer Drill</button>
+        <button class="btn btn-pri btn-sm" onclick="openBlockMdl(-1)">+ Manuell</button>
+      </div>
+    </div>
+    <div class="tbar"><span>Gesamtdauer</span><span id="total-t">0 Min.</span></div>
+    <div id="block-list"><div class="empty">Noch keine Blöcke.</div></div>
+  </div>
+  <div class="card">
+    <div class="cht">Notizen</div>
+    <textarea id="s-notes" placeholder="Material, Besonderheiten…" style="min-height:50px;"></textarea>
+  </div>
+  <div class="flex g2" style="justify-content:flex-end;margin-bottom:20px;">
+    <button class="btn btn-sec" onclick="clearBuilder()">Zurücksetzen</button>
+    <button class="btn btn-pri" onclick="saveSession()">💾 Speichern</button>
+  </div>
+</div>
+</div>
+
+<!-- MODALS -->
+<div class="mbk" id="m-team"><div class="mdl">
+  <h3 id="tm-title">Team erstellen</h3>
+  <div class="form-row">
+    <div class="fg"><label>Name *</label><input type="text" id="t-name"></div>
+    <div class="fg"><label>Kategorie</label><select id="t-cat"><option value="junioren">Junioren</option><option value="herren">Herren</option><option value="damen">Damen</option><option value="mixed">Mixed</option></select></div>
+  </div>
+  <div class="form-row">
+    <div class="fg"><label>Altersgruppe</label><select id="t-age"><option>U10</option><option>U12</option><option>U14</option><option>U16</option><option>U18</option><option>U20</option><option>Senioren</option><option>1. Mannschaft</option><option>2. Mannschaft</option></select></div>
+    <div class="fg"><label>Emoji</label><input type="text" id="t-em" value="🏀" maxlength="2"></div>
+  </div>
+  <div class="fg"><label>Beschreibung</label><textarea id="t-desc"></textarea></div>
+  <input type="hidden" id="t-id">
+  <div class="mft"><button class="btn btn-sec" onclick="closeM('m-team')">Abbrechen</button><button class="btn btn-pri" onclick="saveTeam()">Speichern</button></div>
+</div></div>
+
+<div class="mbk" id="m-season"><div class="mdl">
+  <h3>Neue Saison</h3>
+  <div class="fg"><label>Name</label><input type="text" id="sn-name" placeholder="z.B. Saison 2026/2027"></div>
+  <div class="form-row">
+    <div class="fg"><label>Start</label><input type="date" id="sn-s"></div>
+    <div class="fg"><label>Ende</label><input type="date" id="sn-e"></div>
+  </div>
+  <div class="mft"><button class="btn btn-sec" onclick="closeM('m-season')">Abbrechen</button><button class="btn btn-pri" onclick="saveSeason()">Erstellen</button></div>
+</div></div>
+
+<div class="mbk" id="m-phase"><div class="mdl">
+  <h3 id="ph-title">Phase</h3>
+  <div class="fg"><label>Name</label><input type="text" id="ph-name" placeholder="z.B. Vorbereitung"></div>
+  <div class="form-row">
+    <div class="fg"><label>Start</label><input type="date" id="ph-s"></div>
+    <div class="fg"><label>Ende</label><input type="date" id="ph-e"></div>
+  </div>
+  <div class="fg"><label>Farbe</label><input type="color" id="ph-col" value="#E85D04"></div>
+  <input type="hidden" id="ph-id">
+  <div class="mft"><button class="btn btn-sec" onclick="closeM('m-phase')">Abbrechen</button><button class="btn btn-pri" onclick="savePhase()">Speichern</button></div>
+</div></div>
+
+<div class="mbk" id="m-week"><div class="mdl">
+  <h3 id="wk-title">Woche</h3>
+  <div class="fg"><label>Phase</label><select id="wk-ph"></select></div>
+  <div class="fg"><label>Schwerpunkt</label><input type="text" id="wk-fc" placeholder="z.B. Verteidigung"></div>
+  <div class="fg" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="wk-gm"><label style="margin:0;text-transform:none;letter-spacing:0;font-size:13px;color:var(--txt);">Spieltag 🏀</label></div>
+  <div class="fg"><label>Notiz</label><textarea id="wk-no"></textarea></div>
+  <input type="hidden" id="wk-key">
+  <div class="mft"><button class="btn btn-sec" onclick="closeM('m-week')">Abbrechen</button><button class="btn btn-pri" onclick="saveWeek()">Speichern</button></div>
+</div></div>
+
+<div class="mbk" id="m-drill"><div class="mdl">
+  <h3 id="dr-title">Drill</h3>
+  <div class="form-row">
+    <div class="fg"><label>Name *</label><input type="text" id="d-name"></div>
+    <div class="fg"><label>Kategorie</label>
+      <select id="d-cat" onchange="onDCatChange()">
+        <option value="aufwaermen">🔥 Aufwärmen</option><option value="ballhandling">🏀 Ballhandling</option>
+        <option value="passspiel">🤝 Passspiel</option><option value="technik">🎯 Technik &amp; Abschluss</option>
+        <option value="verteidigung">🛡️ Verteidigung</option><option value="angriff">⚡ Angriff &amp; Taktik</option>
+        <option value="kondition">💪 Kondition</option><option value="spielform">🏆 Spielform</option>
+        <option value="systeme">🗂️ System / Setplay</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-row3">
+    <div class="fg"><label>Dauer (Min.)</label><input type="number" id="d-dur" value="10" min="1" max="90"></div>
+    <div class="fg"><label>Min. Spieler</label><input type="number" id="d-pl" value="4" min="1"></div>
+    <div class="fg"><label>Schwierigkeit</label><select id="d-diff"><option value="1">⭐ Anfänger</option><option value="2">⭐⭐ Fortgeschritten</option><option value="3">⭐⭐⭐ Experte</option></select></div>
+  </div>
+  <div id="sys-flds" class="sysf hidden">
+    <div class="fg"><label>System-Typ</label>
+      <select id="d-stype"><option>Angriffssystem</option><option>Verteidigungssystem</option><option>Setplay Angriff</option><option>Setplay Verteidigung</option><option>ATO (After Timeout)</option><option>BOB (Baseline Out of Bounds)</option><option>SLOB (Sideline Out of Bounds)</option><option>Press-Breaker</option><option>Zonenbrecher</option></select>
+    </div>
+    <div class="fg"><label>Formation</label><input type="text" id="d-form" placeholder="z.B. 4-out 1-in, Horns…"></div>
+    <div class="fg"><label>Spielzug-Ablauf</label><textarea id="d-steps" style="min-height:80px;" placeholder="1. Spieler 1 setzt Screen…&#10;2. …"></textarea></div>
+  </div>
+  <div class="fg"><label>Geeignet für</label>
+    <div class="flex g2 wrap" style="margin-top:3px;">
+      <label style="display:flex;align-items:center;gap:4px;text-transform:none;letter-spacing:0;font-size:12px;"><input type="checkbox" id="d-aj" checked> Junioren</label>
+      <label style="display:flex;align-items:center;gap:4px;text-transform:none;letter-spacing:0;font-size:12px;"><input type="checkbox" id="d-ah" checked> Herren</label>
+      <label style="display:flex;align-items:center;gap:4px;text-transform:none;letter-spacing:0;font-size:12px;"><input type="checkbox" id="d-ad" checked> Damen</label>
+    </div>
+  </div>
+  <div class="fg"><label>Beschreibung</label><textarea id="d-desc" style="min-height:60px;"></textarea></div>
+  <div class="fg"><label>Coaching-Punkte</label><textarea id="d-coach" style="min-height:48px;"></textarea></div>
+  <input type="hidden" id="d-id"><input type="hidden" id="d-ats" value="0">
+  <div class="mft"><button class="btn btn-sec" onclick="closeM('m-drill')">Abbrechen</button><button class="btn btn-pri" id="dr-savebtn" onclick="saveDrill()">Speichern</button></div>
+</div></div>
+
+<div class="mbk" id="m-block"><div class="mdl">
+  <h3 id="blk-title">Block</h3>
+  <div class="form-row">
+    <div class="fg"><label>Kategorie</label>
+      <select id="b-cat"><option value="aufwaermen">🔥 Aufwärmen</option><option value="ballhandling">🏀 Ballhandling</option><option value="passspiel">🤝 Passspiel</option><option value="technik">🎯 Technik</option><option value="verteidigung">🛡️ Verteidigung</option><option value="angriff">⚡ Angriff</option><option value="kondition">💪 Kondition</option><option value="spielform">🏆 Spielform</option><option value="systeme">🗂️ System</option></select>
+    </div>
+    <div class="fg"><label>Dauer (Min.)</label><input type="number" id="b-dur" value="10" min="1" max="120"></div>
+  </div>
+  <div class="fg"><label>Name *</label><input type="text" id="b-name"></div>
+  <div class="fg"><label>Beschreibung</label><textarea id="b-desc"></textarea></div>
+  <input type="hidden" id="b-idx" value="-1">
+  <div class="mft"><button class="btn btn-sec" onclick="closeM('m-block')">Abbrechen</button><button class="btn btn-pri" onclick="saveBlock()">Speichern</button></div>
+</div></div>
+
+<div class="mbk" id="m-picker"><div class="mdl wide">
+  <div class="flex jb ac mb3">
+    <h3 style="margin:0;">Drill / System wählen</h3>
+    <div class="flex g1">
+      <button class="btn btn-gho btn-sm" onclick="openDrillMdl(null,false,true)">+ Neuer Drill</button>
+      <button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,true,true)">+ Neues System</button>
+    </div>
+  </div>
+  <input type="text" id="pk-search" placeholder="Suchen…" style="margin-bottom:7px;font-size:12px;" oninput="renderPicker()">
+  <div class="fb" id="pk-cats" style="margin-bottom:7px;"></div>
+  <div class="pkl" id="pk-list"></div>
+  <div class="mft"><button class="btn btn-sec" onclick="closeM('m-picker')">Schliessen</button></div>
+</div></div>
+
+<div class="mbk" id="m-sdet"><div class="mdl wide">
+  <div id="sdet-cnt"></div>
+  <div class="mft">
+    <button class="btn btn-dan btn-sm" onclick="delCurSess()">Löschen</button>
+    <button class="btn btn-sec" onclick="closeM('m-sdet')">Schliessen</button>
+    <button class="btn btn-pri" onclick="editCurSess()">Bearbeiten</button>
+  </div>
+</div></div>
+
+<!-- DRAW MODAL -->
+<div class="mbk" id="m-draw"><div class="mdl draw-mdl">
+  <h3>✏️ Zeichnung bearbeiten</h3>
+  <div class="draw-tb">
+    <button class="dtool on" data-tool="pen" onclick="setTool(this,'pen')">✏️ Stift</button>
+    <button class="dtool" data-tool="arrow" onclick="setTool(this,'arrow')">↗ Bewegung</button>
+    <button class="dtool" data-tool="dash" onclick="setTool(this,'dash')">⤳ Pass</button>
+    <button class="dtool" data-tool="line" onclick="setTool(this,'line')">— Linie</button>
+    <button class="dtool" data-tool="off" onclick="setTool(this,'off')">🟠 Angreifer</button>
+    <button class="dtool" data-tool="def" onclick="setTool(this,'def')">🔵 Verteidiger</button>
+    <button class="dtool" data-tool="ball" onclick="setTool(this,'ball')">🏀 Ball</button>
+    <button class="dtool" data-tool="screen" onclick="setTool(this,'screen')">⊞ Screen</button>
+    <button class="dtool" data-tool="text" onclick="setTool(this,'text')">T Text</button>
+    <button class="dtool" data-tool="erase" onclick="setTool(this,'erase')">⬜ Radieren</button>
+    <button class="dtool" onclick="undoDraw()" style="margin-left:4px;">↩ Undo</button>
+    <button class="dtool btn-dan" onclick="clearDraw()">🗑️ Alles löschen</button>
+  </div>
+  <div class="flex ac g2 mb2">
+    <div class="dcolors" id="draw-colors"></div>
+    <div class="dsize">
+      <span style="font-size:11px;color:var(--mut);">Stärke:</span>
+      <button class="dsz on" data-sz="2" onclick="setSize(this,2)">S</button>
+      <button class="dsz" data-sz="4" onclick="setSize(this,4)">M</button>
+      <button class="dsz" data-sz="7" onclick="setSize(this,7)">L</button>
+    </div>
+  </div>
+  <div id="draw-text-inp" class="hidden" style="margin-bottom:6px;">
+    <input type="text" id="draw-text-val" placeholder="Text eingeben, Enter zum Platzieren">
+  </div>
+  <canvas id="draw-canvas" width="660" height="430"></canvas>
+  <div class="draw-hint">💡 Klick zum Platzieren · Ziehen für Linien &amp; Pfeile</div>
+  <div class="mft">
+    <button class="btn btn-dan btn-sm" onclick="deleteDrawing()">Zeichnung löschen</button>
+    <button class="btn btn-sec" onclick="closeM('m-draw')">Abbrechen</button>
+    <button class="btn btn-pri" onclick="saveDrawing()">💾 Speichern</button>
+  </div>
+</div></div>
+
+<script>
+// ── SUPABASE ──────────────────────────────────────────────
+const SB_URL='https://tsagwbwjgslxzljaywcl.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzYWd3YndqZ3NseHpsamF5d2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4OTc1NTYsImV4cCI6MjEwMjQ3MzU1Nn0.ec442Hj6rVYw4tAOll5vfFqcBA4Y364OunoBW0oWvUU';
+const SB=supabase.createClient(SB_URL,SB_KEY);
+
+// Sync indicator
+function setSyncing(){document.getElementById('sync-dot').className='sync-dot s-save';}
+function setSyncOk(){document.getElementById('sync-dot').className='sync-dot s-ok';}
+function setSyncErr(){document.getElementById('sync-dot').className='sync-dot s-err';}
+
+async function sbUpsert(table,data){
+  setSyncing();
+  const{error}=await SB.from(table).upsert(data);
+  if(error){setSyncErr();console.error('upsert',table,error);}
+  else setSyncOk();
+}
+async function sbDelete(table,col,val){
+  setSyncing();
+  const{error}=await SB.from(table).delete().eq(col,val);
+  if(error){setSyncErr();console.error('delete',table,error);}
+  else setSyncOk();
+}
+
+// ── MAPPERS ──────────────────────────────────────────────
+const fromDB={
+  team:r=>({id:r.id,name:r.name,cat:r.cat||'herren',age:r.age||'U16',emoji:r.emoji||'🏀',desc:r.description||''}),
+  season:r=>({id:r.id,teamId:r.team_id,name:r.name,start:r.start_date,end:r.end_date,phases:r.phases||[],weeks:r.weeks||{}}),
+  drill:r=>({id:r.id,name:r.name,cat:r.cat,dur:r.dur||10,players:r.players||4,diff:r.diff||1,ag:r.age_groups||[],desc:r.description||'',coaching:r.coaching||'',systemType:r.system_type,formation:r.formation,steps:r.steps,custom:true}),
+  session:r=>({id:r.id,teamId:r.team_id,title:r.title,date:r.date,location:r.location||'',goal:r.goal||'',notes:r.notes||'',blocks:r.blocks||[],totalDur:r.total_dur||0}),
+};
+const toDB={
+  team:t=>({id:t.id,name:t.name,cat:t.cat,age:t.age,emoji:t.emoji,description:t.desc||''}),
+  season:s=>({id:s.id,team_id:s.teamId,name:s.name,start_date:s.start,end_date:s.end,phases:s.phases||[],weeks:s.weeks||{}}),
+  drill:d=>({id:d.id,name:d.name,cat:d.cat,dur:d.dur,players:d.players,diff:d.diff,age_groups:d.ag||[],description:d.desc||'',coaching:d.coaching||'',system_type:d.systemType||null,formation:d.formation||null,steps:d.steps||null}),
+  session:s=>({id:s.id,team_id:s.teamId,title:s.title,date:s.date||null,location:s.location||null,goal:s.goal||null,notes:s.notes||null,blocks:s.blocks||[],total_dur:s.totalDur||0}),
+};
+
+// ── BUILTIN DRILLS ────────────────────────────────────────
+const BD=[
+  {id:'d001',name:'Kreis-Passlauf',cat:'aufwaermen',dur:6,players:8,diff:1,ag:['junioren','herren','damen'],desc:'Spieler im Kreis (~2m). Zwei Bälle gleichzeitig, gleiche Richtung. Nach 2 Min. Richtungswechsel.',coaching:'Augen hoch, schnelle präzise Pässe.'},
+  {id:'d002',name:'Layup-Lines (beidseitig)',cat:'aufwaermen',dur:8,players:6,diff:1,ag:['junioren','herren','damen'],desc:'Klassische Layup-Lines links und rechts. Beidseitig trainieren.',coaching:'Richtiger Rhythmus. Blick auf Brett-Punkt.'},
+  {id:'d003',name:'3-Mann-Weave',cat:'aufwaermen',dur:8,players:6,diff:2,ag:['junioren','herren','damen'],desc:'3 Spieler in Linie. Mittelperson passt, läuft hinter Empfänger. Abschluss Layup.',coaching:'Weite Wege, Kommunikation, Tempo steigern.'},
+  {id:'d004',name:'Defensive Slide Warm-up',cat:'aufwaermen',dur:5,players:1,diff:1,ag:['junioren','herren','damen'],desc:'Defence-Stance, Slides längs der Zone. Richtungswechsel auf Signal.',coaching:'Füsse kreuzen nie. Hüfthöhe konstant.'},
+  {id:'d005',name:'Dribbling-Parcours',cat:'aufwaermen',dur:7,players:1,diff:1,ag:['junioren','herren','damen'],desc:'Hütchen: Slalom, Achter, Z-Muster. Beide Hände abwechselnd.',coaching:'Ball nicht ansehen. Tempo steigern.'},
+  {id:'d006',name:'Dynamic Stretching & Activation',cat:'aufwaermen',dur:7,players:1,diff:1,ag:['junioren','herren','damen'],desc:'High Knees, Butt Kicks, Seitgalopp, Armkreisen, Hüftrotation, Lunges.',coaching:'Qualität vor Tempo.'},
+  {id:'d010',name:'Figure-8 & Between-Legs',cat:'ballhandling',dur:5,players:1,diff:1,ag:['junioren','herren','damen'],desc:'Figure-8 durch die Beine, dann Between-the-Legs im Stand.',coaching:'Tiefe Position, Ball mit Fingern.'},
+  {id:'d011',name:'Spider Dribble',cat:'ballhandling',dur:5,players:1,diff:2,ag:['junioren','herren','damen'],desc:'Ball vor Füssen. Beide Hände tippen: 2× vorne, 2× hinten. Tempo steigern.',coaching:'Nie nachschauen.'},
+  {id:'d012',name:'Zwei-Ball-Dribbling',cat:'ballhandling',dur:8,players:2,diff:2,ag:['junioren','herren','damen'],desc:'Zwei Bälle: gleichzeitig, alternierend, vorwärtsbewegen.',coaching:'Augen hoch, beide Hände gleichwertig.'},
+  {id:'d013',name:'Crossover-Progressionen',cat:'ballhandling',dur:10,players:1,diff:1,ag:['junioren','herren','damen'],desc:'(1) Basic Cross, (2) Cross mit Schritt, (3) Hesi + Cross, (4) Iso.',coaching:'Cross tief und explosiv.'},
+  {id:'d014',name:'Schwache-Hand-Training',cat:'ballhandling',dur:8,players:1,diff:1,ag:['junioren','herren','damen'],desc:'Gesamte Station nur schwache Hand: Stand, Slalom, Layup.',coaching:'Langsam, dann Tempo.'},
+  {id:'d015',name:'Hesi-Move an Hütchen',cat:'ballhandling',dur:10,players:1,diff:2,ag:['junioren','herren','damen'],desc:'Hütchen als Defender. Hesitation-Move, Richtungswechsel, zum Korb.',coaching:'Tempowechsel glaubwürdig.'},
+  {id:'d020',name:'Partner-Pässe (Chest & Bounce)',cat:'passspiel',dur:6,players:2,diff:1,ag:['junioren','herren','damen'],desc:'Paare ~4m. Chest, Bounce, Overhead. Distanz steigern.',coaching:'Aus dem Handgelenk.'},
+  {id:'d021',name:'4-Corner-Passing',cat:'passspiel',dur:8,players:4,diff:1,ag:['junioren','herren','damen'],desc:'4 Ecken, Ball wird gepasst, Passer folgt. Mehrere Bälle.',coaching:'Empfänger bietet sich an.'},
+  {id:'d022',name:'Pass & Cut zum Korb',cat:'passspiel',dur:10,players:4,diff:1,ag:['junioren','herren','damen'],desc:'Flügel passt zur Spitze, macht V-Cut oder Backdoor.',coaching:'Cut sofort und mit Tempo nach dem Pass.'},
+  {id:'d023',name:'Skip-Pass-Drill',cat:'passspiel',dur:8,players:4,diff:2,ag:['junioren','herren','damen'],desc:'Skip-Pässe über Zone. Abschluss Catch & Shoot.',coaching:'Schnelle Pässe. Empfänger im Schuss-Rhythmus.'},
+  {id:'d024',name:'Outlet-Pass-Drill',cat:'passspiel',dur:10,players:4,diff:2,ag:['junioren','herren','damen'],desc:'Rebound → Outlet → Mitte → Layup.',coaching:'Outlet mit Körperrotation.'},
+  {id:'d030',name:'Mikan-Drill',cat:'technik',dur:8,players:1,diff:1,ag:['junioren','herren','damen'],desc:'Unter Brett: abwechselnd li/re Layups ohne Dribbling. Dann Reverse Mikan.',coaching:'Hände hoch, Brett nutzen.'},
+  {id:'d031',name:'Form Shooting',cat:'technik',dur:8,players:2,diff:1,ag:['junioren','herren','damen'],desc:'1-2m vom Korb. Ein-Arm-Shooting, nur Schussarm.',coaching:'BEEF. Handgelenk nach vorne-unten.'},
+  {id:'d032',name:'5-Spot Shooting',cat:'technik',dur:12,players:2,diff:1,ag:['junioren','herren','damen'],desc:'5 Positionen: 2 Ecken, 2 Flügel, Spitze. Je 5 Würfe.',coaching:'Catch – Set – Shoot.'},
+  {id:'d033',name:'Catch & Shoot vom Flügel',cat:'technik',dur:10,players:2,diff:1,ag:['junioren','herren','damen'],desc:'Curl oder gerade fahren, Pass, schiessen. 10×, Seite wechseln.',coaching:'Füsse vor Catch ausrichten.'},
+  {id:'d034',name:'Mid-Range Elbow-Jumper',cat:'technik',dur:10,players:2,diff:2,ag:['junioren','herren','damen'],desc:'Am Elbow: direkt, Fake + Dribbling, Pump-Fake + Schritt.',coaching:'Fake glaubwürdig, dann explosiv.'},
+  {id:'d035',name:'Freiwurf-Routine',cat:'technik',dur:8,players:1,diff:1,ag:['junioren','herren','damen'],desc:'2×10 Freiwürfe. Zwischen Serien 5 Liegestützen.',coaching:'Gleiche Routine jedes Mal.'},
+  {id:'d036',name:'Floater-Drill',cat:'technik',dur:8,players:2,diff:2,ag:['junioren','herren','damen'],desc:'Von Seite in Zone, Floater über Defender.',coaching:'Ball früh loslassen.'},
+  {id:'d037',name:'Reverse Layup',cat:'technik',dur:8,players:4,diff:2,ag:['junioren','herren','damen'],desc:'An Zone vorbei, Reverse-Layup. 5× je Seite.',coaching:'Körper schützt Ball.'},
+  {id:'d040',name:'Defensive Slides',cat:'verteidigung',dur:6,players:1,diff:1,ag:['junioren','herren','damen'],desc:'Stance. Slide Sideline zu Sideline. Richtungswechsel auf Signal.',coaching:'Füsse kreuzen nie.'},
+  {id:'d041',name:'Close-Out Drill',cat:'verteidigung',dur:10,players:4,diff:2,ag:['junioren','herren','damen'],desc:'Aus Help-Position sprinten, letzte 2m abbremsen, Stance.',coaching:'Sprint, dann Kontrolle.'},
+  {id:'d042',name:'Shell Defense 4-on-4',cat:'verteidigung',dur:15,players:8,diff:2,ag:['junioren','herren','damen'],desc:'4 Angreifer, keine Drives. Rotationen üben.',coaching:'Laut: "Ball!", "Help!", "Deny!"'},
+  {id:'d043',name:'1-on-1 Verteidigung',cat:'verteidigung',dur:12,players:2,diff:2,ag:['junioren','herren','damen'],desc:'1v1 am Flügel bis Punkt/Ballverlust. 3 Angriffe, dann Wechsel.',coaching:'Auf Bauch schauen, nicht Ball.'},
+  {id:'d044',name:'Box-Out-Drill',cat:'verteidigung',dur:10,players:4,diff:1,ag:['junioren','herren','damen'],desc:'Trainer wirft ans Brett. Box-Out.',coaching:'Box-Out mit Körper, nicht Händen.'},
+  {id:'d045',name:'Deny-Drill',cat:'verteidigung',dur:10,players:3,diff:2,ag:['junioren','herren','damen'],desc:'Passer an Spitze, Angreifer Flügel, Verteidiger deny.',coaching:'Bei Backdoor sofort umschalten.'},
+  {id:'d046',name:'Help & Recover',cat:'verteidigung',dur:12,players:4,diff:2,ag:['junioren','herren','damen'],desc:'2 Angreifer, 1 Verteidiger. Helfen, beim Rückpass recovern.',coaching:'Help: Linie Ball-Korb.'},
+  {id:'d047',name:'Transition Defense Sprint-Back',cat:'verteidigung',dur:10,players:6,diff:2,ag:['junioren','herren','damen'],desc:'3v3. Nach Ballverlust sofort zurücksprinten.',coaching:'Erster Sprint entscheidend.'},
+  {id:'d050',name:'3-on-2 / 2-on-1',cat:'angriff',dur:12,players:5,diff:2,ag:['junioren','herren','damen'],desc:'3v2. Nach Abschluss: 2v1 gegen einen Angreifer.',coaching:'3v2: Mitte zieht beide, Flügel öffnen.'},
+  {id:'d051',name:'Pick & Roll Read',cat:'angriff',dur:15,players:4,diff:2,ag:['junioren','herren','damen'],desc:'Ballhandler + Screener. Read: Split/Roll/Pop.',coaching:'Lesen VOR dem Screen.'},
+  {id:'d052',name:'Backdoor-Timing',cat:'angriff',dur:10,players:3,diff:2,ag:['junioren','herren','damen'],desc:'Lock 1-2 Schritte zum Ball, dann explosiver Cut.',coaching:'Timing: Lock → Explode.'},
+  {id:'d053',name:'Motion Offense Basics',cat:'angriff',dur:20,players:5,diff:2,ag:['junioren','herren','damen'],desc:'Regeln: pass & cut, pass & screen away, DHO. Zuerst ohne Verteidiger.',coaching:'Spacing ≥4m.'},
+  {id:'d054',name:'Drive & Kick Reads',cat:'angriff',dur:15,players:5,diff:2,ag:['junioren','herren','damen'],desc:'Einstechen, lesen: Help → Kick-Out; keine Help → Finish.',coaching:'Früh schauen wo Hilfsverteidiger stehen.'},
+  {id:'d055',name:'Post-Up-Series',cat:'angriff',dur:12,players:3,diff:2,ag:['junioren','herren','damen'],desc:'Drop-Step li/re, Up & Under, Face-Up.',coaching:'Verteidiger fühlen, dann reagieren.'},
+  {id:'d056',name:'Early Offense nach Treffer',cat:'angriff',dur:15,players:5,diff:2,ag:['junioren','herren','damen'],desc:'Nach Treffer sofort Early Offense: Push, Flat-Ball, Horns-Set.',coaching:'Tempo ist die Waffe.'},
+  {id:'d057',name:'Dribble Handoff (DHO)',cat:'angriff',dur:10,players:3,diff:2,ag:['junioren','herren','damen'],desc:'Handoff am Flügel. Empfänger: Durchgehen, Curl oder Pop-Back.',coaching:'Geber hält Kontakt wie beim Screen.'},
+  {id:'d060',name:'17er Lauf',cat:'kondition',dur:8,players:1,diff:2,ag:['junioren','herren','damen'],desc:'17× Baseline-Baseline in 60/65 Sek.',coaching:'Gleichmässig. Letzte 3 Bahnen volle Kraft.'},
+  {id:'d061',name:'Suicides',cat:'kondition',dur:6,players:1,diff:2,ag:['junioren','herren','damen'],desc:'Baseline → FW-Linie → zurück → Mittellinie → zurück.',coaching:'Linien berühren. Voller Sprint.'},
+  {id:'d062',name:'Defensive Slide Circuit',cat:'kondition',dur:8,players:1,diff:2,ag:['junioren','herren','damen'],desc:'4 Hütchen (5×5m). Slide, Close-Out. 45s/15s.',coaching:'Stance nie aufgeben.'},
+  {id:'d063',name:'Full-Court Zigzag',cat:'kondition',dur:8,players:4,diff:1,ag:['junioren','herren','damen'],desc:'Diagonal Ecke zu Ecke. Crossover an Sideline.',coaching:'Tiefer Crossover, Tempo konstant.'},
+  {id:'d070',name:'3-on-3 Halbfeld',cat:'spielform',dur:15,players:6,diff:1,ag:['junioren','herren','damen'],desc:'3v3. Nach Punkt/Verlust direkt neues Spiel.',coaching:'Spacing, Ball-Bewegung, Verteidigung beobachten.'},
+  {id:'d071',name:'5-on-5 Live-Scrimmage',cat:'spielform',dur:20,players:10,diff:2,ag:['junioren','herren','damen'],desc:'Volles 5v5.',coaching:'Nicht zu oft unterbrechen.'},
+  {id:'d072',name:'4-on-4 ohne Dribbling',cat:'spielform',dur:12,players:8,diff:2,ag:['junioren','herren','damen'],desc:'4v4, kein Dribbling.',coaching:'Mehr Lerneffekt als 10 Erklärungen.'},
+  {id:'d073',name:'Knockout',cat:'spielform',dur:8,players:6,diff:1,ag:['junioren','herren','damen'],desc:'Alle an FW-Linie. Zweiter trifft vor erstem → erster raus.',coaching:'Schiessen unter Druck.'},
+  {id:'d074',name:'21',cat:'spielform',dur:10,players:4,diff:1,ag:['junioren','herren','damen'],desc:'Feldtreffer 2P + 1 FW. Rebound live. Wer zuerst 21P?',coaching:'Individuelles Scoring unter Druck.'},
+  {id:'d075',name:'1-on-1 Post',cat:'spielform',dur:12,players:2,diff:2,ag:['junioren','herren','damen'],desc:'Mid-Post 1v1. 3 Angriffe, dann Wechsel.',coaching:'Verteidiger fühlen.'},
+  {id:'d076',name:'Tipping-Drill',cat:'spielform',dur:8,players:4,diff:1,ag:['junioren','herren','damen'],desc:'Trainer wirft. Spieler tippt direkt ins Netz.',coaching:'Explosivität, Timing.'},
+  {id:'s001',name:'Horns-Set (Basis)',cat:'systeme',dur:15,players:5,diff:2,ag:['junioren','herren','damen'],systemType:'Angriffssystem',formation:'Horns (2 Bigs an Elbows, 2 Flügel in Ecken)',steps:'1. PG bringt Ball, Flügel in Ecken, Bigs an Elbows\n2. PG passt zu Big am Elbow\n3. Option A: Big-to-Big → Isolation oder Drive\n4. Option B: Big rollt, PG zurück → P&R\n5. Option C: Big passt zu Ecke → Corner-Action',desc:'Flexibles Offensivsystem.',coaching:'Spacing entscheidend. PG liest erste Defence-Reaktion.'},
+  {id:'s002',name:'4-out Motion Offense',cat:'systeme',dur:20,players:5,diff:2,ag:['junioren','herren','damen'],systemType:'Angriffssystem',formation:'4-out 1-in',steps:'1. 4 Perimeter-Spieler aussen, 1 Post\n2. Regel: pass & cut → kein Layup → Screen away\n3. Post-Eintrag → face-up, drop-step, kick-out\n4. Dribble Penetration → kick-out',desc:'Fliessende Offensivstruktur.',coaching:'Ball bewegt sich.'},
+  {id:'s003',name:'1-3-1 Zone Offense',cat:'systeme',dur:15,players:5,diff:2,ag:['junioren','herren','damen'],systemType:'Zonenbrecher',formation:'1-2-2 gegen 1-3-1 Zone',steps:'1. PG Spitze, zwei auf FW-Höhe, zwei Ecken\n2. Ball in Lücken bringen\n3. Flash in Mitte wenn Ball in Ecke\n4. Skip-Pass-Möglichkeiten nutzen',desc:'Strukturierter Angriff gegen 1-3-1 Zone.',coaching:'Geduld. Schnelle Pässe.'},
+  {id:'s004',name:'Press-Breaker (Fullcourt)',cat:'systeme',dur:15,players:5,diff:2,ag:['junioren','herren','damen'],systemType:'Press-Breaker',formation:'1-2-2',steps:'1. Zwei Spieler auf Baseline (je eine Seite)\n2. Inbounder passt zu Icebreaker\n3. PG sprintet nach oben\n4. Bei Trap: zurück zu Inbounder oder Mitte',desc:'Einfaches System gegen Vollfeld-Presse.',coaching:'Ruhe bei Druck.'},
+  {id:'s005',name:'2-3 Zone Defense',cat:'systeme',dur:20,players:5,diff:2,ag:['junioren','herren','damen'],systemType:'Verteidigungssystem',formation:'2-3 Zone',steps:'1. Zwei oben, drei unten\n2. Ball Flügel: Oberer raus, Unterer zu Ecke\n3. Ball Ecke: Unterer deckt\n4. Ball Mitte: ALLE komprimieren',desc:'Klassische 2-3 Zone.',coaching:'Kein Ball in Mitte. Kommunikation!'},
+  {id:'s006',name:'BOB – Baseline Corner',cat:'systeme',dur:10,players:5,diff:3,ag:['herren','damen'],systemType:'BOB (Baseline Out of Bounds)',formation:'Stack an Baseline',steps:'1. 4 Spieler gestapelt nah am Korb\n2. Signal: Spieler 1 curlt zum Korb\n3. Spieler 2 setzt Screen für Spieler 3 → Flügel Pop\n4. Sicherheitsventil: Spieler 2 poppt oben',desc:'Schneller Setplay aus eigener Grundlinie.',coaching:'Timing präzise.'},
+  {id:'s007',name:'ATO – Quick Hitter',cat:'systeme',dur:10,players:5,diff:3,ag:['herren','damen'],systemType:'ATO (After Timeout)',formation:'Horns',steps:'1. Horns-Aufstellung\n2. PG inboundet von Seite\n3. Big 1 setzt Screen für Big 2 → Big 2 sprintet zum Korb\n4. Option B: Ecke für Spot-Up-Three',desc:'Schneller Spielzug nach Auszeit.',coaching:'Einfach ist besser unter Druck.'},
+];
+
+// ── STATE ─────────────────────────────────────────────────
+let db={teams:[],seasons:[],drills:[],sessions:[],hiddenDrills:[],drillDrawings:{}};
+
+function allDrills(){return[...BD,...db.drills];}
+function getTeam(id){return db.teams.find(t=>t.id===id);}
+
+// ── LOAD / RELOAD ─────────────────────────────────────────
+async function loadAll(){
+  try{
+    const[teams,seasons,drills,sessions,drawings,hidden]=await Promise.all([
+      SB.from('teams').select('*').order('created_at'),
+      SB.from('seasons').select('*').order('created_at'),
+      SB.from('custom_drills').select('*').order('created_at'),
+      SB.from('sessions').select('*').order('created_at',{ascending:false}),
+      SB.from('drill_drawings').select('*'),
+      SB.from('hidden_drills').select('*'),
+    ]);
+    db.teams=(teams.data||[]).map(fromDB.team);
+    db.seasons=(seasons.data||[]).map(fromDB.season);
+    db.drills=(drills.data||[]).map(fromDB.drill);
+    db.sessions=(sessions.data||[]).map(fromDB.session);
+    db.drillDrawings={};
+    (drawings.data||[]).forEach(r=>{db.drillDrawings[r.drill_id]=r.data_url;});
+    db.hiddenDrills=(hidden.data||[]).map(r=>r.drill_id);
+    setSyncOk();
+  }catch(e){setSyncErr();console.error('loadAll',e);}
+}
+async function reloadAll(){
+  document.getElementById('loading-ov').style.display='flex';
+  await loadAll();
+  document.getElementById('loading-ov').style.display='none';
+  renderAll();
+}
+function renderAll(){
+  renderTeams();populateBuilderTeamSel();popDrillTF();renderDrills();renderSessions();renderSessTeamFilter();popSsTeamSel();renderSeason();
+}
+
+// ── EXPORT / IMPORT / DOWNLOAD ────────────────────────────
+function exportData(){
+  const d=JSON.stringify({teams:db.teams,seasons:db.seasons,drills:db.drills,sessions:db.sessions,hiddenDrills:db.hiddenDrills},null,2);
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([d],{type:'application/json'}));
+  a.download=`knights-${new Date().toISOString().slice(0,10)}.json`;a.click();
+}
+async function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      const jobs=[];
+      if(d.teams)d.teams.forEach(t=>jobs.push(SB.from('teams').upsert(toDB.team(t))));
+      if(d.seasons)d.seasons.forEach(s=>jobs.push(SB.from('seasons').upsert(toDB.season(s))));
+      if(d.drills)d.drills.forEach(dr=>jobs.push(SB.from('custom_drills').upsert(toDB.drill(dr))));
+      if(d.sessions)d.sessions.forEach(s=>jobs.push(SB.from('sessions').upsert(toDB.session(s))));
+      setSyncing();
+      await Promise.all(jobs);
+      await reloadAll();
+      alert('Import erfolgreich!');
+    }catch(err){alert('Fehler beim Importieren.');}
+  };
+  reader.readAsText(file);e.target.value='';
+}
+function downloadApp(){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([document.documentElement.outerHTML],{type:'text/html;charset=utf-8'}));
+  a.download='knights-trainingsplaner.html';a.click();
+}
+
+// ── TABS / MODALS ─────────────────────────────────────────
+const TABS=['teams','season','drills','sessions','builder'];
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',TABS[i]===t));
+  document.querySelectorAll('.pnl').forEach(el=>el.classList.remove('active'));
+  document.getElementById('pnl-'+t).classList.add('active');
+  if(t==='teams')renderTeams();
+  if(t==='season'){popSsTeamSel();renderSeason();}
+  if(t==='drills'){popDrillTF();renderDrills();}
+  if(t==='sessions'){renderSessTeamFilter();renderSessions();}
+}
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mbk').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+// ── TEAMS ─────────────────────────────────────────────────
+const CE={junioren:'🏃',herren:'👨',damen:'👩',mixed:'🤝'};
+function openTeamMdl(id){
+  const t=id?getTeam(id):null;
+  document.getElementById('tm-title').textContent=t?'Team bearbeiten':'Team erstellen';
+  document.getElementById('t-id').value=id||'';
+  document.getElementById('t-name').value=t?.name||'';
+  document.getElementById('t-cat').value=t?.cat||'herren';
+  document.getElementById('t-age').value=t?.age||'U16';
+  document.getElementById('t-em').value=t?.emoji||'🏀';
+  document.getElementById('t-desc').value=t?.desc||'';
+  openM('m-team');
+}
+async function saveTeam(){
+  const name=document.getElementById('t-name').value.trim();
+  if(!name)return alert('Name fehlt.');
+  const id=document.getElementById('t-id').value||Date.now().toString();
+  const team={id,name,cat:document.getElementById('t-cat').value,age:document.getElementById('t-age').value,emoji:document.getElementById('t-em').value||'🏀',desc:document.getElementById('t-desc').value.trim()};
+  const idx=db.teams.findIndex(t=>t.id===id);
+  if(idx>=0)db.teams[idx]=team;else db.teams.push(team);
+  closeM('m-team');renderTeams();populateBuilderTeamSel();
+  await sbUpsert('teams',toDB.team(team));
+}
+async function deleteTeam(id){
+  if(!confirm('Team und alle zugehörigen Einheiten löschen?'))return;
+  db.teams=db.teams.filter(t=>t.id!==id);
+  db.sessions=db.sessions.filter(s=>s.teamId!==id);
+  renderTeams();populateBuilderTeamSel();renderSessions();
+  await sbDelete('teams','id',id);
+}
+function renderTeams(){
+  const grid=document.getElementById('team-grid'),empty=document.getElementById('team-empty');
+  if(db.teams.length===0){grid.innerHTML='';empty.classList.remove('hidden');return;}
+  empty.classList.add('hidden');
+  grid.innerHTML=db.teams.map(t=>`<div class="tc">
+    <div class="te">${t.emoji}</div><div class="tn">${t.name}</div>
+    <div class="tm">${CE[t.cat]||''} ${t.cat} · ${t.age}</div>
+    ${t.desc?`<div class="tm" style="margin-top:3px;">${t.desc}</div>`:''}
+    <div class="flex g1" style="margin-top:8px;">
+      <button class="btn btn-gho btn-xs" onclick="openTeamMdl('${t.id}')">✏️</button>
+      <button class="btn btn-dan btn-xs" onclick="deleteTeam('${t.id}')">✕</button>
+    </div></div>`).join('');
+}
+
+// ── SEASON ────────────────────────────────────────────────
+function popSsTeamSel(){
+  const sel=document.getElementById('ss-team'),prev=sel.value;
+  sel.innerHTML='<option value="">— Team wählen —</option>'+db.teams.map(t=>`<option value="${t.id}">${t.emoji} ${t.name}</option>`).join('');
+  if(prev&&db.teams.find(t=>t.id===prev))sel.value=prev;
+}
+function onSsTeamChange(){popSsSel();renderSeason();}
+function popSsSel(){
+  const tid=document.getElementById('ss-team').value;
+  const sel=document.getElementById('ss-sel');
+  const seasons=db.seasons.filter(s=>s.teamId===tid);
+  sel.innerHTML=seasons.length===0?'<option value="">— keine Saison —</option>':seasons.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+}
+function getCurSeason(){const id=document.getElementById('ss-sel').value;return db.seasons.find(s=>s.id===id);}
+function openSeasonMdl(){
+  if(!document.getElementById('ss-team').value)return alert('Bitte zuerst ein Team wählen.');
+  const y=new Date().getFullYear();
+  document.getElementById('sn-name').value=`Saison ${y}/${y+1}`;
+  document.getElementById('sn-s').value=`${y}-08-01`;
+  document.getElementById('sn-e').value=`${y+1}-06-30`;
+  openM('m-season');
+}
+async function saveSeason(){
+  const name=document.getElementById('sn-name').value.trim(),start=document.getElementById('sn-s').value,end=document.getElementById('sn-e').value,teamId=document.getElementById('ss-team').value;
+  if(!name||!start||!end)return alert('Alle Felder ausfüllen.');
+  const s={id:Date.now().toString(),teamId,name,start,end,phases:[],weeks:{}};
+  db.seasons.push(s);closeM('m-season');popSsSel();renderSeason();
+  await sbUpsert('seasons',toDB.season(s));
+}
+function openPhaseMdl(eid){
+  const s=getCurSeason();if(!s)return alert('Keine Saison ausgewählt.');
+  const p=eid?s.phases.find(x=>x.id===eid):null;
+  document.getElementById('ph-title').textContent=p?'Phase bearbeiten':'Phase hinzufügen';
+  document.getElementById('ph-id').value=eid||'';
+  document.getElementById('ph-name').value=p?.name||'';
+  document.getElementById('ph-s').value=p?.start||s.start;
+  document.getElementById('ph-e').value=p?.end||s.end;
+  const cols=['#E85D04','#2563eb','#16a34a','#7c3aed','#db2777','#0891b2'];
+  document.getElementById('ph-col').value=p?.color||cols[s.phases.length%cols.length];
+  openM('m-phase');
+}
+async function savePhase(){
+  const s=getCurSeason();if(!s)return;
+  const name=document.getElementById('ph-name').value.trim(),start=document.getElementById('ph-s').value,end=document.getElementById('ph-e').value,color=document.getElementById('ph-col').value;
+  if(!name||!start||!end)return alert('Alle Felder ausfüllen.');
+  const eid=document.getElementById('ph-id').value;
+  if(eid){const idx=s.phases.findIndex(p=>p.id===eid);if(idx>=0)s.phases[idx]={...s.phases[idx],name,start,end,color};}
+  else s.phases.push({id:Date.now().toString(),name,start,end,color});
+  closeM('m-phase');renderSeason();
+  await sbUpsert('seasons',toDB.season(s));
+}
+async function removePhase(id){
+  if(!confirm('Phase entfernen?'))return;
+  const s=getCurSeason();if(!s)return;
+  s.phases=s.phases.filter(p=>p.id!==id);renderSeason();
+  await sbUpsert('seasons',toDB.season(s));
+}
+function renderSeason(){
+  popSsSel();
+  const s=getCurSeason();
+  const lgd=document.getElementById('phase-legend'),grid=document.getElementById('season-grid');
+  if(!s){grid.innerHTML='<div class="empty">Team und Saison wählen oder neu erstellen.</div>';lgd.innerHTML='';return;}
+  lgd.innerHTML=s.phases.length===0?'<span class="mut">Noch keine Phasen</span>'
+    :s.phases.map(p=>`<div class="ppill" style="background:${p.color}22;border:1px solid ${p.color}55;">
+        <div class="pdot" style="background:${p.color}"></div>
+        <span style="color:${p.color};">${p.name}</span>
+        <button class="ico" onclick="openPhaseMdl('${p.id}')">✏️</button>
+        <button class="ico" onclick="removePhase('${p.id}')">✕</button>
+      </div>`).join('');
+  const sd=new Date(s.start+'T00:00:00'),ed=new Date(s.end+'T00:00:00');
+  const dow=sd.getDay();sd.setDate(sd.getDate()-(dow===0?6:dow-1));
+  const weeks=[];let c=new Date(sd);while(c<=ed){weeks.push(new Date(c));c.setDate(c.getDate()+7);}
+  const fmt=d=>d.toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'});
+  function gp(ws){const we=new Date(ws);we.setDate(we.getDate()+6);for(const p of s.phases){const ps=new Date(p.start+'T00:00:00'),pe=new Date(p.end+'T00:00:00');if(ws<=pe&&we>=ps)return p;}return null;}
+  const rows=weeks.map(w=>{
+    const key=w.toISOString().slice(0,10);const wd=(s.weeks||{})[key]||{};const phase=gp(w);
+    const we=new Date(w);we.setDate(we.getDate()+6);
+    const bg=phase?phase.color+'25':'#f0f1f3',bd=phase?phase.color+'60':'#ddd';
+    const lbl=wd.focus?wd.focus:(phase?`<span style="opacity:.4;">${phase.name}</span>`:'');
+    return`<div class="wlbl"><span>${fmt(w)}</span><span style="color:#ccc;font-size:8px;">${fmt(we)}</span></div>
+           <div class="wbar" style="background:${bg};border-color:${bd};" onclick="openWeekMdl('${key}')">
+             ${wd.game?'<span>🏀</span>':''}<span class="wnote">${lbl}</span></div>`;
+  }).join('');
+  grid.innerHTML=`<div class="wgrid" style="row-gap:3px;">${rows}</div>`;
+}
+function openWeekMdl(key){
+  const s=getCurSeason();if(!s)return;
+  const wd=(s.weeks||{})[key]||{};
+  const phSel=document.getElementById('wk-ph');
+  phSel.innerHTML='<option value="">— keine Phase —</option>'+s.phases.map(p=>`<option value="${p.id}"${wd.phaseId===p.id?' selected':''}>${p.name}</option>`).join('');
+  document.getElementById('wk-fc').value=wd.focus||'';
+  document.getElementById('wk-gm').checked=wd.game||false;
+  document.getElementById('wk-no').value=wd.note||'';
+  document.getElementById('wk-key').value=key;
+  const d=new Date(key+'T00:00:00'),we=new Date(d);we.setDate(we.getDate()+6);
+  document.getElementById('wk-title').textContent=`${d.toLocaleDateString('de-CH',{day:'2-digit',month:'short'})} – ${we.toLocaleDateString('de-CH',{day:'2-digit',month:'short',year:'numeric'})}`;
+  openM('m-week');
+}
+async function saveWeek(){
+  const s=getCurSeason();if(!s)return;
+  const key=document.getElementById('wk-key').value;
+  if(!s.weeks)s.weeks={};
+  s.weeks[key]={phaseId:document.getElementById('wk-ph').value,focus:document.getElementById('wk-fc').value.trim(),game:document.getElementById('wk-gm').checked,note:document.getElementById('wk-no').value.trim()};
+  closeM('m-week');renderSeason();
+  await sbUpsert('seasons',toDB.season(s));
+}
+
+// ── DRILLS ────────────────────────────────────────────────
+const CL={aufwaermen:'🔥 Aufwärmen',ballhandling:'🏀 Ballhandling',passspiel:'🤝 Passspiel',technik:'🎯 Technik & Abschluss',verteidigung:'🛡️ Verteidigung',angriff:'⚡ Angriff & Taktik',kondition:'💪 Kondition',spielform:'🏆 Spielform',systeme:'🗂️ Systeme & Setplays'};
+let aDrillCat='';
+function popDrillTF(){
+  const sel=document.getElementById('dtf');
+  sel.innerHTML='<option value="">Alle</option>'+db.teams.map(t=>`<option value="${t.cat}">${t.name}</option>`).join('');
+}
+function renderDrillCatFilter(){
+  document.getElementById('dcat-filter').innerHTML=
+    `<div class="chip ${!aDrillCat?'on':''}" onclick="setDC('')">Alle</div>`+
+    Object.entries(CL).map(([k,v])=>`<div class="chip ${aDrillCat===k?'on':''}" onclick="setDC('${k}')">${v}</div>`).join('');
+}
+function setDC(c){aDrillCat=c;renderDrillCatFilter();renderDrills();}
+function renderDrills(){
+  renderDrillCatFilter();
+  const q=(document.getElementById('dsearch').value||'').toLowerCase();
+  const tc=document.getElementById('dtf').value;
+  const showHidden=document.getElementById('show-hidden').checked;
+  let drills=allDrills();
+  if(aDrillCat)drills=drills.filter(d=>d.cat===aDrillCat);
+  if(q)drills=drills.filter(d=>d.name.toLowerCase().includes(q)||(d.desc||'').toLowerCase().includes(q));
+  if(tc)drills=drills.filter(d=>(d.ag||[]).includes(tc));
+  if(!showHidden)drills=drills.filter(d=>!db.hiddenDrills.includes(d.id));
+  const el=document.getElementById('drill-list');
+  if(drills.length===0){el.innerHTML='<div class="empty">Keine Einträge.</div>';return;}
+  el.innerHTML=drills.map(d=>dcHTML(d)).join('');
+}
+function dcHTML(d){
+  const stars='⭐'.repeat(d.diff)+'<span style="opacity:.18;">'+'⭐'.repeat(3-d.diff)+'</span>';
+  const isSys=d.cat==='systeme';
+  const isHidden=db.hiddenDrills.includes(d.id);
+  const isCustom=!!d.custom;
+  const drawing=db.drillDrawings[d.id];
+  return`<div class="dc">
+    <div class="dc-top">
+      <span class="cat cat-${d.cat}">${CL[d.cat]}</span>
+      <div class="dc-name" style="margin-left:6px;">${d.name}${isSys&&d.systemType?` <span class="sysb">${d.systemType}</span>`:''}</div>
+      <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;">
+        <span class="mut">${d.dur}min</span><span style="font-size:10px;">${stars}</span>
+        <button class="ico" onclick="openDrawMdl('${d.id}')" title="Zeichnung">🎨</button>
+        ${isCustom
+          ?`<button class="ico" onclick="openDrillMdl('${d.id}',${isSys})">✏️</button><button class="ico" onclick="deleteDrill('${d.id}')">🗑️</button>`
+          :`<button class="ico" onclick="toggleHide('${d.id}')" title="${isHidden?'Anzeigen':'Ausblenden'}">${isHidden?'👁️':'🙈'}</button>`}
+      </div>
+    </div>
+    <div class="mut" style="font-size:10px;margin-bottom:3px;">👥 min. ${d.players} · ${(d.ag||[]).join(', ')}${isSys&&d.formation?` · ${d.formation}`:''}</div>
+    ${d.desc?`<div class="dc-desc">${d.desc}</div>`:''}
+    ${isSys&&d.steps?`<div class="dc-steps">${d.steps}</div>`:''}
+    ${d.coaching?`<div class="dc-tip">💡 ${d.coaching}</div>`:''}
+    ${drawing?`<img src="${drawing}" class="dc-drawing" onclick="openDrawMdl('${d.id}')">`:''}</div>`;
+}
+async function toggleHide(id){
+  const isHiding=!db.hiddenDrills.includes(id);
+  if(isHiding){db.hiddenDrills.push(id);await sbUpsert('hidden_drills',{drill_id:id});}
+  else{db.hiddenDrills=db.hiddenDrills.filter(x=>x!==id);await sbDelete('hidden_drills','drill_id',id);}
+  renderDrills();
+}
+function onDCatChange(){
+  document.getElementById('sys-flds').classList.toggle('hidden',document.getElementById('d-cat').value!=='systeme');
+}
+function openDrillMdl(id,isSys,addToSession){
+  const d=id?allDrills().find(dr=>dr.id===id):null;
+  const isS=d?.cat==='systeme'||isSys;
+  document.getElementById('dr-title').textContent=d?(isS?'System bearbeiten':'Drill bearbeiten'):(isS?'Neues System':'Neuer Drill');
+  document.getElementById('d-id').value=d?.id||'';
+  document.getElementById('d-ats').value=addToSession?'1':'0';
+  document.getElementById('d-name').value=d?.name||'';
+  document.getElementById('d-cat').value=d?.cat||(isS?'systeme':'technik');
+  document.getElementById('d-dur').value=d?.dur||10;
+  document.getElementById('d-pl').value=d?.players||4;
+  document.getElementById('d-diff').value=d?.diff||1;
+  document.getElementById('d-aj').checked=!d||(d.ag||[]).includes('junioren');
+  document.getElementById('d-ah').checked=!d||(d.ag||[]).includes('herren');
+  document.getElementById('d-ad').checked=!d||(d.ag||[]).includes('damen');
+  document.getElementById('d-desc').value=d?.desc||'';
+  document.getElementById('d-coach').value=d?.coaching||'';
+  document.getElementById('sys-flds').classList.toggle('hidden',!isS);
+  document.getElementById('d-stype').value=d?.systemType||'Angriffssystem';
+  document.getElementById('d-form').value=d?.formation||'';
+  document.getElementById('d-steps').value=d?.steps||'';
+  document.getElementById('dr-savebtn').textContent=addToSession?'Speichern & hinzufügen':'Speichern';
+  openM('m-drill');
+}
+async function saveDrill(){
+  const name=document.getElementById('d-name').value.trim();
+  if(!name)return alert('Name fehlt.');
+  const ags=[];
+  if(document.getElementById('d-aj').checked)ags.push('junioren');
+  if(document.getElementById('d-ah').checked)ags.push('herren');
+  if(document.getElementById('d-ad').checked)ags.push('damen');
+  const cat=document.getElementById('d-cat').value,isSys=cat==='systeme';
+  const eid=document.getElementById('d-id').value;
+  const ats=document.getElementById('d-ats').value==='1';
+  const drill={id:eid||Date.now().toString(),name,cat,dur:parseInt(document.getElementById('d-dur').value)||10,players:parseInt(document.getElementById('d-pl').value)||4,diff:parseInt(document.getElementById('d-diff').value)||1,ag:ags,desc:document.getElementById('d-desc').value.trim(),coaching:document.getElementById('d-coach').value.trim(),custom:true,
+    ...(isSys?{systemType:document.getElementById('d-stype').value,formation:document.getElementById('d-form').value.trim(),steps:document.getElementById('d-steps').value.trim()}:{})};
+  const idx=db.drills.findIndex(d=>d.id===eid);
+  if(idx>=0)db.drills[idx]=drill;else db.drills.push(drill);
+  closeM('m-drill');
+  if(ats){currentBlocks.push({cat:drill.cat,dur:drill.dur,name:drill.name,desc:drill.desc});renderBlocks();}
+  if(document.getElementById('pnl-drills').classList.contains('active'))renderDrills();
+  await sbUpsert('custom_drills',toDB.drill(drill));
+}
+async function deleteDrill(id){
+  if(!confirm('Drill löschen?'))return;
+  db.drills=db.drills.filter(d=>d.id!==id);
+  delete db.drillDrawings[id];
+  renderDrills();
+  await sbDelete('custom_drills','id',id);
+  await sbDelete('drill_drawings','drill_id',id);
+}
+
+// ── BUILDER ───────────────────────────────────────────────
+let currentBlocks=[],editSessId=null;
+function populateBuilderTeamSel(){
+  const sel=document.getElementById('s-team');
+  sel.innerHTML=db.teams.length===0?'<option value="">— Erst Team erstellen —</option>':db.teams.map(t=>`<option value="${t.id}">${t.emoji} ${t.name}</option>`).join('');
+}
+function clearBuilder(){
+  currentBlocks=[];editSessId=null;
+  document.getElementById('builder-title').textContent='➕ Neue Trainingseinheit';
+  document.getElementById('s-date').value=new Date().toISOString().slice(0,10);
+  ['s-title','s-loc','s-goal','s-notes'].forEach(id=>document.getElementById(id).value='');
+  populateBuilderTeamSel();renderBlocks();
+}
+function openBlockMdl(idx){
+  const b=idx>=0?currentBlocks[idx]:null;
+  document.getElementById('blk-title').textContent=b?'Block bearbeiten':'Block hinzufügen';
+  document.getElementById('b-idx').value=idx;
+  document.getElementById('b-cat').value=b?.cat||'technik';
+  document.getElementById('b-dur').value=b?.dur||10;
+  document.getElementById('b-name').value=b?.name||'';
+  document.getElementById('b-desc').value=b?.desc||'';
+  openM('m-block');
+}
+function saveBlock(){
+  const name=document.getElementById('b-name').value.trim();
+  if(!name)return alert('Name fehlt.');
+  const block={cat:document.getElementById('b-cat').value,dur:parseInt(document.getElementById('b-dur').value)||10,name,desc:document.getElementById('b-desc').value.trim()};
+  const idx=parseInt(document.getElementById('b-idx').value);
+  if(idx>=0)currentBlocks[idx]=block;else currentBlocks.push(block);
+  closeM('m-block');renderBlocks();
+}
+function moveBlock(i,d){const ni=i+d;if(ni<0||ni>=currentBlocks.length)return;[currentBlocks[i],currentBlocks[ni]]=[currentBlocks[ni],currentBlocks[i]];renderBlocks();}
+function delBlock(i){currentBlocks.splice(i,1);renderBlocks();}
+function renderBlocks(){
+  const total=currentBlocks.reduce((s,b)=>s+b.dur,0);
+  document.getElementById('total-t').textContent=total+' Min.';
+  const el=document.getElementById('block-list');
+  if(currentBlocks.length===0){el.innerHTML='<div class="empty">Noch keine Blöcke.</div>';return;}
+  el.innerHTML=currentBlocks.map((b,i)=>`<div class="bli">
+    <span class="btt type-${b.cat}">${CL[b.cat]||b.cat}</span>
+    <span class="bdur">${b.dur}min</span>
+    <div style="flex:1;"><div class="bname">${b.name}</div>${b.desc?`<div class="bdesc">${b.desc.length>80?b.desc.slice(0,80)+'…':b.desc}</div>`:''}</div>
+    <div class="bact">
+      <button class="btn btn-sec btn-xs" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''}>↑</button>
+      <button class="btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''}>↓</button>
+      <button class="btn btn-sec btn-xs" onclick="openBlockMdl(${i})">✏️</button>
+      <button class="btn btn-dan btn-xs" onclick="delBlock(${i})">✕</button>
+    </div></div>`).join('');
+}
+async function saveSession(){
+  const title=document.getElementById('s-title').value.trim(),teamId=document.getElementById('s-team').value;
+  if(!title)return alert('Titel fehlt.');if(!teamId)return alert('Team wählen.');
+  if(currentBlocks.length===0)return alert('Mindestens einen Block hinzufügen.');
+  const sess={id:editSessId||Date.now().toString(),teamId,title,date:document.getElementById('s-date').value,location:document.getElementById('s-loc').value.trim(),goal:document.getElementById('s-goal').value.trim(),notes:document.getElementById('s-notes').value.trim(),blocks:[...currentBlocks],totalDur:currentBlocks.reduce((s,b)=>s+b.dur,0)};
+  if(editSessId){const idx=db.sessions.findIndex(s=>s.id===editSessId);if(idx>=0)db.sessions[idx]=sess;else db.sessions.unshift(sess);}
+  else db.sessions.unshift(sess);
+  clearBuilder();switchTab('sessions');
+  await sbUpsert('sessions',toDB.session(sess));
+}
+
+// Picker
+let pickerCat='';
+function openPicker(){pickerCat='';document.getElementById('pk-search').value='';renderPickerCats();renderPicker();openM('m-picker');}
+function renderPickerCats(){
+  document.getElementById('pk-cats').innerHTML=`<div class="chip ${!pickerCat?'on':''}" onclick="setPkCat('')">Alle</div>`+
+    Object.entries(CL).map(([k,v])=>`<div class="chip ${pickerCat===k?'on':''}" onclick="setPkCat('${k}')">${v}</div>`).join('');
+}
+function setPkCat(c){pickerCat=c;renderPickerCats();renderPicker();}
+function renderPicker(){
+  const q=(document.getElementById('pk-search').value||'').toLowerCase();
+  let drills=allDrills().filter(d=>!db.hiddenDrills.includes(d.id));
+  if(pickerCat)drills=drills.filter(d=>d.cat===pickerCat);
+  if(q)drills=drills.filter(d=>d.name.toLowerCase().includes(q));
+  const el=document.getElementById('pk-list');
+  if(drills.length===0){el.innerHTML='<div class="empty">Keine Einträge.</div>';return;}
+  el.innerHTML=drills.map(d=>`<div class="pkr" onclick="pickDrill('${d.id}')">
+    <span class="cat cat-${d.cat}" style="min-width:90px;">${CL[d.cat]}</span>
+    <span class="pkrn">${d.name}</span><span class="pkrd">${d.dur} Min.</span></div>`).join('');
+}
+function pickDrill(id){
+  const d=allDrills().find(dr=>dr.id===id);if(!d)return;
+  currentBlocks.push({cat:d.cat,dur:d.dur,name:d.name,desc:d.desc});
+  renderBlocks();closeM('m-picker');
+}
+
+// ── SESSIONS ──────────────────────────────────────────────
+let sessTF='all',viewSessId=null;
+function renderSessTeamFilter(){
+  document.getElementById('sess-team-filter').innerHTML=
+    `<div class="chip ${sessTF==='all'?'on':''}" onclick="setSessTF('all')">Alle Teams</div>`+
+    db.teams.map(t=>`<div class="chip ${sessTF===t.id?'on':''}" onclick="setSessTF('${t.id}')">${t.emoji} ${t.name}</div>`).join('');
+}
+function setSessTF(id){sessTF=id;renderSessTeamFilter();renderSessions();}
+function renderSessions(){
+  let sessions=sessTF==='all'?db.sessions:db.sessions.filter(s=>s.teamId===sessTF);
+  const el=document.getElementById('sess-list');
+  if(sessions.length===0){el.innerHTML='<div class="empty">Noch keine Einheiten.<br><br><button class="btn btn-pri btn-sm" onclick="switchTab(\'builder\');clearBuilder();">+ Einheit erstellen</button></div>';return;}
+  el.innerHTML=sessions.map(s=>{
+    const t=getTeam(s.teamId);
+    const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit',year:'numeric'}):'–';
+    return`<div class="srow" onclick="viewSess('${s.id}')">
+      <div class="sdt">${d}</div>
+      <div style="flex:1;"><div class="stit">${s.title}</div>
+      <div class="mut">${t?`${t.emoji} ${t.name}`:''} ${s.location?'· '+s.location:''}</div></div>
+      <div class="dpill">${s.totalDur} Min.</div></div>`;
+  }).join('');
+}
+function viewSess(id){
+  viewSessId=id;const s=db.sessions.find(s=>s.id===id);if(!s)return;
+  const t=getTeam(s.teamId);
+  const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'';
+  document.getElementById('sdet-cnt').innerHTML=`
+    <h3 style="margin-bottom:3px;">${s.title}</h3>
+    <div class="mut" style="margin-bottom:10px;">${[t?`${t.emoji} ${t.name}`:'',d,s.location,`<strong>${s.totalDur} Min.</strong>`].filter(Boolean).join(' · ')}</div>
+    ${s.goal?`<div style="background:#f4f5f7;border-radius:6px;padding:7px 11px;margin-bottom:10px;font-size:12px;"><strong>Ziel:</strong> ${s.goal}</div>`:''}
+    ${s.blocks.map(b=>`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||b.cat}</span><span class="bdur">${b.dur}min</span><div style="flex:1;"><div class="bname">${b.name}</div>${b.desc?`<div class="bdesc">${b.desc}</div>`:''}</div></div>`).join('')}
+    ${s.notes?`<hr><div class="mut" style="font-size:11px;margin-top:6px;"><strong>Notizen:</strong> ${s.notes}</div>`:''}`;
+  openM('m-sdet');
+}
+async function delCurSess(){
+  if(!confirm('Einheit löschen?'))return;
+  db.sessions=db.sessions.filter(s=>s.id!==viewSessId);
+  closeM('m-sdet');renderSessions();
+  await sbDelete('sessions','id',viewSessId);
+}
+function editCurSess(){
+  const s=db.sessions.find(s=>s.id===viewSessId);if(!s)return;
+  editSessId=s.id;
+  document.getElementById('builder-title').textContent='✏️ Einheit bearbeiten';
+  populateBuilderTeamSel();
+  document.getElementById('s-team').value=s.teamId;
+  document.getElementById('s-title').value=s.title;
+  document.getElementById('s-date').value=s.date||'';
+  document.getElementById('s-loc').value=s.location||'';
+  document.getElementById('s-goal').value=s.goal||'';
+  document.getElementById('s-notes').value=s.notes||'';
+  currentBlocks=[...s.blocks];
+  closeM('m-sdet');switchTab('builder');renderBlocks();
+}
+
+// ── DRAW ──────────────────────────────────────────────────
+const DM={canvas:null,ctx:null,tool:'pen',color:'#E85D04',size:2,isDrawing:false,startX:0,startY:0,history:[],snapshot:null,offNum:1,defNum:1,editId:null};
+const DRAW_COLORS=['#E85D04','#1a1a2e','#2563eb','#16a34a','#dc2626'];
+
+function initDrawColors(){
+  document.getElementById('draw-colors').innerHTML='<span class="mut" style="font-size:11px;margin-right:3px;">Farbe:</span>'+
+    DRAW_COLORS.map((c,i)=>`<div class="dcsw ${i===0?'on':''}" style="background:${c};" onclick="setDrawColor(this,'${c}')"></div>`).join('');
+}
+function setDrawColor(el,c){DM.color=c;document.querySelectorAll('.dcsw').forEach(x=>x.classList.remove('on'));el.classList.add('on');}
+function setTool(el,t){
+  DM.tool=t;
+  document.querySelectorAll('.dtool[data-tool]').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  if(DM.canvas)DM.canvas.style.cursor=t==='erase'?'cell':'crosshair';
+}
+function setSize(el,s){DM.size=s;document.querySelectorAll('.dsz').forEach(x=>x.classList.remove('on'));el.classList.add('on');}
+
+function drawCourt(ctx,W,H){
+  ctx.fillStyle='#EDD89A';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#8B6200';ctx.lineWidth=2;ctx.lineCap='round';ctx.setLineDash([]);
+  const M=8,cx=W/2;
+  ctx.strokeRect(M,M,W-2*M,H-2*M);
+  const bx=cx,by=M+50;
+  ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(bx-32,M+16);ctx.lineTo(bx+32,M+16);ctx.stroke();
+  ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(bx,by,11,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(bx,by+11);ctx.lineTo(bx,by+22);ctx.stroke();
+  const kW=165,kH=182,kL=bx-kW/2,kT=M;
+  ctx.strokeRect(kL,kT,kW,kH);
+  for(let i=1;i<=3;i++){const y=kT+i*(kH/4);ctx.beginPath();ctx.moveTo(kL-7,y);ctx.lineTo(kL,y);ctx.stroke();ctx.beginPath();ctx.moveTo(kL+kW,y);ctx.lineTo(kL+kW+7,y);ctx.stroke();}
+  const ftY=kT+kH;
+  ctx.beginPath();ctx.arc(bx,ftY,kW/2,Math.PI,0);ctx.stroke();
+  ctx.setLineDash([6,6]);ctx.beginPath();ctx.arc(bx,ftY,kW/2,0,Math.PI);ctx.stroke();ctx.setLineDash([]);
+  ctx.beginPath();ctx.arc(bx,by,38,0,Math.PI);ctx.stroke();
+  const c3L=M+52,c3R=W-M-52,c3B=M+126;
+  ctx.beginPath();ctx.moveTo(c3L,M);ctx.lineTo(c3L,c3B);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(c3R,M);ctx.lineTo(c3R,c3B);ctx.stroke();
+  const arcR=Math.sqrt((c3L-bx)**2+(c3B-by)**2),a1=Math.atan2(c3B-by,c3L-bx),a2=Math.atan2(c3B-by,c3R-bx);
+  ctx.beginPath();ctx.arc(bx,by,arcR,a1,a2,true);ctx.stroke();
+  const midY=H-M;
+  ctx.beginPath();ctx.moveTo(M,midY);ctx.lineTo(W-M,midY);ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,midY,68,Math.PI,0);ctx.stroke();
+}
+function getPos(e){
+  const r=DM.canvas.getBoundingClientRect(),sx=DM.canvas.width/r.width,sy=DM.canvas.height/r.height;
+  if(e.touches)return{x:(e.touches[0].clientX-r.left)*sx,y:(e.touches[0].clientY-r.top)*sy};
+  return{x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy};
+}
+function snapHistory(){DM.history.push(DM.ctx.getImageData(0,0,DM.canvas.width,DM.canvas.height));if(DM.history.length>25)DM.history.shift();}
+function undoDraw(){if(DM.history.length<=1)return;DM.history.pop();DM.ctx.putImageData(DM.history[DM.history.length-1],0,0);}
+function clearDraw(){if(!confirm('Zeichnung löschen?'))return;drawCourt(DM.ctx,DM.canvas.width,DM.canvas.height);DM.history=[];DM.offNum=1;DM.defNum=1;snapHistory();}
+
+function drawArrow(ctx,x1,y1,x2,y2,dashed){
+  ctx.save();ctx.strokeStyle=DM.color;ctx.fillStyle=DM.color;ctx.lineWidth=DM.size+1;ctx.lineCap='round';
+  if(dashed)ctx.setLineDash([8,5]);else ctx.setLineDash([]);
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.setLineDash([]);
+  const angle=Math.atan2(y2-y1,x2-x1),al=13;
+  ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-al*Math.cos(angle-.45),y2-al*Math.sin(angle-.45));ctx.lineTo(x2-al*Math.cos(angle+.45),y2-al*Math.sin(angle+.45));ctx.closePath();ctx.fill();
+  ctx.restore();
+}
+function drawLine(ctx,x1,y1,x2,y2){ctx.save();ctx.strokeStyle=DM.color;ctx.lineWidth=DM.size+1;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();}
+function stampPlayer(x,y,isOff){
+  const ctx=DM.ctx,r=14,n=isOff?DM.offNum++:DM.defNum++;
+  if(DM.offNum>6)DM.offNum=1;if(DM.defNum>6)DM.defNum=1;
+  ctx.save();ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fillStyle=isOff?DM.color:'#2563eb';ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.7)';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(isOff?n:'X',x,y);ctx.restore();
+}
+function stampBall(x,y){
+  const ctx=DM.ctx;ctx.save();ctx.beginPath();ctx.arc(x,y,9,0,Math.PI*2);
+  ctx.fillStyle='#E85D04';ctx.fill();ctx.strokeStyle='#7c2d00';ctx.lineWidth=1;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x-9,y);ctx.lineTo(x+9,y);ctx.stroke();
+  ctx.beginPath();ctx.arc(x,y,9,0,Math.PI,false);ctx.stroke();ctx.restore();
+}
+function stampScreen(x,y){
+  const ctx=DM.ctx;ctx.save();ctx.strokeStyle=DM.color;ctx.lineWidth=5;ctx.lineCap='square';
+  ctx.beginPath();ctx.moveTo(x,y-16);ctx.lineTo(x,y+16);ctx.stroke();ctx.restore();
+}
+function onDrawStart(e){
+  e.preventDefault();
+  const pos=getPos(e);DM.isDrawing=true;DM.startX=pos.x;DM.startY=pos.y;
+  DM.snapshot=DM.ctx.getImageData(0,0,DM.canvas.width,DM.canvas.height);
+  if(DM.tool==='off'){stampPlayer(pos.x,pos.y,true);DM.isDrawing=false;snapHistory();return;}
+  if(DM.tool==='def'){stampPlayer(pos.x,pos.y,false);DM.isDrawing=false;snapHistory();return;}
+  if(DM.tool==='ball'){stampBall(pos.x,pos.y);DM.isDrawing=false;snapHistory();return;}
+  if(DM.tool==='screen'){stampScreen(pos.x,pos.y);DM.isDrawing=false;snapHistory();return;}
+  if(DM.tool==='text'){
+    DM.textX=pos.x;DM.textY=pos.y;
+    const inp=document.getElementById('draw-text-inp');
+    inp.classList.remove('hidden');document.getElementById('draw-text-val').value='';
+    document.getElementById('draw-text-val').focus();DM.isDrawing=false;return;
+  }
+  if(DM.tool==='pen'||DM.tool==='erase'){DM.ctx.beginPath();DM.ctx.moveTo(pos.x,pos.y);}
+}
+function onDrawMove(e){
+  e.preventDefault();if(!DM.isDrawing)return;
+  const pos=getPos(e),ctx=DM.ctx;
+  if(DM.tool==='pen'){ctx.strokeStyle=DM.color;ctx.lineWidth=DM.size;ctx.lineCap='round';ctx.lineJoin='round';ctx.lineTo(pos.x,pos.y);ctx.stroke();ctx.beginPath();ctx.moveTo(pos.x,pos.y);}
+  else if(DM.tool==='erase'){ctx.strokeStyle='#EDD89A';ctx.lineWidth=DM.size*6;ctx.lineCap='round';ctx.lineJoin='round';ctx.lineTo(pos.x,pos.y);ctx.stroke();ctx.beginPath();ctx.moveTo(pos.x,pos.y);}
+  else if(DM.tool==='arrow'||DM.tool==='dash'||DM.tool==='line'){
+    ctx.putImageData(DM.snapshot,0,0);
+    if(DM.tool==='line')drawLine(ctx,DM.startX,DM.startY,pos.x,pos.y);
+    else drawArrow(ctx,DM.startX,DM.startY,pos.x,pos.y,DM.tool==='dash');
+  }
+}
+function onDrawEnd(e){if(!DM.isDrawing)return;DM.isDrawing=false;DM.ctx.beginPath();snapHistory();}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&DM.tool==='text'){
+    const val=document.getElementById('draw-text-val').value.trim();
+    if(val&&DM.ctx){
+      DM.ctx.save();DM.ctx.font=`bold ${DM.size*3+12}px sans-serif`;DM.ctx.fillStyle=DM.color;
+      DM.ctx.fillText(val,DM.textX,DM.textY);DM.ctx.restore();snapHistory();
+    }
+    document.getElementById('draw-text-inp').classList.add('hidden');
+  }
+});
+
+function openDrawMdl(drillId){
+  DM.editId=drillId;DM.offNum=1;DM.defNum=1;
+  document.querySelectorAll('.dtool[data-tool]').forEach(x=>x.classList.remove('on'));
+  document.querySelector('.dtool[data-tool="pen"]').classList.add('on');
+  DM.tool='pen';DM.history=[];
+  openM('m-draw');
+  setTimeout(()=>{
+    DM.canvas=document.getElementById('draw-canvas');DM.ctx=DM.canvas.getContext('2d');
+    drawCourt(DM.ctx,DM.canvas.width,DM.canvas.height);
+    const existing=db.drillDrawings[drillId];
+    if(existing){const img=new Image();img.onload=()=>{DM.ctx.drawImage(img,0,0);snapHistory();};img.src=existing;}
+    else snapHistory();
+    DM.canvas.onmousedown=onDrawStart;DM.canvas.onmousemove=onDrawMove;DM.canvas.onmouseup=onDrawEnd;DM.canvas.onmouseleave=onDrawEnd;
+    DM.canvas.ontouchstart=onDrawStart;DM.canvas.ontouchmove=onDrawMove;DM.canvas.ontouchend=onDrawEnd;
+  },80);
+}
+async function saveDrawing(){
+  const dataURL=DM.canvas.toDataURL('image/png');
+  db.drillDrawings[DM.editId]=dataURL;
+  closeM('m-draw');
+  if(document.getElementById('pnl-drills').classList.contains('active'))renderDrills();
+  await sbUpsert('drill_drawings',{drill_id:DM.editId,data_url:dataURL,updated_at:new Date().toISOString()});
+}
+async function deleteDrawing(){
+  if(!confirm('Zeichnung löschen?'))return;
+  delete db.drillDrawings[DM.editId];
+  closeM('m-draw');
+  if(document.getElementById('pnl-drills').classList.contains('active'))renderDrills();
+  await sbDelete('drill_drawings','drill_id',DM.editId);
+}
+
+// ── INIT ──────────────────────────────────────────────────
+(async()=>{
+  initDrawColors();
+  await loadAll();
+  document.getElementById('loading-ov').style.display='none';
+  renderAll();clearBuilder();
+})();
+</script>
+</body>
+</html>
