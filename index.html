@@ -965,7 +965,7 @@ function setSessTF(id){sessTF=id;renderSessTeamFilter();renderSessions();}
 function renderSessions(){
   let sessions=sessTF==='all'?db.sessions:db.sessions.filter(s=>s.teamId===sessTF);
   const el=document.getElementById('sess-list');
-  if(sessions.length===0){el.innerHTML='<div class="empty">Noch keine Einheiten.<br><br><button class="btn btn-pri btn-sm" onclick="switchTab(\'builder\');clearBuilder();">+ Einheit erstellen</button></div>';return;}
+  if(sessions.length===0){el.innerHTML='<div class="empty">Noch keine Trainings.<br><br><button class="btn btn-pri btn-sm" onclick="switchTab(\'builder\');clearBuilder();">+ Training erstellen</button></div>';return;}
   el.innerHTML=sessions.map(s=>{
     const t=getTeam(s.teamId);
     const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit',year:'numeric'}):'–';
