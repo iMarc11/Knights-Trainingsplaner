@@ -872,11 +872,12 @@ function dcHTML(d){
     <div class="dc-top">
       <span class="cat cat-${d.cat}">${CL[d.cat]}</span>
       <div class="dc-name" style="margin-left:6px;">${d.name}${isSys&&d.systemType?` <span class="sysb">${d.systemType}</span>`:''}</div>
-      <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;">
+      <div style="display:flex;gap:5px;align-items:center;flex-shrink:0;">
         <span class="mut">${d.dur}min</span>
-        <button class="ico" onclick="openDrawMdl('${d.id}',-1)" title="Zeichnung hinzufügen" style="font-size:14px;">🖊</button>
-        ${d.link?`<a href="${d.link}" target="_blank" class="ico" title="Video öffnen" style="text-decoration:none;font-size:14px;">▶</a>`:''}
-        <button class="ico" onclick="openDrillMdl('${d.id}',${isSys})" title="Bearbeiten">✏️</button>${isCustom?`<button class="ico" onclick="deleteDrill('${d.id}')" title="Löschen">🗑️</button>`:''}
+        ${d.link?`<a href="${d.link}" target="_blank" class="btn btn-sec btn-xs" style="text-decoration:none;">Link</a>`:''}
+        <button class="btn btn-sec btn-xs" onclick="openDrawMdl('${d.id}',-1)">Zeichnen</button>
+        <button class="btn btn-sec btn-xs" onclick="openDrillMdl('${d.id}',${isSys})">Edit</button>
+        ${isCustom?`<button class="btn btn-dan btn-xs" onclick="deleteDrill('${d.id}')">✕</button>`:''}
       </div>
     </div>
     <div class="mut" style="font-size:10px;margin-bottom:3px;">👥 min. ${d.players} · ${(d.ag||[]).join(', ')}${isSys&&d.formation?` · ${d.formation}`:''}</div>
