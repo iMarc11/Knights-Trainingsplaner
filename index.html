@@ -301,6 +301,11 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   <div class="fg" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="wk-gm"><label style="margin:0;text-transform:none;letter-spacing:0;font-size:13px;color:var(--txt);">Spieltag 🏀</label></div>
   <div class="fg"><label>Notiz</label><textarea id="wk-no"></textarea></div>
   <input type="hidden" id="wk-key">
+  <div class="fg" style="margin-top:12px;">
+    <label>Trainings in dieser Woche</label>
+    <div id="wk-sessions" style="margin-bottom:8px;"></div>
+    <button class="btn btn-sec btn-sm" onclick="addTrainingToWeek()" style="width:100%;">+ Neues Training für diese Woche</button>
+  </div>
   <div class="mft"><button class="btn btn-sec" onclick="closeM('m-week')">Abbrechen</button><button class="btn btn-pri" onclick="saveWeek()">Speichern</button></div>
 </div></div>
 
@@ -321,7 +326,6 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   <div class="form-row3">
     <div class="fg"><label>Dauer (Min.)</label><input type="number" id="d-dur" value="10" min="1" max="90"></div>
     <div class="fg"><label>Min. Spieler</label><input type="number" id="d-pl" value="4" min="1"></div>
-    <div class="fg"><label>Schwierigkeit</label><select id="d-diff"><option value="1">⭐ Anfänger</option><option value="2">⭐⭐ Fortgeschritten</option><option value="3">⭐⭐⭐ Experte</option></select></div>
   </div>
   <div id="sys-flds" class="sysf hidden">
     <div class="fg"><label>System-Typ</label>
@@ -339,7 +343,7 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   </div>
   <div class="fg"><label>Beschreibung</label><textarea id="d-desc" style="min-height:60px;"></textarea></div>
   <div class="fg"><label>Coaching-Punkte</label><textarea id="d-coach" style="min-height:48px;"></textarea></div>
-  <div class="fg"><label>Video-Link (YouTube o.ä.)</label><input type="url" id="d-link" placeholder="https://youtube.com/..."></div>
+  <div class="fg"><label>Link</label><input type="url" id="d-link" placeholder="https://youtube.com/..."></div>
   <input type="hidden" id="d-id"><input type="hidden" id="d-ats" value="0">
   <div class="mft"><button class="btn btn-sec" onclick="closeM('m-drill')">Abbrechen</button><button class="btn btn-pri" id="dr-savebtn" onclick="saveDrill()">Speichern</button></div>
 </div></div>
@@ -770,16 +774,37 @@ function renderSeason(){
   const weeks=[];let c=new Date(sd);while(c<=ed){weeks.push(new Date(c));c.setDate(c.getDate()+7);}
   const fmt=d=>d.toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'});
   function gp(ws){const we=new Date(ws);we.setDate(we.getDate()+6);for(const p of s.phases){const ps=new Date(p.start+'T00:00:00'),pe=new Date(p.end+'T00:00:00');if(ws<=pe&&we>=ps)return p;}return null;}
+  const teamSess=(db.sessions||[]).filter(sess=>sess.teamId===s.teamId);
   const rows=weeks.map(w=>{
     const key=w.toISOString().slice(0,10);const wd=(s.weeks||{})[key]||{};const phase=gp(w);
     const we=new Date(w);we.setDate(we.getDate()+6);
     const bg=phase?phase.color+'25':'#f0f1f3',bd=phase?phase.color+'60':'#ddd';
     const lbl=wd.focus?wd.focus:(phase?`<span style="opacity:.4;">${phase.name}</span>`:'');
+    const wEnd=we.toISOString().slice(0,10);
+    const wsess=teamSess.filter(sess=>sess.date&&sess.date>=key&&sess.date<=wEnd);
+    const badges=wsess.map(sess=>`<span onclick="event.stopPropagation();closeM('m-week');switchTab('sessions');viewSess('${sess.id}')" style="background:#E85D04;color:#fff;border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap;" title="${sess.title}">${sess.date?new Date(sess.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'short'})+' '+new Date(sess.date+'T00:00:00').getDate():'?'}: ${sess.title.substring(0,14)}</span>`).join('');
     return`<div class="wlbl"><span>${fmt(w)}</span><span style="color:#ccc;font-size:8px;">${fmt(we)}</span></div>
-           <div class="wbar" style="background:${bg};border-color:${bd};" onclick="openWeekMdl('${key}')">
-             ${wd.game?'<span>🏀</span>':''}<span class="wnote">${lbl}</span></div>`;
+           <div class="wbar" style="background:${bg};border-color:${bd};flex-wrap:wrap;gap:3px;min-height:28px;align-items:flex-start;" onclick="openWeekMdl('${key}')">
+             ${wd.game?'<span>🏀</span>':''}<span class="wnote">${lbl}</span>${badges?`<div style='display:flex;flex-wrap:wrap;gap:3px;margin-top:2px;'>${badges}</div>`:''}</div>`;
   }).join('');
   grid.innerHTML=`<div class="wgrid" style="row-gap:3px;">${rows}</div>`;
+}
+
+function addTrainingToWeek(){
+  const key=document.getElementById('wk-key').value;
+  const s=getCurSeason();
+  // Wochendatum als Standard-Datum vorbelegen (Montag der Woche)
+  const weekDate=key;
+  closeM('m-week');
+  clearBuilder();
+  // Datum und Team vorbelegen
+  setTimeout(()=>{
+    const teamSel=document.getElementById('b-team');
+    if(teamSel&&s)teamSel.value=s.teamId;
+    const dateFld=document.getElementById('b-date');
+    if(dateFld)dateFld.value=weekDate;
+    switchTab('builder');
+  },80);
 }
 function openWeekMdl(key){
   const s=getCurSeason();if(!s)return;
@@ -792,6 +817,17 @@ function openWeekMdl(key){
   document.getElementById('wk-key').value=key;
   const d=new Date(key+'T00:00:00'),we=new Date(d);we.setDate(we.getDate()+6);
   document.getElementById('wk-title').textContent=`${d.toLocaleDateString('de-CH',{day:'2-digit',month:'short'})} – ${we.toLocaleDateString('de-CH',{day:'2-digit',month:'short',year:'numeric'})}`;
+  // Sessions dieser Woche anzeigen
+  const wkEnd=we.toISOString().slice(0,10);
+  const wkSess=(db.sessions||[]).filter(sess=>sess.teamId===s.teamId&&sess.date&&sess.date>=key&&sess.date<=wkEnd);
+  const wkSessEl=document.getElementById('wk-sessions');
+  wkSessEl.innerHTML=wkSess.length===0?'<div class="mut" style="font-size:11px;padding:4px 0;">Noch kein Training geplant.</div>'
+    :wkSess.map(sess=>`<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--bg);border-radius:6px;margin-bottom:4px;">
+      <span style="font-size:11px;color:var(--mut);min-width:40px;">${sess.date?new Date(sess.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'short',day:'2-digit',month:'2-digit'}):''}</span>
+      <span style="font-size:12px;font-weight:600;flex:1;">${sess.title}</span>
+      <span class="dpill">${sess.totalDur} Min.</span>
+      <button class="btn btn-sec btn-xs" onclick="closeM('m-week');switchTab('sessions');viewSess('${sess.id}')">Öffnen</button>
+    </div>`).join('');
   openM('m-week');
 }
 async function saveWeek(){
@@ -829,7 +865,6 @@ function renderDrills(){
   el.innerHTML=drills.map(d=>dcHTML(d)).join('');
 }
 function dcHTML(d){
-  const stars='⭐'.repeat(d.diff)+'<span style="opacity:.18;">'+'⭐'.repeat(3-d.diff)+'</span>';
   const isSys=d.cat==='systeme';
   const isCustom=!!d.custom;
   const drawings=db.drillDrawings[d.id]||[];
@@ -838,10 +873,10 @@ function dcHTML(d){
       <span class="cat cat-${d.cat}">${CL[d.cat]}</span>
       <div class="dc-name" style="margin-left:6px;">${d.name}${isSys&&d.systemType?` <span class="sysb">${d.systemType}</span>`:''}</div>
       <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;">
-        <span class="mut">${d.dur}min</span><span style="font-size:10px;">${stars}</span>
+        <span class="mut">${d.dur}min</span>
         <button class="ico" onclick="openDrawMdl('${d.id}',-1)" title="Zeichnung hinzufügen" style="font-size:14px;">🖊</button>
         ${d.link?`<a href="${d.link}" target="_blank" class="ico" title="Video öffnen" style="text-decoration:none;font-size:14px;">▶</a>`:''}
-        ${isCustom?`<button class="ico" onclick="openDrillMdl('${d.id}',${isSys})">✏️</button><button class="ico" onclick="deleteDrill('${d.id}')">🗑️</button>`:''}
+        <button class="ico" onclick="openDrillMdl('${d.id}',${isSys})" title="Bearbeiten">✏️</button>${isCustom?`<button class="ico" onclick="deleteDrill('${d.id}')" title="Löschen">🗑️</button>`:''}
       </div>
     </div>
     <div class="mut" style="font-size:10px;margin-bottom:3px;">👥 min. ${d.players} · ${(d.ag||[]).join(', ')}${isSys&&d.formation?` · ${d.formation}`:''}</div>
@@ -864,7 +899,6 @@ function openDrillMdl(id,isSys,addToSession){
   document.getElementById('d-cat').value=d?.cat||(isS?'systeme':'technik');
   document.getElementById('d-dur').value=d?.dur||10;
   document.getElementById('d-pl').value=d?.players||4;
-  document.getElementById('d-diff').value=d?.diff||1;
   document.getElementById('d-aj').checked=!d||(d.ag||[]).includes('junioren');
   document.getElementById('d-ah').checked=!d||(d.ag||[]).includes('herren');
   document.getElementById('d-ad').checked=!d||(d.ag||[]).includes('damen');
@@ -888,7 +922,7 @@ async function saveDrill(){
   const cat=document.getElementById('d-cat').value,isSys=cat==='systeme';
   const eid=document.getElementById('d-id').value;
   const ats=document.getElementById('d-ats').value==='1';
-  const drill={id:eid||Date.now().toString(),name,cat,dur:parseInt(document.getElementById('d-dur').value)||10,players:parseInt(document.getElementById('d-pl').value)||4,diff:parseInt(document.getElementById('d-diff').value)||1,ag:ags,desc:document.getElementById('d-desc').value.trim(),link:document.getElementById('d-link').value.trim(),coaching:document.getElementById('d-coach').value.trim(),custom:true,
+  const drill={id:eid||Date.now().toString(),name,cat,dur:parseInt(document.getElementById('d-dur').value)||10,players:parseInt(document.getElementById('d-pl').value)||4,diff:1,ag:ags,desc:document.getElementById('d-desc').value.trim(),link:document.getElementById('d-link').value.trim(),coaching:document.getElementById('d-coach').value.trim(),custom:true,
     ...(isSys?{systemType:document.getElementById('d-stype').value,formation:document.getElementById('d-form').value.trim(),steps:document.getElementById('d-steps').value.trim()}:{})};
   const idx=db.drills.findIndex(d=>d.id===eid);
   if(idx>=0)db.drills[idx]=drill;else db.drills.push(drill);
@@ -1253,7 +1287,7 @@ function drawHalfCourt(ctx,W,baseY,dir){
   // dir>0 (oben) = Bogen zieht nach unten = anticlockwise=true
   ctx.beginPath();ctx.arc(cx,bsY,arcR,a1,a2,dir>0);ctx.stroke();
   // No-charge Halbkreis
-  ctx.beginPath();ctx.arc(cx,bsY,40,dir>0?Math.PI:0,dir>0?0:Math.PI,dir<0);ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,bsY,40,dir>0?Math.PI:0,dir>0?0:Math.PI,true);ctx.stroke();
 }
 function getPos(e){
   const r=DM.canvas.getBoundingClientRect(),sx=DM.canvas.width/r.width,sy=DM.canvas.height/r.height;
