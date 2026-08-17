@@ -1288,14 +1288,16 @@ function openTextBlockMdl(idx){
   const b=idx>=0?currentBlocks[idx]:null;
   document.getElementById('tb-title').value=b?.name||'';
   document.getElementById('tb-text').value=b?.text||'';
+  document.getElementById('tb-dur').value=b?.dur||0;
   document.getElementById('tb-idx').value=idx>=0?idx:-1;
   openM('m-textblock');
 }
 function saveTextBlock(){
   const title=document.getElementById('tb-title').value.trim()||'Notiz';
   const text=document.getElementById('tb-text').value.trim();
+  const dur=parseInt(document.getElementById('tb-dur').value)||0;
   const idx=parseInt(document.getElementById('tb-idx').value);
-  const block={type:'text',name:title,text,dur:0,cat:'text'};
+  const block={type:'text',name:title,text,dur,cat:'text'};
   if(idx>=0&&idx<currentBlocks.length)currentBlocks[idx]=block;
   else currentBlocks.push(block);
   closeM('m-textblock');renderBlocks();
