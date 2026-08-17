@@ -1487,11 +1487,11 @@ function viewSess(id){
   const t=getTeam(s.teamId);
   const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'';
   document.getElementById('sdet-cnt').innerHTML=`
-    <h3 style="margin-bottom:3px;">${s.title}</h3>
-    <div class="mut" style="margin-bottom:10px;">${[t?`${t.emoji} ${t.name}`:'',d,`<strong>${s.totalDur} Min.</strong>`].filter(Boolean).join(' · ')}</div>
-    ${s.goal?`<div style="background:#f4f5f7;border-radius:6px;padding:7px 11px;margin-bottom:10px;font-size:12px;"><strong>Ziel:</strong> ${s.goal}</div>`:''}
-    ${s.blocks.map(b=>b.type==='section'?`<div class="bsec" style="margin-top:8px;">— ${b.name} —</div>`:`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||b.cat}</span><span class="bdur">${b.dur}min</span><div style="flex:1;"><div class="bname">${b.name}</div>${b.desc?`<div class="bdesc">${b.desc}</div>`:''}</div></div>`).join('')}
-    ${s.notes?`<hr><div class="mut" style="font-size:11px;margin-top:6px;"><strong>Notizen:</strong> ${s.notes}</div>`:''}`;
+    <h3 style="margin-bottom:3px;">${esc(s.title)}</h3>
+    <div class="mut" style="margin-bottom:10px;">${[t?`${esc(t.emoji)} ${esc(t.name)}`:'',esc(d),`<strong>${esc(s.totalDur)} Min.</strong>`].filter(Boolean).join(' · ')}</div>
+    ${s.goal?`<div style="background:#f4f5f7;border-radius:6px;padding:7px 11px;margin-bottom:10px;font-size:12px;"><strong>Ziel:</strong> ${esc(s.goal)}</div>`:''}
+    ${s.blocks.map(b=>b.type==='section'?`<div class="bsec" style="margin-top:8px;">— ${esc(b.name)} —</div>`:`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||esc(b.cat)}</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;"><div class="bname">${esc(b.name)}</div>${b.desc?`<div class="bdesc">${esc(b.desc)}</div>`:''}</div></div>`).join('')}
+    ${s.notes?`<hr><div class="mut" style="font-size:11px;margin-top:6px;"><strong>Notizen:</strong> ${esc(s.notes)}</div>`:''}`;
   openM('m-sdet');
 }
 async function delCurSess(){
