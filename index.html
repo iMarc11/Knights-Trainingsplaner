@@ -1757,7 +1757,9 @@ function drawArrow(ctx,x1,y1,x2,y2,dashed){
   ctx.save();ctx.strokeStyle=DM.color;ctx.fillStyle=DM.color;ctx.lineWidth=DM.size+1;ctx.lineCap='round';
   if(dashed)ctx.setLineDash([8,5]);else ctx.setLineDash([]);
   ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.setLineDash([]);
-  const angle=Math.atan2(y2-y1,x2-x1),al=13;
+  // Arrowhead scales with line width so it stays visible on thick lines
+  const angle=Math.atan2(y2-y1,x2-x1),al=Math.max(14,DM.size*3+10);
+  ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-al*Math.cos(angle-.45),y2-al*Math.sin(angle-.45));ctx.lineTo(x2-al*Math.cos(angle+.45),y2-al*Math.sin(angle+.45));ctx.closePath();ctx.fill();
   ctx.restore();
 }
