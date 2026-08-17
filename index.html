@@ -1128,7 +1128,7 @@ function openDrillMdl(id,isSys,addToSession,blockIdx){
   document.getElementById('dr-savebtn').textContent='Speichern';
   // Author Dropdown befüllen
   const authorSel=document.getElementById('d-author');
-  authorSel.innerHTML='<option value="">– Bot (Standard) –</option>'+db.coaches.map(c=>`<option value="${c}">${c}</option>`).join('')+'<option value="__new__">+ Neuer Coach…</option>';
+  authorSel.innerHTML=db.coaches.map(c=>`<option value="${c}">${c}</option>`).join('')+'<option value="__new__">+ Neuer Coach…</option>'+'<option value="" disabled style="color:#aaa;">──────────</option><option value="">Bot – System</option>';
   if(d?.author&&db.coaches.includes(d.author))authorSel.value=d.author;
   else authorSel.value='';
   document.getElementById('d-author-new').style.display='none';
