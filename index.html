@@ -1744,7 +1744,7 @@ function confirmCrop(){
   setDrawMode('draw');
 }
 function openDrawMdl(drillId,drawingIdx){
-  DM.editId=drillId;DM.drawingIdx=(drawingIdx===undefined)?-1:drawingIdx;DM.offNum=1;DM.defNum=1;
+  DM.editId=drillId;DM.drawingIdx=(drawingIdx===undefined)?-1:drawingIdx;DM.offNum=1;DM.defNum=1;DM.coachNum=1;
   document.querySelectorAll('.dtool[data-tool]').forEach(x=>x.classList.remove('on'));
   document.querySelector('.dtool[data-tool="pen"]').classList.add('on');
   DM.tool='pen';DM.history=[];
