@@ -393,7 +393,8 @@ function checkPw(){
     <div class="cht">Notizen</div>
     <textarea id="s-notes" placeholder="Material, Besonderheiten…" style="min-height:50px;"></textarea>
   </div>
-  <div class="flex g2" style="justify-content:flex-end;margin-bottom:20px;">
+  <div class="flex g2 ac" style="justify-content:flex-end;margin-bottom:20px;">
+    <span id="autosave-status" style="font-size:11px;color:var(--mut);transition:opacity .3s;"></span>
     <button class="btn btn-sec" onclick="clearBuilder()">Zurücksetzen</button>
     <button class="btn btn-pri" onclick="saveSession()">💾 Speichern</button>
   </div>
@@ -1428,11 +1429,51 @@ function renderBlocks(){
     </div></div>`;
   }).join('');
 }
+function _buildSessObj(){
+  const title=document.getElementById('s-title').value.trim();
+  const teamId=document.getElementById('s-team').value;
+  if(!title||!teamId)return null;
+  return{id:editSessId||(_autoSaveId=_autoSaveId||Date.now().toString()),teamId,title,
+    date:document.getElementById('s-date').value,location:'',
+    goal:document.getElementById('s-goal').value.trim(),
+    notes:document.getElementById('s-notes').value.trim(),
+    blocks:[...currentBlocks],
+    totalDur:currentBlocks.reduce((s,b)=>s+b.dur,0)};
+}
+let _autoSaveId=null,_autoSaveTimer=null;
+function _setAutoStatus(msg,color){
+  const el=document.getElementById('autosave-status');
+  if(!el)return;el.textContent=msg;el.style.color=color||'var(--mut)';
+}
+function scheduleAutoSave(){
+  _setAutoStatus('Ungespeicherte Änderungen…','#f59e0b');
+  clearTimeout(_autoSaveTimer);
+  _autoSaveTimer=setTimeout(async()=>{
+    const sess=_buildSessObj();
+    if(!sess||currentBlocks.length===0)return; // braucht Titel + Team + mind. 1 Block
+    if(!editSessId&&_autoSaveId){
+      // Neue Session — ins lokale DB einfügen oder aktualisieren
+      const idx=db.sessions.findIndex(s=>s.id===_autoSaveId);
+      if(idx>=0)db.sessions[idx]=sess;else db.sessions.unshift(sess);
+      editSessId=_autoSaveId; // ab jetzt als "bearbeiten" behandeln
+    } else if(editSessId){
+      const idx=db.sessions.findIndex(s=>s.id===editSessId);
+      if(idx>=0)db.sessions[idx]=sess;else db.sessions.unshift(sess);
+    }
+    _setAutoStatus('Speichern…','var(--mut)');
+    try{
+      await sbUpsert('sessions',toDB.session(sess));
+      _setAutoStatus('✓ Automatisch gespeichert','#16a34a');
+      setTimeout(()=>_setAutoStatus(''),3000);
+    }catch(e){_setAutoStatus('Fehler beim Auto-Speichern','#ef4444');}
+  },2000); // 2s Debounce
+}
 async function saveSession(){
   const title=document.getElementById('s-title').value.trim(),teamId=document.getElementById('s-team').value;
   if(!title)return alert('Titel fehlt.');if(!teamId)return alert('Team wählen.');
   if(currentBlocks.length===0)return alert('Mindestens einen Block hinzufügen.');
-  const sess={id:editSessId||Date.now().toString(),teamId,title,date:document.getElementById('s-date').value,location:'',goal:document.getElementById('s-goal').value.trim(),notes:document.getElementById('s-notes').value.trim(),blocks:[...currentBlocks],totalDur:currentBlocks.reduce((s,b)=>s+b.dur,0)};
+  clearTimeout(_autoSaveTimer);
+  const sess=_buildSessObj();
   if(editSessId){const idx=db.sessions.findIndex(s=>s.id===editSessId);if(idx>=0)db.sessions[idx]=sess;else db.sessions.unshift(sess);}
   else db.sessions.unshift(sess);
   clearBuilder();switchTab('sessions');
