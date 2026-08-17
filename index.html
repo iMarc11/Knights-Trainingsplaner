@@ -1447,11 +1447,14 @@ function renderSessions(){
       <div class="sdt">${esc(d)}</div>
       <div style="flex:1;"><div class="stit">${esc(s.title)}</div>
       <div class="mut">${t?`${esc(t.emoji)} ${esc(t.name)}`:''}</div></div>
-      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();dupSessFromList('${esc(s.id)}')" title="Duplizieren" style="padding:3px 8px;font-size:13px;">⎘</button>
-      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();printSess('${esc(s.id)}')" title="Als PDF drucken" style="padding:3px 7px;font-size:10px;font-weight:800;letter-spacing:.3px;">PDF</button>
-      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();mobileExport('${esc(s.id)}')" title="Mobil-Ansicht" style="padding:3px 7px;font-size:11px;">📱</button>
+      <div class="dpill" style="margin-right:6px;">${esc(s.totalDur)} Min.</div>
+      <div style="width:1px;background:var(--brd);align-self:stretch;margin:0 4px;"></div>
       <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();editSessDirect('${esc(s.id)}')">Bearbeiten</button>
-      <div class="dpill">${esc(s.totalDur)} Min.</div></div>`;
+      <div style="width:1px;background:var(--brd);align-self:stretch;margin:0 4px;"></div>
+      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();dupSessFromList('${esc(s.id)}')">Kopieren</button>
+      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();printSess('${esc(s.id)}')">PDF</button>
+      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();mobileExport('${esc(s.id)}')">Mobil</button>
+      </div>`;
   }).join('');
 }
 function printSess(id){
