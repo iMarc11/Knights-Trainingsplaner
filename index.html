@@ -1594,12 +1594,19 @@ function drawArrow(ctx,x1,y1,x2,y2,dashed){
 function drawLine(ctx,x1,y1,x2,y2){ctx.save();ctx.strokeStyle=DM.color;ctx.lineWidth=DM.size+1;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();}
 function stampPlayer(x,y,isOff){
   const ctx=DM.ctx,r=14,n=isOff?DM.offNum++:DM.defNum++;
-  if(DM.offNum>6)DM.offNum=1;if(DM.defNum>6)DM.defNum=1;
   ctx.save();ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
   ctx.fillStyle=isOff?DM.color:'#2563eb';ctx.fill();
   ctx.strokeStyle='rgba(255,255,255,0.7)';ctx.lineWidth=1.5;ctx.stroke();
   ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.fillText(isOff?n:'X',x,y);ctx.restore();
+}
+function stampCoach(x,y){
+  const ctx=DM.ctx,r=14,n=DM.coachNum++;
+  ctx.save();ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fillStyle='#16a34a';ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.7)';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('C'+n,x,y);ctx.restore();
 }
 function stampBall(x,y){
   const ctx=DM.ctx;ctx.save();ctx.beginPath();ctx.arc(x,y,9,0,Math.PI*2);
