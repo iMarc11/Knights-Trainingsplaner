@@ -1784,12 +1784,18 @@ function stampBall(x,y){
   ctx.beginPath();ctx.moveTo(x-9,y);ctx.lineTo(x+9,y);ctx.stroke();
   ctx.beginPath();ctx.arc(x,y,9,0,Math.PI,false);ctx.stroke();ctx.restore();
 }
-function stampScreen(x,y){
-  const ctx=DM.ctx;ctx.save();ctx.strokeStyle=DM.color;ctx.lineWidth=5;ctx.lineCap='square';
-  // Horizontale Querbalken (Blocking-Fläche)
-  ctx.beginPath();ctx.moveTo(x-16,y-12);ctx.lineTo(x+16,y-12);ctx.stroke();
-  // Vertikaler Stamm
-  ctx.beginPath();ctx.moveTo(x,y-12);ctx.lineTo(x,y+16);ctx.stroke();
+// Draw a screen T-shape at end point, perpendicular to the approach direction
+function drawScreenShape(ctx,fromX,fromY,toX,toY){
+  const dx=toX-fromX,dy=toY-fromY;
+  const len=Math.sqrt(dx*dx+dy*dy)||1;
+  const nx=dx/len,ny=dy/len;       // direction of travel (normalized)
+  const px=-ny,py=nx;              // perpendicular
+  const barLen=18,stemLen=20;
+  ctx.save();ctx.strokeStyle=DM.color;ctx.lineWidth=5;ctx.lineCap='square';ctx.lineJoin='miter';
+  // Crossbar (perpendicular to path, at tip)
+  ctx.beginPath();ctx.moveTo(toX+px*barLen,toY+py*barLen);ctx.lineTo(toX-px*barLen,toY-py*barLen);ctx.stroke();
+  // Stem (back along path direction)
+  ctx.beginPath();ctx.moveTo(toX,toY);ctx.lineTo(toX-nx*stemLen,toY-ny*stemLen);ctx.stroke();
   ctx.restore();
 }
 function onDrawStart(e){
@@ -1800,7 +1806,7 @@ function onDrawStart(e){
   if(DM.tool==='def'){stampPlayer(pos.x,pos.y,false);DM.isDrawing=false;snapHistory();return;}
   if(DM.tool==='coach'){stampCoach(pos.x,pos.y);DM.isDrawing=false;snapHistory();return;}
   if(DM.tool==='ball'){stampBall(pos.x,pos.y);DM.isDrawing=false;snapHistory();return;}
-  if(DM.tool==='screen'){stampScreen(pos.x,pos.y);DM.isDrawing=false;snapHistory();return;}
+  // screen: drag to draw — preview on move, finalize on end
   if(DM.tool==='text'){
     DM.textX=pos.x;DM.textY=pos.y;
     const inp=document.getElementById('draw-text-inp');
@@ -1819,10 +1825,36 @@ function onDrawMove(e){
     if(DM.tool==='line')drawLine(ctx,DM.startX,DM.startY,pos.x,pos.y);
     else drawArrow(ctx,DM.startX,DM.startY,pos.x,pos.y,DM.tool==='dash');
   }
+  else if(DM.tool==='screen'){
+    ctx.putImageData(DM.snapshot,0,0);
+    // Preview: line from start + T at cursor
+    drawLine(ctx,DM.startX,DM.startY,pos.x,pos.y);
+    drawScreenShape(ctx,DM.startX,DM.startY,pos.x,pos.y);
+  }
 }
-function onDrawEnd(e){if(!DM.isDrawing)return;DM.isDrawing=false;DM.ctx.beginPath();snapHistory();}
+function onDrawEnd(e){
+  if(!DM.isDrawing)return;
+  DM.isDrawing=false;DM.ctx.beginPath();
+  if(DM.tool==='screen'){
+    const pos=getPos(e);
+    DM.ctx.putImageData(DM.snapshot,0,0);
+    const dx=pos.x-DM.startX,dy=pos.y-DM.startY;
+    // Only draw if dragged more than 5px; otherwise stamp a simple T in place
+    if(Math.sqrt(dx*dx+dy*dy)>5){
+      drawLine(DM.ctx,DM.startX,DM.startY,pos.x,pos.y);
+      drawScreenShape(DM.ctx,DM.startX,DM.startY,pos.x,pos.y);
+    } else {
+      drawScreenShape(DM.ctx,DM.startX-1,DM.startY+20,DM.startX,DM.startY);
+    }
+  }
+  snapHistory();
+}
 
 document.addEventListener('keydown',e=>{
+  // Cmd+Z / Ctrl+Z: Undo
+  if((e.metaKey||e.ctrlKey)&&e.key==='z'&&!e.shiftKey){
+    e.preventDefault();undoDraw();return;
+  }
   if(e.key==='Enter'&&DM.tool==='text'){
     const val=document.getElementById('draw-text-val').value.trim();
     if(val&&DM.ctx){
