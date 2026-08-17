@@ -1171,7 +1171,9 @@ function dcHTML(d){
     </div>`;
 }
 function onDCatChange(){
-  document.getElementById('sys-flds').classList.toggle('hidden',document.getElementById('d-cat').value!=='systeme');
+  const isSys=document.getElementById('d-cat').value==='systeme';
+  document.getElementById('sys-flds').classList.toggle('hidden',!isSys);
+  document.getElementById('dur-pl-flds').style.display=isSys?'none':'';
 }
 function openDrillMdl(id,isSys,addToSession,blockIdx){
   const d=id?allDrills().find(dr=>dr.id===id):null;
