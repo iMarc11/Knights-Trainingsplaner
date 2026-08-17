@@ -949,19 +949,26 @@ function renderSeason(){
   const fmt=d=>d.toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'});
   function gp(ws){const we=new Date(ws);we.setDate(we.getDate()+6);for(const p of s.phases){const ps=new Date(p.start+'T00:00:00'),pe=new Date(p.end+'T00:00:00');if(ws<=pe&&we>=ps)return p;}return null;}
   const teamSess=(db.sessions||[]).filter(sess=>sess.teamId===s.teamId);
+  const todayStr=new Date().toISOString().slice(0,10);
+  let currentWeekKey='';
   const rows=weeks.map(w=>{
     const key=w.toISOString().slice(0,10);const wd=(s.weeks||{})[key]||{};const phase=gp(w);
     const we=new Date(w);we.setDate(we.getDate()+6);
-    const bg=phase?phase.color+'25':'#f0f1f3',bd=phase?phase.color+'60':'#ddd';
-    const lbl=wd.focus?wd.focus:(phase?`<span style="opacity:.4;">${phase.name}</span>`:'');
     const wEnd=we.toISOString().slice(0,10);
+    const isCurrent=todayStr>=key&&todayStr<=wEnd;
+    if(isCurrent)currentWeekKey=key;
+    const bg=isCurrent?'#fff3e0':(phase?phase.color+'25':'#f0f1f3');
+    const bd=isCurrent?'var(--pri)':(phase?phase.color+'60':'#ddd');
+    const lbl=wd.focus?wd.focus:(phase?`<span style="opacity:.4;">${phase.name}</span>`:'');
     const wsess=teamSess.filter(sess=>sess.date&&sess.date>=key&&sess.date<=wEnd);
     const badges=wsess.map(sess=>`<span onclick="event.stopPropagation();closeM('m-week');switchTab('sessions');viewSess('${sess.id}')" style="display:inline-flex;align-items:center;gap:4px;background:#E85D04;color:#fff;border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.18);" title="${sess.title}"><span style="opacity:.8;">${sess.date?new Date(sess.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'short',day:'2-digit',month:'2-digit'}):''}</span><span style="width:1px;background:rgba(255,255,255,.4);align-self:stretch;"></span>${sess.title.substring(0,18)}</span>`).join('');
-    return`<div class="wlbl"><span>${fmt(w)}</span><span style="color:#ccc;font-size:8px;">${fmt(we)}</span></div>
-           <div class="wbar" style="background:${bg};border-color:${bd};flex-wrap:wrap;gap:5px;min-height:34px;height:auto;padding:6px 8px;align-items:center;" onclick="openWeekMdl('${key}')">
+    return`<div class="wlbl" ${isCurrent?`id="cur-week-lbl"`:''}><span style="${isCurrent?'font-weight:800;color:var(--pri)':''}">${fmt(w)}</span><span style="color:#ccc;font-size:8px;">${fmt(we)}</span>${isCurrent?'<span style="font-size:8px;color:var(--pri);font-weight:700;">Heute</span>':''}</div>
+           <div class="wbar" id="${isCurrent?'cur-week-bar':''}" style="background:${bg};border-color:${bd};flex-wrap:wrap;gap:5px;min-height:34px;height:auto;padding:6px 8px;align-items:center;" onclick="openWeekMdl('${key}')">
              ${wd.game?'<span>🏀</span>':''}<span class="wnote">${lbl}</span>${badges?`<div style='display:flex;flex-wrap:wrap;gap:5px;margin-left:4px;'>${badges}</div>`:''}</div>`;
   }).join('');
   grid.innerHTML=`<div class="wgrid" style="row-gap:3px;">${rows}</div>`;
+  // Zur aktuellen Woche scrollen
+  if(currentWeekKey){setTimeout(()=>{const el=document.getElementById('cur-week-bar')||document.getElementById('cur-week-lbl');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},120);}
 }
 
 function addTrainingToWeek(){
