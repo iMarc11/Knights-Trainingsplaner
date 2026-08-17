@@ -744,7 +744,11 @@ const BD=[
 const DEFAULT_COACHES=['Ali','Andrea','Lori','Marc','Mone','Pino','Rehan'];
 let db={teams:[],seasons:[],drills:[],sessions:[],drillDrawings:{},coaches:[...DEFAULT_COACHES]};
 
-function allDrills(){return[...BD,...db.drills];}
+function allDrills(){
+  // Custom drills newest first (id is timestamp string), then built-in drills
+  const custom=[...db.drills].sort((a,b)=>b.id.localeCompare(a.id));
+  return[...custom,...BD];
+}
 function getTeam(id){return db.teams.find(t=>t.id===id);}
 
 // ── LOAD / RELOAD ─────────────────────────────────────────
