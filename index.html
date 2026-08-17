@@ -1097,8 +1097,8 @@ function setLibTab(t){
   });
   document.getElementById('lib-title').textContent=t==='systeme'?'Systeme':'Drills';
   document.getElementById('lib-btns').innerHTML=t==='systeme'
-    ?'<button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,true)">+ System</button>'
-    :'<button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,false)">+ Drill</button>';
+    ?'<button class="btn btn-pri btn-sm" onclick="openDrillMdl(null,true)">+ System</button>'
+    :'<button class="btn btn-pri btn-sm" onclick="openDrillMdl(null,false)">+ Drill</button>';
   document.getElementById('dsystype').style.display=t==='systeme'?'':'none';
   renderDrills();
 }
