@@ -1376,23 +1376,26 @@ function _dndOver(e,i){e.preventDefault();e.dataTransfer.dropEffect='move';docum
 function _dndLeave(e){try{e.currentTarget.classList.remove('bblk-drag-over');}catch(_){}}
 function _dndDrop(e,i){e.preventDefault();document.querySelectorAll('.bblk-drag-over').forEach(el=>el.classList.remove('bblk-drag-over'));if(_dragIdx===null||_dragIdx===i)return;const m=currentBlocks.splice(_dragIdx,1)[0];currentBlocks.splice(i,0,m);_dragIdx=null;renderBlocks();}
 function _dndEnd(e){_dragIdx=null;document.querySelectorAll('.bblk-drag-over').forEach(el=>el.classList.remove('bblk-drag-over'));try{e.target.closest('.bli,.bsec,.bblk-txt').style.opacity='';}catch(_){}}
+function calcSecTotals(blocks){
+  const t={};
+  blocks.forEach((b,i)=>{
+    if(b.type==='section'){
+      let sum=0;
+      for(let j=i+1;j<blocks.length;j++){
+        if(blocks[j].type==='section')break;
+        sum+=blocks[j].dur||0;
+      }
+      t[i]=sum;
+    }
+  });
+  return t;
+}
 function renderBlocks(){
   const total=currentBlocks.reduce((s,b)=>b.type==='section'?s:s+b.dur,0);
   document.getElementById('total-t').textContent=total+' Min.';
   const el=document.getElementById('block-list');
   if(currentBlocks.length===0){el.innerHTML='<div class="empty">Noch keine Blöcke.</div>';return;}
-  // Precompute section totals: for each section block, sum dur of following blocks until next section
-  const secTotals={};
-  currentBlocks.forEach((b,i)=>{
-    if(b.type==='section'){
-      let sum=0;
-      for(let j=i+1;j<currentBlocks.length;j++){
-        if(currentBlocks[j].type==='section')break;
-        sum+=currentBlocks[j].dur||0;
-      }
-      secTotals[i]=sum;
-    }
-  });
+  const secTotals=calcSecTotals(currentBlocks);
   el.innerHTML=currentBlocks.map((b,i)=>{
     if(b.type==='text'){
       return`<div class="bli bblk-dnd" style="border-left:3px solid #9ca3af;background:#f8f9fa;" draggable="true" ondragstart="_dndStart(event,${i})" ondragover="_dndOver(event,${i})" ondragleave="_dndLeave(event)" ondrop="_dndDrop(event,${i})" ondragend="_dndEnd(event)">
