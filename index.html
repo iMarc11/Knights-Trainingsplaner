@@ -1536,8 +1536,9 @@ function mobileExport(id){
   const t=getTeam(s.teamId);
   const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'';
   const cc={aufwaermen:'#f97316',ballhandling:'#f59e0b',passspiel:'#10b981',technik:'#06b6d4',verteidigung:'#3b82f6',angriff:'#ef4444',kondition:'#8b5cf6',spielform:'#ec4899',systeme:'#6b7280'};
-  const blocksHtml=s.blocks.map(b=>b.type==='text'?`<div style="background:#f8f9fa;border:1px solid #e8e8e8;border-radius:8px;padding:12px 15px;margin-bottom:10px;"><strong style='font-size:14px;color:#374151;'>${b.name}</strong>${b.text?`<div style='font-size:14px;color:#555;margin-top:5px;line-height:1.5;white-space:pre-line;'>${b.text}</div>`:''}</div>`:b.type==='section'
-    ?`<div style="background:#1a1a2e;color:#fff;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin:18px 0 10px;">— ${b.name} —</div>`
+  const _mst=calcSecTotals(s.blocks);
+  const blocksHtml=s.blocks.map((b,i)=>b.type==='text'?`<div style="background:#f8f9fa;border:1px solid #e8e8e8;border-radius:8px;padding:12px 15px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:baseline;"><strong style='font-size:14px;color:#374151;'>${b.name}</strong>${b.dur?`<span style="font-size:13px;color:#888;">${b.dur} Min.</span>`:''}</div>${b.text?`<div style='font-size:14px;color:#555;margin-top:5px;line-height:1.5;white-space:pre-line;'>${b.text}</div>`:''}</div>`:b.type==='section'
+    ?`<div style="background:#1a1a2e;color:#fff;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin:18px 0 10px;display:flex;justify-content:space-between;align-items:center;">— ${b.name} —${_mst[i]?`<span style="font-size:12px;font-weight:700;opacity:.8;background:rgba(255,255,255,.15);border-radius:5px;padding:3px 9px;">${_mst[i]} Min.</span>`:''}</div>`
     :`<div style="border-left:5px solid ${cc[b.cat]||'#888'};padding:12px 15px;margin-bottom:10px;background:#f8f9fa;border-radius:0 8px 8px 0;">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;flex-wrap:wrap;gap:4px;">
         <strong style="font-size:16px;">${b.name}</strong>
