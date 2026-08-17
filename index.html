@@ -249,7 +249,6 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
             <span style="font-size:10px;font-weight:800;color:var(--mut);align-self:center;text-transform:uppercase;letter-spacing:.5px;margin-right:2px;">Drill:</span>
             <button class="btn btn-pri btn-sm" onclick="openPicker()">📚 Bibliothek</button>
             <button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,false,true)">+ Neu</button>
-            <button class="btn btn-sec btn-sm" onclick="openBlockMdl(-1)">+ Manuell</button>
           </div>
           <div style="display:flex;gap:4px;background:#f0f1f3;border-radius:8px;padding:4px 6px;">
             <span style="font-size:10px;font-weight:800;color:var(--mut);align-self:center;text-transform:uppercase;letter-spacing:.5px;margin-right:2px;">Struktur:</span>
@@ -955,7 +954,7 @@ function dcHTML(d){
 function onDCatChange(){
   document.getElementById('sys-flds').classList.toggle('hidden',document.getElementById('d-cat').value!=='systeme');
 }
-function openDrillMdl(id,isSys,addToSession){
+function openDrillMdl(id,isSys,addToSession,blockIdx){
   const d=id?allDrills().find(dr=>dr.id===id):null;
   const isS=d?.cat==='systeme'||isSys;
   document.getElementById('dr-title').textContent=d?(isS?'System bearbeiten':'Drill bearbeiten'):(isS?'Neues System':'Neuer Drill');
@@ -975,7 +974,9 @@ function openDrillMdl(id,isSys,addToSession){
   document.getElementById('d-stype').value=d?.systemType||'Angriffssystem';
   document.getElementById('d-form').value=d?.formation||'';
   document.getElementById('d-steps').value=d?.steps||'';
-  document.getElementById('dr-savebtn').textContent=addToSession?'Speichern & hinzufügen':'Speichern';
+  document.getElementById('d-bidx').value=(blockIdx>=0)?blockIdx:-1;
+  const inBuilder=addToSession||(blockIdx>=0);
+  document.getElementById('dr-savebtn').textContent=addToSession?'Speichern & hinzufügen':inBuilder?'Speichern':'Speichern';
   openM('m-drill');
 }
 async function saveDrill(){
@@ -993,7 +994,14 @@ async function saveDrill(){
   const idx=db.drills.findIndex(d=>d.id===eid);
   if(idx>=0)db.drills[idx]=drill;else db.drills.push(drill);
   closeM('m-drill');
-  if(ats){currentBlocks.push({cat:drill.cat,dur:drill.dur,name:drill.name,desc:drill.desc,drillId:drill.id});renderBlocks();}
+  const bidx=parseInt(document.getElementById('d-bidx').value);
+  if(bidx>=0&&bidx<currentBlocks.length){
+    // Block im Builder in-place aktualisieren
+    currentBlocks[bidx]={...currentBlocks[bidx],cat:drill.cat,dur:drill.dur,name:drill.name,desc:drill.desc,drillId:drill.id};
+    renderBlocks();
+  } else if(ats){
+    currentBlocks.push({cat:drill.cat,dur:drill.dur,name:drill.name,desc:drill.desc,drillId:drill.id});renderBlocks();
+  }
   if(document.getElementById('pnl-drills').classList.contains('active'))renderDrills();
   await sbUpsert('custom_drills',toDB.drill(drill));
 }
@@ -1047,6 +1055,24 @@ function addSectionCustom(){
   const name=document.getElementById('sec-name').value.trim();
   if(!name)return;
   addSection(name);
+}
+function openDrillForBlock(idx){
+  const b=currentBlocks[idx];
+  if(!b)return;
+  if(b.drillId&&allDrills().find(d=>d.id===b.drillId)){
+    // Drill existiert in Library → normal öffnen (in-place update)
+    openDrillMdl(b.drillId,b.cat==='systeme',false,idx);
+  } else {
+    // Kein Library-Eintrag → neues Drill-Modal pre-füllen
+    openDrillMdl(null,b.cat==='systeme',false,idx);
+    // Felder aus Block vorausfüllen
+    setTimeout(()=>{
+      document.getElementById('d-name').value=b.name||'';
+      document.getElementById('d-cat').value=b.cat||'technik';
+      document.getElementById('d-dur').value=b.dur||10;
+      document.getElementById('d-desc').value=b.desc||'';
+    },0);
+  }
 }
 function openBlockMdl(idx){
   const b=idx>=0?currentBlocks[idx]:null;
@@ -1120,7 +1146,7 @@ function renderBlocks(){
     <span class="bdur">${b.dur}min</span>
     <div style="flex:1;"><div class="bname">${b.name}</div>${b.desc?`<div class="bdesc">${b.desc.length>80?b.desc.slice(0,80)+'…':b.desc}</div>`:''}</div>
     <div class="bact">
-      <button class="btn btn-sec btn-xs" onclick="openBlockMdl(${i})">Bearbeiten</button>
+      <button class="btn btn-sec btn-xs" onclick="openDrillForBlock(${i})">Bearbeiten</button>
       <button class="btn btn-dan btn-xs" onclick="delBlock(${i})">✕</button>
     </div></div>`;
   }).join('');
