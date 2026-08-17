@@ -281,8 +281,9 @@ function checkPw(){
     <div id="ltab-systeme" class="tab" data-ltab="systeme" onclick="setLibTab('systeme')" style="background:none;padding:6px 14px;font-size:11px;font-weight:800;color:#9ca3af;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;">Systeme</div>
   </div>
   <div class="flex g2 mb2" style="flex-wrap:wrap;align-items:center;">
-    <input type="text" id="dsearch" placeholder="Suchen…" style="width:180px;font-size:12px;" oninput="renderDrills()">
+    <input type="text" id="dsearch" placeholder="Suchen…" style="width:160px;font-size:12px;" oninput="renderDrills()">
     <select id="dtf" onchange="renderDrills()" style="width:auto;font-size:12px;"><option value="">Alle Teams</option></select>
+    <select id="dauthor" onchange="renderDrills()" style="width:auto;font-size:12px;"><option value="">Alle Autoren</option></select>
     <select id="dsystype" onchange="renderDrills()" style="width:auto;font-size:12px;display:none;"><option value="">Alle Typen</option><option>Angriffssystem</option><option>Verteidigungssystem</option><option>Setplay Angriff</option><option>Setplay Verteidigung</option><option>ATO (After Timeout)</option><option>BOB (Baseline Out of Bounds)</option><option>SLOB (Sideline Out of Bounds)</option><option>Press-Breaker</option><option>Zonenbrecher</option></select>
   </div>
   <div class="fb" id="dcat-filter"></div>
