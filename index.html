@@ -1381,6 +1381,18 @@ function renderBlocks(){
   document.getElementById('total-t').textContent=total+' Min.';
   const el=document.getElementById('block-list');
   if(currentBlocks.length===0){el.innerHTML='<div class="empty">Noch keine Blöcke.</div>';return;}
+  // Precompute section totals: for each section block, sum dur of following blocks until next section
+  const secTotals={};
+  currentBlocks.forEach((b,i)=>{
+    if(b.type==='section'){
+      let sum=0;
+      for(let j=i+1;j<currentBlocks.length;j++){
+        if(currentBlocks[j].type==='section')break;
+        sum+=currentBlocks[j].dur||0;
+      }
+      secTotals[i]=sum;
+    }
+  });
   el.innerHTML=currentBlocks.map((b,i)=>{
     if(b.type==='text'){
       return`<div class="bli bblk-dnd" style="border-left:3px solid #9ca3af;background:#f8f9fa;" draggable="true" ondragstart="_dndStart(event,${i})" ondragover="_dndOver(event,${i})" ondragleave="_dndLeave(event)" ondrop="_dndDrop(event,${i})" ondragend="_dndEnd(event)">
