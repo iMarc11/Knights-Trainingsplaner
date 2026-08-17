@@ -1046,6 +1046,8 @@ function setLibTab(t){
 function popDrillTF(){
   const sel=document.getElementById('dtf');
   sel.innerHTML='<option value="">Alle Teams</option>'+db.teams.map(t=>`<option value="${t.cat}">${t.name}</option>`).join('');
+  const asel=document.getElementById('dauthor');
+  if(asel)asel.innerHTML='<option value="">Alle Autoren</option>'+db.coaches.map(c=>`<option value="${c}">${c}</option>`).join('')+'<option value="__bot__">Bot – System</option>';
 }
 function renderDrillCatFilter(){
   const cats=aLibTab==='systeme'?CL_SYS:CL_DRILL;
