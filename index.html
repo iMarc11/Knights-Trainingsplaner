@@ -1014,26 +1014,50 @@ async function saveWeek(){
 }
 
 // ── DRILLS ────────────────────────────────────────────────
-const CL={aufwaermen:'🔥 Aufwärmen',ballhandling:'🏀 Ballhandling',passspiel:'🤝 Passspiel',technik:'🎯 Technik & Abschluss',verteidigung:'🛡️ Verteidigung',angriff:'⚡ Angriff & Taktik',kondition:'💪 Kondition',spielform:'🏆 Spielform',systeme:'🗂️ Systeme & Setplays'};
+const CL={aufwaermen:'🔥 Aufwärmen',ballhandling:'🏀 Ballhandling',passspiel:'🤝 Passspiel',technik:'🎯 Technik & Abschluss',verteidigung:'🛡️ Verteidigung',angriff:'⚡ Angriff & Taktik',kondition:'💪 Kondition',spielform:'🏆 Spielform'};
+const CL_SYS={systeme:'🗂️ Systeme & Setplays'};
 let aDrillCat='';
+let aLibTab='drills'; // 'drills' | 'systeme'
+function setLibTab(t){
+  aLibTab=t;aDrillCat='';
+  ['drills','systeme'].forEach(k=>{
+    const el=document.getElementById('ltab-'+k);
+    if(!el)return;
+    const active=k===t;
+    el.style.color=active?'var(--sec)':'#9ca3af';
+    el.style.borderBottomColor=active?'var(--pri)':'transparent';
+  });
+  document.getElementById('lib-title').textContent=t==='systeme'?'Systeme':'Drills';
+  document.getElementById('lib-btns').innerHTML=t==='systeme'
+    ?'<button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,true)">+ System</button>'
+    :'<button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,false)">+ Drill</button>';
+  document.getElementById('dsystype').style.display=t==='systeme'?'':'none';
+  renderDrills();
+}
 function popDrillTF(){
   const sel=document.getElementById('dtf');
-  sel.innerHTML='<option value="">Alle</option>'+db.teams.map(t=>`<option value="${t.cat}">${t.name}</option>`).join('');
+  sel.innerHTML='<option value="">Alle Teams</option>'+db.teams.map(t=>`<option value="${t.cat}">${t.name}</option>`).join('');
 }
 function renderDrillCatFilter(){
+  const cats=aLibTab==='systeme'?CL_SYS:CL;
   document.getElementById('dcat-filter').innerHTML=
     `<div class="chip ${!aDrillCat?'on':''}" onclick="setDC('')">Alle</div>`+
-    Object.entries(CL).map(([k,v])=>`<div class="chip ${aDrillCat===k?'on':''}" onclick="setDC('${k}')">${v}</div>`).join('');
+    Object.entries(cats).map(([k,v])=>`<div class="chip ${aDrillCat===k?'on':''}" onclick="setDC('${k}')">${v}</div>`).join('');
 }
 function setDC(c){aDrillCat=c;renderDrillCatFilter();renderDrills();}
 function renderDrills(){
   renderDrillCatFilter();
   const q=(document.getElementById('dsearch').value||'').toLowerCase();
   const tc=document.getElementById('dtf').value;
+  const sysType=document.getElementById('dsystype')?document.getElementById('dsystype').value:'';
   let drills=allDrills();
+  // Sub-Tab Filter
+  if(aLibTab==='systeme')drills=drills.filter(d=>d.cat==='systeme');
+  else drills=drills.filter(d=>d.cat!=='systeme');
   if(aDrillCat)drills=drills.filter(d=>d.cat===aDrillCat);
   if(q)drills=drills.filter(d=>d.name.toLowerCase().includes(q)||(d.desc||'').toLowerCase().includes(q));
   if(tc)drills=drills.filter(d=>(d.ag||[]).includes(tc));
+  if(sysType)drills=drills.filter(d=>d.systemType===sysType);
   const el=document.getElementById('drill-list');
   if(drills.length===0){el.innerHTML='<div class="empty">Keine Einträge.</div>';return;}
   el.innerHTML=drills.map(d=>dcHTML(d)).join('');
