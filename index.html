@@ -193,8 +193,16 @@ function checkPw(){
 
 <!-- HOME / DASHBOARD -->
 <div class="pnl active" id="pnl-home">
+  <!-- Info-Box -->
+  <div style="background:linear-gradient(135deg,#fff7f0 0%,#fff 100%);border:1.5px solid var(--pri);border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;gap:14px;align-items:flex-start;">
+    <div style="font-size:28px;line-height:1;flex-shrink:0;margin-top:1px;">🏀</div>
+    <div>
+      <div style="font-size:13px;font-weight:900;color:var(--pri);margin-bottom:4px;letter-spacing:-.2px;">Für alle Knights Coaches</div>
+      <div style="font-size:12px;color:var(--fg);line-height:1.6;">Dieses Tool steht dem gesamten Trainerteam zur Verfügung. Alle Trainings, Drills und Systeme sind für alle sichtbar und können gemeinsam genutzt werden. <strong>Bitte bearbeite keine Trainings oder Saisonplanungen von Mannschaften, für die du nicht verantwortlich bist.</strong></div>
+    </div>
+  </div>
   <!-- Navigation Cards: 4 in einer Reihe -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;margin-top:4px;">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
     <div onclick="switchTab('builder');clearBuilder();" style="background:var(--pri);border-radius:10px;padding:16px 14px;cursor:pointer;transition:opacity .15s;" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">
       <div style="font-size:24px;margin-bottom:8px;">🏗️</div>
       <div style="font-size:13px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:3px;">Neues Training</div>
@@ -215,11 +223,6 @@ function checkPw(){
       <div style="font-size:13px;font-weight:900;color:var(--fg);line-height:1.2;margin-bottom:3px;">Saisonplanung</div>
       <div style="font-size:11px;color:var(--mut);">Phasen & Wochen</div>
     </div>
-  </div>
-  <!-- Info-Box -->
-  <div style="background:#fff7f0;border-left:3px solid var(--pri);border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:20px;font-size:12px;color:var(--fg);line-height:1.6;">
-    <div style="font-weight:800;margin-bottom:3px;color:var(--pri);">Für alle Knights Coaches</div>
-    Dieses Tool steht dem gesamten Trainerteam zur Verfügung. Alle Trainings, Drills und Systeme sind für alle sichtbar und können gemeinsam genutzt werden. <strong>Bitte bearbeite keine Trainings oder Saisonplanungen von Mannschaften, für die du nicht verantwortlich bist.</strong>
   </div>
   <!-- Letzte Trainings -->
   <div style="font-size:12px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Letzte Trainings</div>
