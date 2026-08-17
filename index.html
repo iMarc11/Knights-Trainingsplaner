@@ -1510,6 +1510,13 @@ async function dupSess(){
   closeM('m-sdet');renderSessions();renderHome();
   await sbUpsert('sessions',toDB.session(newS));
 }
+async function dupSessFromList(id){
+  const s=db.sessions.find(s=>s.id===id);if(!s)return;
+  const newS={...s,id:Date.now().toString(),title:'KOPIE '+s.title};
+  db.sessions.unshift(newS);
+  renderSessions();renderHome();
+  await sbUpsert('sessions',toDB.session(newS));
+}
 function editSessDirect(id){
   viewSessId=id;editCurSess();
 }
