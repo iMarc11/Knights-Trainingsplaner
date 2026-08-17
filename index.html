@@ -1041,8 +1041,9 @@ function setLibTab(t){
     const el=document.getElementById('ltab-'+k);
     if(!el)return;
     const active=k===t;
-    el.style.color=active?'var(--sec)':'#9ca3af';
-    el.style.borderBottomColor=active?'var(--pri)':'transparent';
+    el.style.background=active?'var(--sec)':'transparent';
+    el.style.color=active?'#fff':'var(--mut)';
+    el.style.boxShadow=active?'0 1px 3px rgba(0,0,0,.18)':'none';
   });
   document.getElementById('lib-title').textContent=t==='systeme'?'Systeme':'Drills';
   document.getElementById('lib-btns').innerHTML=t==='systeme'
