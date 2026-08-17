@@ -71,6 +71,7 @@ input[type=checkbox]{width:auto;accent-color:var(--pri);}
 .bname{font-size:12px;font-weight:600;margin-bottom:1px;}
 .bdesc{font-size:11px;color:var(--mut);}
 .bact{display:flex;gap:2px;flex-shrink:0;}
+.bblk-dnd{cursor:grab;}.bblk-dnd:active{cursor:grabbing;}.bblk-drag-over{outline:2px dashed var(--pri);outline-offset:2px;border-radius:var(--r);}
 .bsec{background:var(--sec);color:#fff;border-radius:6px;padding:8px 12px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;cursor:default;}
 .bsec-presets{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
 .tbar{background:var(--sec);color:#fff;border-radius:6px;padding:7px 12px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;margin-bottom:8px;}
@@ -171,9 +172,9 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   <div class="card mb4" style="padding:10px 14px;">
     <div class="flex jb ac" style="cursor:pointer;" onclick="toggleTeamMgr()" id="team-mgr-toggle">
       <span style="font-size:12px;font-weight:800;color:var(--sec);letter-spacing:.5px;text-transform:uppercase;">Teams verwalten</span>
-      <span id="team-mgr-arrow" style="font-size:12px;color:var(--mut);">▼</span>
+      <span id="team-mgr-arrow" style="font-size:12px;color:var(--mut);">▲</span>
     </div>
-    <div id="team-mgr-body" style="display:none;margin-top:10px;">
+    <div id="team-mgr-body" style="display:block;margin-top:10px;">
       <div class="tgrid" id="team-grid"></div>
       <button class="btn btn-pri btn-sm" onclick="openTeamMdl()" style="margin-top:4px;">+ Team erstellen</button>
     </div>
@@ -243,11 +244,19 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
     <div class="flex jb ac mb3">
       <div class="cht" style="margin:0;">Trainingsblöcke</div>
       <div class="flex g1">
-        <button class="btn btn-gho btn-sm" onclick="openPicker()">📚 Bibliothek</button>
-        <button class="btn btn-gho btn-sm" onclick="openDrillMdl(null,false,true)">+ Neuer Drill</button>
-        <button class="btn btn-sec btn-sm" onclick="openSectionMdl()">＋ Abschnitt</button>
-        <button class="btn btn-sec btn-sm" onclick="openTextBlockMdl(-1)">+ Textblock</button>
-        <button class="btn btn-pri btn-sm" onclick="openBlockMdl(-1)">+ Manuell</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+          <div style="display:flex;gap:4px;background:#f0f1f3;border-radius:8px;padding:4px 6px;">
+            <span style="font-size:10px;font-weight:800;color:var(--mut);align-self:center;text-transform:uppercase;letter-spacing:.5px;margin-right:2px;">Drill:</span>
+            <button class="btn btn-pri btn-sm" onclick="openPicker()">📚 Bibliothek</button>
+            <button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,false,true)">+ Neu</button>
+            <button class="btn btn-sec btn-sm" onclick="openBlockMdl(-1)">+ Manuell</button>
+          </div>
+          <div style="display:flex;gap:4px;background:#f0f1f3;border-radius:8px;padding:4px 6px;">
+            <span style="font-size:10px;font-weight:800;color:var(--mut);align-self:center;text-transform:uppercase;letter-spacing:.5px;margin-right:2px;">Struktur:</span>
+            <button class="btn btn-sec btn-sm" onclick="openSectionMdl()">Abschnitt</button>
+            <button class="btn btn-sec btn-sm" onclick="openTextBlockMdl(-1)">Textblock</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="tbar"><span>Gesamtdauer</span><span id="total-t">0 Min.</span></div>
@@ -274,6 +283,10 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   <div class="form-row">
     <div class="fg"><label>Altersgruppe</label><select id="t-age"><option>U10</option><option>U12</option><option>U14</option><option>U16</option><option>U18</option><option>U20</option><option>Senioren</option><option>1. Mannschaft</option><option>2. Mannschaft</option></select></div>
     <div class="fg"><label>Emoji</label><input type="text" id="t-em" value="🏀" maxlength="2"></div>
+  </div>
+  <div class="form-row">
+    <div class="fg"><label>Trainer</label><input type="text" id="t-trainer" placeholder="Name Trainer"></div>
+    <div class="fg"><label>Co-Trainer</label><input type="text" id="t-co" placeholder="Name Co-Trainer"></div>
   </div>
   <div class="fg"><label>Beschreibung</label><textarea id="t-desc"></textarea></div>
   <input type="hidden" id="t-id">
@@ -507,13 +520,13 @@ async function sbDelete(table,col,val){
 
 // ── MAPPERS ──────────────────────────────────────────────
 const fromDB={
-  team:r=>({id:r.id,name:r.name,cat:r.cat||'herren',age:r.age||'U16',emoji:r.emoji||'🏀',desc:r.description||''}),
+  team:r=>({id:r.id,name:r.name,cat:r.cat||'herren',age:r.age||'U16',emoji:r.emoji||'🏀',desc:r.description||'',trainer:r.trainer||'',coTrainer:r.co_trainer||''}),
   season:r=>({id:r.id,teamId:r.team_id,name:r.name,start:r.start_date,end:r.end_date,phases:r.phases||[],weeks:r.weeks||{}}),
   drill:r=>{const _p=(r.description||'').split('\u001F');return{id:r.id,name:r.name,cat:r.cat,dur:r.dur||10,players:r.players||4,diff:r.diff||1,ag:r.age_groups||[],desc:_p[0]||'',link:_p[1]||'',coaching:r.coaching||'',systemType:r.system_type,formation:r.formation,steps:r.steps,custom:true};},
   session:r=>({id:r.id,teamId:r.team_id,title:r.title,date:r.date,location:r.location||'',goal:r.goal||'',notes:r.notes||'',blocks:r.blocks||[],totalDur:r.total_dur||0}),
 };
 const toDB={
-  team:t=>({id:t.id,name:t.name,cat:t.cat,age:t.age,emoji:t.emoji,description:t.desc||''}),
+  team:t=>({id:t.id,name:t.name,cat:t.cat,age:t.age,emoji:t.emoji,description:t.desc||'',trainer:t.trainer||'',co_trainer:t.coTrainer||''}),
   season:s=>({id:s.id,team_id:s.teamId,name:s.name,start_date:s.start,end_date:s.end,phases:s.phases||[],weeks:s.weeks||{}}),
   drill:d=>({id:d.id,name:d.name,cat:d.cat,dur:d.dur,players:d.players,diff:d.diff,age_groups:d.ag||[],description:d.link?(d.desc||'')+'\u001F'+d.link:(d.desc||''),coaching:d.coaching||'',system_type:d.systemType||null,formation:d.formation||null,steps:d.steps||null}),
   session:s=>({id:s.id,team_id:s.teamId,title:s.title,date:s.date||null,location:s.location||null,goal:s.goal||null,notes:s.notes||null,blocks:s.blocks||[],total_dur:s.totalDur||0}),
@@ -688,6 +701,8 @@ function openTeamMdl(id){
   document.getElementById('t-cat').value=t?.cat||'herren';
   document.getElementById('t-age').value=t?.age||'U16';
   document.getElementById('t-em').value=t?.emoji||'🏀';
+  document.getElementById('t-trainer').value=t?.trainer||'';
+  document.getElementById('t-co').value=t?.coTrainer||'';
   document.getElementById('t-desc').value=t?.desc||'';
   openM('m-team');
 }
@@ -695,7 +710,7 @@ async function saveTeam(){
   const name=document.getElementById('t-name').value.trim();
   if(!name)return alert('Name fehlt.');
   const id=document.getElementById('t-id').value||Date.now().toString();
-  const team={id,name,cat:document.getElementById('t-cat').value,age:document.getElementById('t-age').value,emoji:document.getElementById('t-em').value||'🏀',desc:document.getElementById('t-desc').value.trim()};
+  const team={id,name,cat:document.getElementById('t-cat').value,age:document.getElementById('t-age').value,emoji:document.getElementById('t-em').value||'🏀',trainer:document.getElementById('t-trainer').value.trim(),coTrainer:document.getElementById('t-co').value.trim(),desc:document.getElementById('t-desc').value.trim()};
   const idx=db.teams.findIndex(t=>t.id===id);
   if(idx>=0)db.teams[idx]=team;else db.teams.push(team);
   closeM('m-team');renderTeams();populateBuilderTeamSel();
@@ -712,12 +727,14 @@ function renderTeams(){
   const grid=document.getElementById('team-grid'),empty=document.getElementById('team-empty');
   if(db.teams.length===0){grid.innerHTML='';empty.classList.remove('hidden');return;}
   empty.classList.add('hidden');
-  grid.innerHTML=db.teams.map(t=>`<div class="tc">
-    <div class="te">${t.emoji}</div><div class="tn">${t.name}</div>
-    <div class="tm">${CE[t.cat]||''} ${t.cat} · ${t.age}</div>
-    ${t.desc?`<div class="tm" style="margin-top:3px;">${t.desc}</div>`:''}
-    <div class="flex g1" style="margin-top:8px;">
-      <button class="btn btn-gho btn-xs" onclick="openTeamMdl('${t.id}')">✏️</button>
+  grid.innerHTML=db.teams.map(t=>`<div style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+    <div style="font-size:22px;flex-shrink:0;">${t.emoji}</div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:13px;font-weight:700;">${t.name}</div>
+      <div style="font-size:11px;color:var(--mut);">${CE[t.cat]||''} ${t.cat} · ${t.age}${t.trainer?` · 👤 ${t.trainer}`:''}${t.coTrainer?` · ${t.coTrainer}`:''}</div>
+    </div>
+    <div class="flex g1" style="flex-shrink:0;">
+      <button class="btn btn-sec btn-xs" onclick="openTeamMdl('${t.id}')">Bearbeiten</button>
       <button class="btn btn-dan btn-xs" onclick="deleteTeam('${t.id}')">✕</button>
     </div></div>`).join('');
 }
@@ -1026,6 +1043,13 @@ function saveBlock(){
 }
 function moveBlock(i,d){const ni=i+d;if(ni<0||ni>=currentBlocks.length)return;[currentBlocks[i],currentBlocks[ni]]=[currentBlocks[ni],currentBlocks[i]];renderBlocks();}
 function delBlock(i){currentBlocks.splice(i,1);renderBlocks();}
+
+let _dragIdx=null;
+function _dndStart(e,i){_dragIdx=i;e.dataTransfer.effectAllowed='move';setTimeout(()=>{try{e.target.closest('.bli,.bsec,.bblk-txt').style.opacity='.4';}catch(_){}},0);}
+function _dndOver(e,i){e.preventDefault();e.dataTransfer.dropEffect='move';document.querySelectorAll('.bblk-drag-over').forEach(el=>el.classList.remove('bblk-drag-over'));if(i!==_dragIdx){try{e.currentTarget.classList.add('bblk-drag-over');}catch(_){}}}
+function _dndLeave(e){try{e.currentTarget.classList.remove('bblk-drag-over');}catch(_){}}
+function _dndDrop(e,i){e.preventDefault();document.querySelectorAll('.bblk-drag-over').forEach(el=>el.classList.remove('bblk-drag-over'));if(_dragIdx===null||_dragIdx===i)return;const m=currentBlocks.splice(_dragIdx,1)[0];currentBlocks.splice(i,0,m);_dragIdx=null;renderBlocks();}
+function _dndEnd(e){_dragIdx=null;document.querySelectorAll('.bblk-drag-over').forEach(el=>el.classList.remove('bblk-drag-over'));try{e.target.closest('.bli,.bsec,.bblk-txt').style.opacity='';}catch(_){}}
 function renderBlocks(){
   const total=currentBlocks.reduce((s,b)=>b.type==='section'?s:s+b.dur,0);
   document.getElementById('total-t').textContent=total+' Min.';
@@ -1033,33 +1057,29 @@ function renderBlocks(){
   if(currentBlocks.length===0){el.innerHTML='<div class="empty">Noch keine Blöcke.</div>';return;}
   el.innerHTML=currentBlocks.map((b,i)=>{
     if(b.type==='text'){
-      return`<div class="bli" style="border-left:3px solid #9ca3af;background:#f8f9fa;">
+      return`<div class="bli bblk-dnd" style="border-left:3px solid #9ca3af;background:#f8f9fa;" draggable="true" ondragstart="_dndStart(event,${i})" ondragover="_dndOver(event,${i})" ondragleave="_dndLeave(event)" ondrop="_dndDrop(event,${i})" ondragend="_dndEnd(event)">
+    <span style="cursor:grab;color:#ccc;font-size:16px;flex-shrink:0;padding:0 2px;user-select:none;">⠿</span>
     <span class="btt" style="background:#f3f4f6;color:#6b7280;border:1px solid #e2e4e8;">Notiz</span>
     <div style="flex:1;"><div class="bname" style="color:#374151;">${b.name}</div>${b.text?`<div class="bdesc" style="white-space:pre-line;">${b.text.length>100?b.text.slice(0,100)+'…':b.text}</div>`:''}</div>
     <div class="bact">
-      <button class="btn btn-sec btn-xs" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''}>↑</button>
-      <button class="btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''}>↓</button>
-      <button class="btn btn-sec btn-xs" onclick="openTextBlockMdl(${i})">✏️</button>
+      <button class="btn btn-sec btn-xs" onclick="openTextBlockMdl(${i})">Bearbeiten</button>
       <button class="btn btn-dan btn-xs" onclick="delBlock(${i})">✕</button>
     </div></div>`;
     }
     if(b.type==='section'){
-      return`<div class="bsec">
-        <span>— ${b.name} —</span>
+      return`<div class="bsec bblk-dnd" draggable="true" ondragstart="_dndStart(event,${i})" ondragover="_dndOver(event,${i})" ondragleave="_dndLeave(event)" ondrop="_dndDrop(event,${i})" ondragend="_dndEnd(event)">
+        <div style="display:flex;align-items:center;gap:6px;"><span style="cursor:grab;color:rgba(255,255,255,.4);font-size:16px;user-select:none;">⠿</span><span>— ${b.name} —</span></div>
         <div class="flex g1">
-          <button class="btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''}>↑</button>
-          <button class="btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''}>↓</button>
           <button class="btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="delBlock(${i})">✕</button>
         </div></div>`;
     }
-    return`<div class="bli">
+    return`<div class="bli bblk-dnd" draggable="true" ondragstart="_dndStart(event,${i})" ondragover="_dndOver(event,${i})" ondragleave="_dndLeave(event)" ondrop="_dndDrop(event,${i})" ondragend="_dndEnd(event)">
+    <span style="cursor:grab;color:#ccc;font-size:16px;flex-shrink:0;padding:0 2px;user-select:none;">⠿</span>
     <span class="btt type-${b.cat}">${CL[b.cat]||b.cat}</span>
     <span class="bdur">${b.dur}min</span>
     <div style="flex:1;"><div class="bname">${b.name}</div>${b.desc?`<div class="bdesc">${b.desc.length>80?b.desc.slice(0,80)+'…':b.desc}</div>`:''}</div>
     <div class="bact">
-      <button class="btn btn-sec btn-xs" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''}>↑</button>
-      <button class="btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''}>↓</button>
-      <button class="btn btn-sec btn-xs" onclick="openBlockMdl(${i})">✏️</button>
+      <button class="btn btn-sec btn-xs" onclick="openBlockMdl(${i})">Bearbeiten</button>
       <button class="btn btn-dan btn-xs" onclick="delBlock(${i})">✕</button>
     </div></div>`;
   }).join('');
