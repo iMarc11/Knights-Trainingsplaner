@@ -796,7 +796,7 @@ function switchTab(t){
   document.getElementById('pnl-'+t).classList.add('active');
   if(t==='home'){renderHome();}
   if(t==='season'){popSsTeamSel();renderSeason();renderTeams();}
-  if(t==='drills'){popDrillTF();renderDrills();}
+  if(t==='drills'){popDrillTF();setLibTab(aLibTab);}
   if(t==='sessions'){renderSessTeamFilter();renderSessions();}
 }
 function renderHome(){
