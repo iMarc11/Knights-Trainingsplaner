@@ -740,15 +740,15 @@ async function deleteTeam(id){
   await sbDelete('teams','id',id);
 }
 function renderTeams(){
-  const teamHTML=db.teams.length===0?'':db.teams.map(t=>`<div style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+  const teamHTML=db.teams.length===0?'':db.teams.map(t=>`<div onclick="selectTeamForSeason('${t.id}')" onmouseenter="this.style.borderColor='var(--sec)'" onmouseleave="this.style.borderColor='var(--brd)'" style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px;cursor:pointer;">
     <div style="font-size:22px;flex-shrink:0;">${t.emoji}</div>
     <div style="flex:1;min-width:0;">
       <div style="font-size:13px;font-weight:700;">${t.name}</div>
-      <div style="font-size:11px;color:var(--mut);">${CE[t.cat]||''} ${t.cat} · ${t.age}${t.trainer?` · 👤 ${t.trainer}`:''}${t.coTrainer?` · ${t.coTrainer}`:''}</div>
+      <div style="font-size:11px;color:var(--mut);">${CE[t.cat]||t.cat} · ${t.age}${t.trainer?` · 👤 ${t.trainer}`:''}${t.coTrainer?` · ${t.coTrainer}`:''}</div>
     </div>
     <div class="flex g1" style="flex-shrink:0;">
-      <button class="btn btn-sec btn-xs" onclick="openTeamMdl('${t.id}')">Bearbeiten</button>
-      <button class="btn btn-dan btn-xs" onclick="deleteTeam('${t.id}')">✕</button>
+      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();openTeamMdl('${t.id}')">Bearbeiten</button>
+      <button class="btn btn-dan btn-xs" onclick="event.stopPropagation();deleteTeam('${t.id}')">✕</button>
     </div></div>`).join('');
   // pnl-teams (Fallback)
   const g1=document.getElementById('team-grid'),e1=document.getElementById('team-empty');
