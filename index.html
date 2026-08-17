@@ -284,9 +284,9 @@ function checkPw(){
     </div>
   </div>
   <!-- Sub-Tabs: Drills | Systeme -->
-  <div class="flex g1 mb3" style="border-bottom:2px solid var(--brd);padding-bottom:0;">
-    <div id="ltab-drills" class="tab active" data-ltab="drills" onclick="setLibTab('drills')" style="background:none;padding:6px 14px;font-size:11px;font-weight:800;color:var(--sec);border-bottom:3px solid var(--pri);margin-bottom:-2px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;">Drills</div>
-    <div id="ltab-systeme" class="tab" data-ltab="systeme" onclick="setLibTab('systeme')" style="background:none;padding:6px 14px;font-size:11px;font-weight:800;color:#9ca3af;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;">Systeme</div>
+  <div class="mb3" style="display:inline-flex;background:#f0f1f3;border-radius:8px;padding:3px;gap:3px;">
+    <div id="ltab-drills" onclick="setLibTab('drills')" style="padding:6px 20px;border-radius:6px;font-size:12px;font-weight:800;cursor:pointer;transition:all .15s;background:var(--sec);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);">🏀 Drills</div>
+    <div id="ltab-systeme" onclick="setLibTab('systeme')" style="padding:6px 20px;border-radius:6px;font-size:12px;font-weight:800;cursor:pointer;transition:all .15s;background:transparent;color:var(--mut);">🗂️ Systeme</div>
   </div>
   <div class="flex g2 mb2" style="flex-wrap:wrap;align-items:center;">
     <input type="text" id="dsearch" placeholder="Suchen…" style="width:160px;font-size:12px;" oninput="renderDrills()">
