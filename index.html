@@ -1191,7 +1191,7 @@ function openDrillMdl(id,isSys,addToSession,blockIdx){
   document.getElementById('d-desc').value=d?.desc||'';
   document.getElementById('d-coach').value=d?.coaching||'';
   document.getElementById('d-link').value=d?.link||'';
-  document.getElementById('sys-flds').classList.toggle('hidden',!isS);
+  onDCatChange();
   document.getElementById('d-stype').value=d?.systemType||'Angriffssystem';
   document.getElementById('d-form').value=d?.formation||'';
   document.getElementById('d-steps').value=d?.steps||'';
