@@ -147,6 +147,9 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   </div>
 </div>
 <script>
+// ── Security helper: HTML-escape user-generated content before innerHTML ──
+function esc(s){const d=document.createElement('div');d.appendChild(document.createTextNode(String(s??'')));return d.innerHTML;}
+
 function checkPw(){
   const v=document.getElementById('pw-input').value.trim();
   if(v==='1992'){
