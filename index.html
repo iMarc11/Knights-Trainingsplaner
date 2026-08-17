@@ -248,7 +248,7 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
           <div style="display:flex;gap:4px;background:#f0f1f3;border-radius:8px;padding:4px 6px;">
             <span style="font-size:10px;font-weight:800;color:var(--mut);align-self:center;text-transform:uppercase;letter-spacing:.5px;margin-right:2px;">Drill:</span>
             <button class="btn btn-pri btn-sm" onclick="openPicker()">📚 Bibliothek</button>
-            <button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,false,true)">+ Neu</button>
+            <button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,false,true)">+ Drill erstellen</button>
           </div>
           <div style="display:flex;gap:4px;background:#f0f1f3;border-radius:8px;padding:4px 6px;">
             <span style="font-size:10px;font-weight:800;color:var(--mut);align-self:center;text-transform:uppercase;letter-spacing:.5px;margin-right:2px;">Struktur:</span>
@@ -366,6 +366,10 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   <div class="fg"><label>Coaching-Punkte</label><textarea id="d-coach" style="min-height:48px;"></textarea></div>
   <div class="fg"><label>Link</label><input type="url" id="d-link" placeholder="https://youtube.com/..."></div>
   <input type="hidden" id="d-id"><input type="hidden" id="d-ats" value="0"><input type="hidden" id="d-bidx" value="-1">
+  <div id="d-tolib-row" style="display:none;align-items:center;gap:8px;margin-bottom:10px;">
+    <input type="checkbox" id="d-tolib" checked style="width:15px;height:15px;cursor:pointer;">
+    <label for="d-tolib" style="font-size:12px;cursor:pointer;margin:0;">In Bibliothek speichern (wiederverwendbar)</label>
+  </div>
   <div class="mft"><button class="btn btn-sec" onclick="closeM('m-drill')">Abbrechen</button><button class="btn btn-pri" id="dr-savebtn" onclick="saveDrill()">Speichern</button></div>
 </div></div>
 
@@ -975,8 +979,12 @@ function openDrillMdl(id,isSys,addToSession,blockIdx){
   document.getElementById('d-form').value=d?.formation||'';
   document.getElementById('d-steps').value=d?.steps||'';
   document.getElementById('d-bidx').value=(blockIdx>=0)?blockIdx:-1;
+  // Checkbox: nur im Builder-Kontext sichtbar; neu=an, bestehend=aus
   const inBuilder=addToSession||(blockIdx>=0);
-  document.getElementById('dr-savebtn').textContent=addToSession?'Speichern & hinzufügen':inBuilder?'Speichern':'Speichern';
+  const tolibRow=document.getElementById('d-tolib-row');
+  tolibRow.style.display=inBuilder?'flex':'none';
+  document.getElementById('d-tolib').checked=!id; // neu→an, bestehend→aus
+  document.getElementById('dr-savebtn').textContent='Speichern';
   openM('m-drill');
 }
 async function saveDrill(){
@@ -991,19 +999,23 @@ async function saveDrill(){
   const ats=document.getElementById('d-ats').value==='1';
   const drill={id:eid||Date.now().toString(),name,cat,dur:parseInt(document.getElementById('d-dur').value)||10,players:parseInt(document.getElementById('d-pl').value)||4,diff:1,ag:ags,desc:document.getElementById('d-desc').value.trim(),link:document.getElementById('d-link').value.trim(),coaching:document.getElementById('d-coach').value.trim(),custom:true,
     ...(isSys?{systemType:document.getElementById('d-stype').value,formation:document.getElementById('d-form').value.trim(),steps:document.getElementById('d-steps').value.trim()}:{})};
-  const idx=db.drills.findIndex(d=>d.id===eid);
-  if(idx>=0)db.drills[idx]=drill;else db.drills.push(drill);
-  closeM('m-drill');
   const bidx=parseInt(document.getElementById('d-bidx').value);
+  const inBuilderCtx=ats||(bidx>=0);
+  const toLib=inBuilderCtx?document.getElementById('d-tolib').checked:true; // Bibliothek-Tab: immer speichern
+  if(toLib){
+    const idx=db.drills.findIndex(d=>d.id===eid);
+    if(idx>=0)db.drills[idx]=drill;else db.drills.push(drill);
+  }
+  closeM('m-drill');
   if(bidx>=0&&bidx<currentBlocks.length){
-    // Block im Builder in-place aktualisieren
-    currentBlocks[bidx]={...currentBlocks[bidx],cat:drill.cat,dur:drill.dur,name:drill.name,desc:drill.desc,drillId:drill.id};
+    currentBlocks[bidx]={...currentBlocks[bidx],cat:drill.cat,dur:drill.dur,name:drill.name,desc:drill.desc,drillId:toLib?drill.id:undefined};
     renderBlocks();
   } else if(ats){
-    currentBlocks.push({cat:drill.cat,dur:drill.dur,name:drill.name,desc:drill.desc,drillId:drill.id});renderBlocks();
+    currentBlocks.push({cat:drill.cat,dur:drill.dur,name:drill.name,desc:drill.desc,drillId:toLib?drill.id:undefined});
+    renderBlocks();
   }
   if(document.getElementById('pnl-drills').classList.contains('active'))renderDrills();
-  await sbUpsert('custom_drills',toDB.drill(drill));
+  if(toLib)await sbUpsert('custom_drills',toDB.drill(drill));
 }
 async function deleteDrill(id){
   if(!confirm('Drill löschen?'))return;
