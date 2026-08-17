@@ -1581,7 +1581,7 @@ function getPos(e){
 }
 function snapHistory(){DM.history.push(DM.ctx.getImageData(0,0,DM.canvas.width,DM.canvas.height));if(DM.history.length>25)DM.history.shift();}
 function undoDraw(){if(DM.history.length<=1)return;DM.history.pop();DM.ctx.putImageData(DM.history[DM.history.length-1],0,0);}
-function clearDraw(){if(!confirm('Zeichnung löschen?'))return;drawCourtTemplate(DM.ctx,DM.canvas.width,DM.canvas.height);DM.history=[];DM.offNum=1;DM.defNum=1;snapHistory();}
+function clearDraw(){if(!confirm('Zeichnung löschen?'))return;drawCourtTemplate(DM.ctx,DM.canvas.width,DM.canvas.height);DM.history=[];DM.offNum=1;DM.defNum=1;DM.coachNum=1;snapHistory();}
 
 function drawArrow(ctx,x1,y1,x2,y2,dashed){
   ctx.save();ctx.strokeStyle=DM.color;ctx.fillStyle=DM.color;ctx.lineWidth=DM.size+1;ctx.lineCap='round';
@@ -1628,6 +1628,7 @@ function onDrawStart(e){
   DM.snapshot=DM.ctx.getImageData(0,0,DM.canvas.width,DM.canvas.height);
   if(DM.tool==='off'){stampPlayer(pos.x,pos.y,true);DM.isDrawing=false;snapHistory();return;}
   if(DM.tool==='def'){stampPlayer(pos.x,pos.y,false);DM.isDrawing=false;snapHistory();return;}
+  if(DM.tool==='coach'){stampCoach(pos.x,pos.y);DM.isDrawing=false;snapHistory();return;}
   if(DM.tool==='ball'){stampBall(pos.x,pos.y);DM.isDrawing=false;snapHistory();return;}
   if(DM.tool==='screen'){stampScreen(pos.x,pos.y);DM.isDrawing=false;snapHistory();return;}
   if(DM.tool==='text'){
