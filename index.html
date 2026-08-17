@@ -1153,7 +1153,7 @@ function dcHTML(d){
       <span class="cat cat-${d.cat}">${CL[d.cat]}</span>
       <div class="dc-name" style="margin-left:6px;">${esc(d.name)}${isSys&&d.systemType?` <span class="sysb">${esc(d.systemType)}</span>`:''}</div>
       <div style="display:flex;gap:5px;align-items:center;flex-shrink:0;">
-        ${d.link?`<a href="${esc(d.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-sec btn-xs" style="text-decoration:none;">Link</a>`:''}
+        ${d.link?`<a href="${esc(d.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-sec btn-xs" style="text-decoration:none;">▶ Video-Link</a>`:''}
         <button class="btn btn-sec btn-xs" onclick="dupDrill('${esc(d.id)}')">Kopieren</button>
         <button class="btn btn-sec btn-xs" onclick="openDrillMdl('${esc(d.id)}',${isSys})">Bearbeiten</button>
         ${isCustom?`<button class="btn btn-dan btn-xs" onclick="deleteDrill('${esc(d.id)}')">✕</button>`:''}
@@ -1397,6 +1397,7 @@ function renderBlocks(){
   const el=document.getElementById('block-list');
   if(currentBlocks.length===0){el.innerHTML='<div class="empty">Noch keine Blöcke.</div>';return;}
   const secTotals=calcSecTotals(currentBlocks);
+  scheduleAutoSave();
   el.innerHTML=currentBlocks.map((b,i)=>{
     if(b.type==='text'){
       return`<div class="bli bblk-dnd" style="border-left:3px solid #9ca3af;background:#f8f9fa;" draggable="true" ondragstart="_dndStart(event,${i})" ondragover="_dndOver(event,${i})" ondragleave="_dndLeave(event)" ondrop="_dndDrop(event,${i})" ondragend="_dndEnd(event)">
