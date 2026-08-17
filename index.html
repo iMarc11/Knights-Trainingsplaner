@@ -1047,7 +1047,7 @@ function popDrillTF(){
   sel.innerHTML='<option value="">Alle Teams</option>'+db.teams.map(t=>`<option value="${t.cat}">${t.name}</option>`).join('');
 }
 function renderDrillCatFilter(){
-  const cats=aLibTab==='systeme'?CL_SYS:CL;
+  const cats=aLibTab==='systeme'?CL_SYS:CL_DRILL;
   document.getElementById('dcat-filter').innerHTML=
     `<div class="chip ${!aDrillCat?'on':''}" onclick="setDC('')">Alle</div>`+
     Object.entries(cats).map(([k,v])=>`<div class="chip ${aDrillCat===k?'on':''}" onclick="setDC('${k}')">${v}</div>`).join('');
