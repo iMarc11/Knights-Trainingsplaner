@@ -310,6 +310,49 @@ function checkPw(){
   <div id="sess-list"></div>
 </div>
 
+<!-- WISHLIST -->
+<div class="pnl" id="pnl-wishlist">
+  <div class="flex jb ac mb3">
+    <div class="shd">✨ Wishlist</div>
+    <div style="font-size:11px;color:var(--mut);">Feature-Wünsche & Ideen für die Weiterentwicklung</div>
+  </div>
+  <!-- Eingabeformular -->
+  <div class="card mb4" style="border:1.5px solid #a78bfa;background:linear-gradient(135deg,#faf5ff 0%,#fff 100%);">
+    <div class="cht" style="color:#7c3aed;">Neuer Wunsch</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--mut);display:block;margin-bottom:3px;">Dein Name</label>
+        <select id="wl-author" style="width:100%;font-size:12px;">
+          <option value="">— Coach wählen —</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--mut);display:block;margin-bottom:3px;">Bereich</label>
+        <select id="wl-area" style="width:100%;font-size:12px;">
+          <option value="">— Bereich wählen —</option>
+          <option value="Training Builder">Training Builder</option>
+          <option value="Trainingsübersicht">Trainingsübersicht</option>
+          <option value="Bibliothek / Drills">Bibliothek / Drills</option>
+          <option value="Bibliothek / Systeme">Bibliothek / Systeme</option>
+          <option value="Saisonplanung">Saisonplanung</option>
+          <option value="Zeichnen">Zeichnen</option>
+          <option value="Wishlist">Wishlist</option>
+          <option value="Allgemein">Allgemein</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:10px;">
+      <label style="font-size:11px;font-weight:700;color:var(--mut);display:block;margin-bottom:3px;">Wunsch / Idee</label>
+      <textarea id="wl-text" rows="3" placeholder="Was soll verbessert oder neu gebaut werden? Je konkreter, desto besser 🙌" style="width:100%;font-size:12px;resize:vertical;box-sizing:border-box;"></textarea>
+    </div>
+    <button class="btn btn-pri btn-sm" onclick="submitWish()" style="background:#7c3aed;border-color:#7c3aed;">Wunsch einreichen ✨</button>
+    <div id="wl-msg" style="font-size:12px;margin-top:8px;min-height:16px;"></div>
+  </div>
+  <!-- Liste -->
+  <div style="font-size:12px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Eingereichte Wünsche</div>
+  <div id="wl-list"><div class="empty">Lade…</div></div>
+</div>
+
 <!-- BUILDER -->
 <div class="pnl" id="pnl-builder">
   <div class="flex jb ac mb4">
