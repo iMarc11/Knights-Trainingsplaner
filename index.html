@@ -270,15 +270,20 @@ function checkPw(){
 <!-- BIBLIOTHEK -->
 <div class="pnl" id="pnl-drills">
   <div class="flex jb ac mb3">
-    <div class="shd">Drills &amp; Systeme</div>
-    <div class="flex g1">
+    <div class="shd" id="lib-title">Drills</div>
+    <div class="flex g1" id="lib-btns">
       <button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,false)">+ Drill</button>
-      <button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,true)">+ System</button>
     </div>
   </div>
-  <div class="flex g2 mb3">
-    <input type="text" id="dsearch" placeholder="Suchen…" style="width:200px;font-size:12px;" oninput="renderDrills()">
-    <select id="dtf" onchange="renderDrills()" style="width:auto;font-size:12px;"><option value="">Alle</option></select>
+  <!-- Sub-Tabs: Drills | Systeme -->
+  <div class="flex g1 mb3" style="border-bottom:2px solid var(--brd);padding-bottom:0;">
+    <div id="ltab-drills" class="tab active" data-ltab="drills" onclick="setLibTab('drills')" style="background:none;padding:6px 14px;font-size:11px;font-weight:800;color:var(--sec);border-bottom:3px solid var(--pri);margin-bottom:-2px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;">Drills</div>
+    <div id="ltab-systeme" class="tab" data-ltab="systeme" onclick="setLibTab('systeme')" style="background:none;padding:6px 14px;font-size:11px;font-weight:800;color:#9ca3af;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;">Systeme</div>
+  </div>
+  <div class="flex g2 mb2" style="flex-wrap:wrap;align-items:center;">
+    <input type="text" id="dsearch" placeholder="Suchen…" style="width:180px;font-size:12px;" oninput="renderDrills()">
+    <select id="dtf" onchange="renderDrills()" style="width:auto;font-size:12px;"><option value="">Alle Teams</option></select>
+    <select id="dsystype" onchange="renderDrills()" style="width:auto;font-size:12px;display:none;"><option value="">Alle Typen</option><option>Angriffssystem</option><option>Verteidigungssystem</option><option>Setplay Angriff</option><option>Setplay Verteidigung</option><option>ATO (After Timeout)</option><option>BOB (Baseline Out of Bounds)</option><option>SLOB (Sideline Out of Bounds)</option><option>Press-Breaker</option><option>Zonenbrecher</option></select>
   </div>
   <div class="fb" id="dcat-filter"></div>
   <div id="drill-list"></div>
