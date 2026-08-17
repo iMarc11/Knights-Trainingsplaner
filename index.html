@@ -1523,7 +1523,7 @@ function setCourtTemplate(t){
   const c=DM.canvas;
   if(t==='full'){c.height=820;}else{c.height=430;}
   drawCourtTemplate(DM.ctx,c.width,c.height);
-  DM.history=[];DM.offNum=1;DM.defNum=1;snapHistory();
+  DM.history=[];DM.offNum=1;DM.defNum=1;DM.coachNum=1;snapHistory();
 }
 function drawCourtTemplate(ctx,W,H){
   if(DM.courtTemplate==='full')drawFullCourt(ctx,W,H);
