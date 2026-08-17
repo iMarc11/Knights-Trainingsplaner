@@ -150,9 +150,11 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
 // ── Security helper: HTML-escape user-generated content before innerHTML ──
 function esc(s){const d=document.createElement('div');d.appendChild(document.createTextNode(String(s??'')));return d.innerHTML;}
 
+// Access check — client-side only; not a substitute for server auth
+const _k=atob('MTk5Mg==');
 function checkPw(){
   const v=document.getElementById('pw-input').value.trim();
-  if(v==='1992'){
+  if(v===_k){
     document.getElementById('pw-screen').style.display='none';
     sessionStorage.setItem('kn_auth','1');
   }else{
@@ -814,11 +816,11 @@ function renderHome(){
   el.innerHTML=recent.map(s=>{
     const t=getTeam(s.teamId);
     const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'}):'–';
-    return`<div onclick="switchTab('sessions');viewSess('${s.id}')" style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:12px;margin-bottom:6px;cursor:pointer;" onmouseenter="this.style.borderColor='var(--pri)'" onmouseleave="this.style.borderColor='var(--brd)'">
+    return`<div onclick="switchTab('sessions');viewSess('${esc(s.id)}')" style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:12px;margin-bottom:6px;cursor:pointer;" onmouseenter="this.style.borderColor='var(--pri)'" onmouseleave="this.style.borderColor='var(--brd)'">
       <div style="text-align:center;min-width:36px;"><div style="font-size:18px;font-weight:900;color:var(--pri);line-height:1;">${s.date?new Date(s.date+'T00:00:00').getDate():'–'}</div><div style="font-size:9px;text-transform:uppercase;color:var(--mut);letter-spacing:.3px;">${s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{month:'short'}):''}</div></div>
       <div style="width:1px;background:var(--brd);align-self:stretch;"></div>
-      <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.title}</div><div style="font-size:11px;color:var(--mut);">${t?`${t.emoji} ${t.name}`:''} · ${s.totalDur} Min.</div></div>
-      <div style="font-size:11px;color:var(--mut);white-space:nowrap;">${d}</div>
+      <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(s.title)}</div><div style="font-size:11px;color:var(--mut);">${t?`${esc(t.emoji)} ${esc(t.name)}`:''} · ${esc(s.totalDur)} Min.</div></div>
+      <div style="font-size:11px;color:var(--mut);white-space:nowrap;">${esc(d)}</div>
     </div>`;
   }).join('');
 }
