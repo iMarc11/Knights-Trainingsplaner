@@ -1061,6 +1061,7 @@ function renderDrills(){
   const q=(document.getElementById('dsearch').value||'').toLowerCase();
   const tc=document.getElementById('dtf').value;
   const sysType=document.getElementById('dsystype')?document.getElementById('dsystype').value:'';
+  const authorF=document.getElementById('dauthor')?document.getElementById('dauthor').value:'';
   let drills=allDrills();
   // Sub-Tab Filter
   if(aLibTab==='systeme')drills=drills.filter(d=>d.cat==='systeme');
@@ -1069,6 +1070,8 @@ function renderDrills(){
   if(q)drills=drills.filter(d=>d.name.toLowerCase().includes(q)||(d.desc||'').toLowerCase().includes(q));
   if(tc)drills=drills.filter(d=>(d.ag||[]).includes(tc));
   if(sysType)drills=drills.filter(d=>d.systemType===sysType);
+  if(authorF==='__bot__')drills=drills.filter(d=>!d.author||d.author==='');
+  else if(authorF)drills=drills.filter(d=>d.author===authorF);
   const el=document.getElementById('drill-list');
   if(drills.length===0){el.innerHTML='<div class="empty">Keine Einträge.</div>';return;}
   el.innerHTML=drills.map(d=>dcHTML(d)).join('');
