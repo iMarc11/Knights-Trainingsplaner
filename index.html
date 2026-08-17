@@ -1770,8 +1770,8 @@ function openDrawMdl(drillId,drawingIdx){
     DM.courtTemplate='half';document.getElementById('tpl-half').classList.add('on');document.getElementById('tpl-full').classList.remove('on');
     drawCourtTemplate(DM.ctx,DM.canvas.width,DM.canvas.height);
     const _drawings=db.drillDrawings[drillId]||[];const existing=DM.drawingIdx>=0?_drawings[DM.drawingIdx]:null;
-    if(existing){const img=new Image();img.onload=()=>{DM.ctx.drawImage(img,0,0);snapHistory();};img.src=existing;}
-    else snapHistory();
+    if(existing){const img=new Image();img.onload=()=>{DM.ctx.drawImage(img,0,0);snapHistory();updateDrawTitle();};img.src=existing;}
+    else{snapHistory();updateDrawTitle();}
     DM.canvas.onmousedown=onDrawStart;DM.canvas.onmousemove=onDrawMove;DM.canvas.onmouseup=onDrawEnd;DM.canvas.onmouseleave=onDrawEnd;
     DM.canvas.ontouchstart=onDrawStart;DM.canvas.ontouchmove=onDrawMove;DM.canvas.ontouchend=onDrawEnd;
   },80);
