@@ -1386,6 +1386,7 @@ function renderBlocks(){
       return`<div class="bli bblk-dnd" style="border-left:3px solid #9ca3af;background:#f8f9fa;" draggable="true" ondragstart="_dndStart(event,${i})" ondragover="_dndOver(event,${i})" ondragleave="_dndLeave(event)" ondrop="_dndDrop(event,${i})" ondragend="_dndEnd(event)">
     <span style="cursor:grab;color:#ccc;font-size:16px;flex-shrink:0;padding:0 2px;user-select:none;">⠿</span>
     <span class="btt" style="background:#f3f4f6;color:#6b7280;border:1px solid #e2e4e8;">Notiz</span>
+    ${b.dur?`<span class="bdur">${b.dur}min</span>`:''}
     <div style="flex:1;"><div class="bname" style="color:#374151;">${b.name}</div>${b.text?`<div class="bdesc" style="white-space:pre-line;">${b.text.length>100?b.text.slice(0,100)+'…':b.text}</div>`:''}</div>
     <div class="bact">
       <button class="btn btn-sec btn-xs" onclick="openTextBlockMdl(${i})">Bearbeiten</button>
