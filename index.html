@@ -1049,12 +1049,11 @@ function dcHTML(d){
       <div class="dc-name" style="margin-left:6px;">${d.name}${isSys&&d.systemType?` <span class="sysb">${d.systemType}</span>`:''}</div>
       <div style="display:flex;gap:5px;align-items:center;flex-shrink:0;">
         ${d.link?`<a href="${d.link}" target="_blank" class="btn btn-sec btn-xs" style="text-decoration:none;">Link</a>`:''}
-        <span style="font-size:10px;color:var(--mut);padding:2px 6px;background:#f0f1f3;border-radius:4px;">${d.author||'System'}</span>
         <button class="btn btn-sec btn-xs" onclick="openDrillMdl('${d.id}',${isSys})">Bearbeiten</button>
         ${isCustom?`<button class="btn btn-dan btn-xs" onclick="deleteDrill('${d.id}')">✕</button>`:''}
       </div>
     </div>
-    <div class="mut" style="font-size:10px;margin-bottom:3px;">👥 min. ${d.players} · ${(d.ag||[]).join(', ')}${isSys&&d.formation?` · ${d.formation}`:''}</div>
+    <div class="mut" style="font-size:10px;margin-bottom:3px;">👥 min. ${d.players} · ${(d.ag||[]).join(', ')}${isSys&&d.formation?` · ${d.formation}`:''}${d.author?` · <span style="color:var(--mut);">von ${d.author||'Bot'}</span>`:` · <span style="color:var(--mut);">Bot</span>`}</div>
     <div style="display:flex;align-items:flex-start;">
       <div style="flex:1;min-width:0;">
         ${d.desc?`<div class="dc-desc">${d.desc}</div>`:''}
