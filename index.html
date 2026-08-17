@@ -361,7 +361,7 @@ function checkPw(){
   <div class="card">
     <div class="cht">Details</div>
     <div class="form-row3">
-      <div class="fg"><label>Team *</label><select id="s-team"></select></div>
+      <div class="fg"><label>Team *</label><select id="s-team" onchange="scheduleAutoSave()"></select></div>
       <div class="fg"><label>Datum</label><input type="date" id="s-date" onchange="scheduleAutoSave()"></div>
     </div>
     <div class="fg"><label>Titel *</label><input type="text" id="s-title" placeholder="z.B. Verteidigung &amp; Transition" oninput="scheduleAutoSave()"></div>
@@ -391,7 +391,7 @@ function checkPw(){
   </div>
   <div class="card">
     <div class="cht">Notizen</div>
-    <textarea id="s-notes" placeholder="Material, Besonderheiten…" style="min-height:50px;"></textarea>
+    <textarea id="s-notes" placeholder="Material, Besonderheiten…" style="min-height:50px;" oninput="scheduleAutoSave()"></textarea>
   </div>
   <div class="flex g2 ac" style="justify-content:flex-end;margin-bottom:20px;">
     <span id="autosave-status" style="font-size:11px;color:var(--mut);transition:opacity .3s;"></span>
