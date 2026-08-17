@@ -1748,6 +1748,17 @@ function confirmCrop(){
   resetCrop();
   setDrawMode('draw');
 }
+function updateDrawTitle(){
+  const drs=db.drillDrawings[DM.editId]||[];
+  const total=DM.drawingIdx<0?drs.length+1:drs.length;
+  const cur=DM.drawingIdx<0?total:DM.drawingIdx+1;
+  document.querySelector('#m-draw h3').textContent=`✏️ Zeichnung ${cur} von ${total}`;
+}
+function newDrawing(){
+  DM.drawingIdx=-1;DM.offNum=1;DM.defNum=1;DM.coachNum=1;DM.history=[];
+  drawCourtTemplate(DM.ctx,DM.canvas.width,DM.canvas.height);
+  snapHistory();updateDrawTitle();
+}
 function openDrawMdl(drillId,drawingIdx){
   DM.editId=drillId;DM.drawingIdx=(drawingIdx===undefined)?-1:drawingIdx;DM.offNum=1;DM.defNum=1;DM.coachNum=1;
   document.querySelectorAll('.dtool[data-tool]').forEach(x=>x.classList.remove('on'));
