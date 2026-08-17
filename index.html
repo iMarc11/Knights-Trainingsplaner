@@ -362,10 +362,10 @@ function checkPw(){
     <div class="cht">Details</div>
     <div class="form-row3">
       <div class="fg"><label>Team *</label><select id="s-team"></select></div>
-      <div class="fg"><label>Datum</label><input type="date" id="s-date"></div>
+      <div class="fg"><label>Datum</label><input type="date" id="s-date" onchange="scheduleAutoSave()"></div>
     </div>
-    <div class="fg"><label>Titel *</label><input type="text" id="s-title" placeholder="z.B. Verteidigung &amp; Transition"></div>
-    <div class="fg"><label>Trainingsziel</label><textarea id="s-goal" placeholder="Was soll heute erreicht werden?"></textarea></div>
+    <div class="fg"><label>Titel *</label><input type="text" id="s-title" placeholder="z.B. Verteidigung &amp; Transition" oninput="scheduleAutoSave()"></div>
+    <div class="fg"><label>Trainingsziel</label><textarea id="s-goal" placeholder="Was soll heute erreicht werden?" oninput="scheduleAutoSave()"></textarea></div>
   </div>
   <div class="card">
     <div class="flex jb ac mb3">
@@ -1279,7 +1279,7 @@ function populateBuilderTeamSel(){
   sel.innerHTML=db.teams.length===0?'<option value="">— Erst Team erstellen —</option>':db.teams.map(t=>`<option value="${t.id}">${t.emoji} ${t.name}</option>`).join('');
 }
 function clearBuilder(){
-  currentBlocks=[];editSessId=null;
+  currentBlocks=[];editSessId=null;_autoSaveId=null;clearTimeout(_autoSaveTimer);_setAutoStatus('');
   document.getElementById('builder-title').textContent='Neues Training';
   document.getElementById('s-date').value=new Date().toISOString().slice(0,10);
   ['s-title','s-goal','s-notes'].forEach(id=>document.getElementById(id).value='');
