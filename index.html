@@ -1390,14 +1390,14 @@ function renderSessions(){
   el.innerHTML=sessions.map(s=>{
     const t=getTeam(s.teamId);
     const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit',year:'numeric'}):'–';
-    return`<div class="srow" onclick="viewSess('${s.id}')">
-      <div class="sdt">${d}</div>
-      <div style="flex:1;"><div class="stit">${s.title}</div>
-      <div class="mut">${t?`${t.emoji} ${t.name}`:''}</div></div>
-      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();printSess('${s.id}')" title="PDF" style="padding:3px 7px;font-size:11px;">📄</button>
-      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();mobileExport('${s.id}')" title="Mobil-Ansicht" style="padding:3px 7px;font-size:11px;">📱</button>
-      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();editSessDirect('${s.id}')">Bearbeiten</button>
-      <div class="dpill">${s.totalDur} Min.</div></div>`;
+    return`<div class="srow" onclick="viewSess('${esc(s.id)}')">
+      <div class="sdt">${esc(d)}</div>
+      <div style="flex:1;"><div class="stit">${esc(s.title)}</div>
+      <div class="mut">${t?`${esc(t.emoji)} ${esc(t.name)}`:''}</div></div>
+      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();printSess('${esc(s.id)}')" title="PDF" style="padding:3px 7px;font-size:11px;">📄</button>
+      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();mobileExport('${esc(s.id)}')" title="Mobil-Ansicht" style="padding:3px 7px;font-size:11px;">📱</button>
+      <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();editSessDirect('${esc(s.id)}')">Bearbeiten</button>
+      <div class="dpill">${esc(s.totalDur)} Min.</div></div>`;
   }).join('');
 }
 function printSess(id){
