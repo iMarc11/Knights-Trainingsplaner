@@ -236,7 +236,6 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
     <div class="form-row3">
       <div class="fg"><label>Team *</label><select id="s-team"></select></div>
       <div class="fg"><label>Datum</label><input type="date" id="s-date"></div>
-      <div class="fg"><label>Ort</label><input type="text" id="s-loc" placeholder="z.B. Sporthalle 1"></div>
     </div>
     <div class="fg"><label>Titel *</label><input type="text" id="s-title" placeholder="z.B. Verteidigung &amp; Transition"></div>
     <div class="fg"><label>Trainingsziel</label><textarea id="s-goal" placeholder="Was soll heute erreicht werden?"></textarea></div>
@@ -521,16 +520,16 @@ async function sbDelete(table,col,val){
 
 // ── MAPPERS ──────────────────────────────────────────────
 const fromDB={
-  team:r=>({id:r.id,name:r.name,cat:r.cat||'herren',age:r.age||'U16',emoji:r.emoji||'🏀',desc:r.description||'',trainer:r.trainer||'',coTrainer:r.co_trainer||''}),
-  season:r=>({id:r.id,teamId:r.team_id,name:r.name,start:r.start_date,end:r.end_date,phases:r.phases||[],weeks:r.weeks||{}}),
+  team:r=>{const _tp=(r.description||'').split('|||');const _hasT=_tp.length>=3;return{id:r.id,name:r.name,cat:r.cat||'herren',age:r.age||'U16',emoji:r.emoji||'🏀',trainer:_hasT?_tp[0]:'',coTrainer:_hasT?_tp[1]:'',desc:_hasT?_tp[2]:(_tp[0]||'')};},
+  season:r=>{let ph=r.phases||[],wk=r.weeks||{};if(typeof ph==='string')try{ph=JSON.parse(ph);}catch(e){ph=[];}if(typeof wk==='string')try{wk=JSON.parse(wk);}catch(e){wk={};}return{id:r.id,teamId:r.team_id,name:r.name,start:r.start_date,end:r.end_date,phases:ph,weeks:wk};},
   drill:r=>{const _p=(r.description||'').split('\u001F');return{id:r.id,name:r.name,cat:r.cat,dur:r.dur||10,players:r.players||4,diff:r.diff||1,ag:r.age_groups||[],desc:_p[0]||'',link:_p[1]||'',coaching:r.coaching||'',systemType:r.system_type,formation:r.formation,steps:r.steps,custom:true};},
-  session:r=>({id:r.id,teamId:r.team_id,title:r.title,date:r.date,location:r.location||'',goal:r.goal||'',notes:r.notes||'',blocks:r.blocks||[],totalDur:r.total_dur||0}),
+  session:r=>{let bl=r.blocks||[];if(typeof bl==='string')try{bl=JSON.parse(bl);}catch(e){bl=[];}return{id:r.id,teamId:r.team_id,title:r.title,date:r.date,location:r.location||'',goal:r.goal||'',notes:r.notes||'',blocks:bl,totalDur:r.total_dur||0};},
 };
 const toDB={
-  team:t=>({id:t.id,name:t.name,cat:t.cat,age:t.age,emoji:t.emoji,description:t.desc||'',trainer:t.trainer||'',co_trainer:t.coTrainer||''}),
+  team:t=>({id:t.id,name:t.name,cat:t.cat,age:t.age,emoji:t.emoji,description:(t.trainer||t.coTrainer)?`${t.trainer||''}|||${t.coTrainer||''}|||${t.desc||''}`:(t.desc||'')}),
   season:s=>({id:s.id,team_id:s.teamId,name:s.name,start_date:s.start,end_date:s.end,phases:s.phases||[],weeks:s.weeks||{}}),
   drill:d=>({id:d.id,name:d.name,cat:d.cat,dur:d.dur,players:d.players,diff:d.diff,age_groups:d.ag||[],description:d.link?(d.desc||'')+'\u001F'+d.link:(d.desc||''),coaching:d.coaching||'',system_type:d.systemType||null,formation:d.formation||null,steps:d.steps||null}),
-  session:s=>({id:s.id,team_id:s.teamId,title:s.title,date:s.date||null,location:s.location||null,goal:s.goal||null,notes:s.notes||null,blocks:s.blocks||[],total_dur:s.totalDur||0}),
+  session:s=>({id:s.id,team_id:s.teamId,title:s.title,date:s.date||null,goal:s.goal||null,notes:s.notes||null,blocks:s.blocks||[],total_dur:s.totalDur||0}),
 };
 
 // ── BUILTIN DRILLS ────────────────────────────────────────
@@ -997,7 +996,7 @@ function clearBuilder(){
   currentBlocks=[];editSessId=null;
   document.getElementById('builder-title').textContent='Neues Training';
   document.getElementById('s-date').value=new Date().toISOString().slice(0,10);
-  ['s-title','s-loc','s-goal','s-notes'].forEach(id=>document.getElementById(id).value='');
+  ['s-title','s-goal','s-notes'].forEach(id=>document.getElementById(id).value='');
   populateBuilderTeamSel();renderBlocks();
 }
 function openTextBlockMdl(idx){
@@ -1094,7 +1093,7 @@ async function saveSession(){
   const title=document.getElementById('s-title').value.trim(),teamId=document.getElementById('s-team').value;
   if(!title)return alert('Titel fehlt.');if(!teamId)return alert('Team wählen.');
   if(currentBlocks.length===0)return alert('Mindestens einen Block hinzufügen.');
-  const sess={id:editSessId||Date.now().toString(),teamId,title,date:document.getElementById('s-date').value,location:document.getElementById('s-loc').value.trim(),goal:document.getElementById('s-goal').value.trim(),notes:document.getElementById('s-notes').value.trim(),blocks:[...currentBlocks],totalDur:currentBlocks.reduce((s,b)=>s+b.dur,0)};
+  const sess={id:editSessId||Date.now().toString(),teamId,title,date:document.getElementById('s-date').value,location:'',goal:document.getElementById('s-goal').value.trim(),notes:document.getElementById('s-notes').value.trim(),blocks:[...currentBlocks],totalDur:currentBlocks.reduce((s,b)=>s+b.dur,0)};
   if(editSessId){const idx=db.sessions.findIndex(s=>s.id===editSessId);if(idx>=0)db.sessions[idx]=sess;else db.sessions.unshift(sess);}
   else db.sessions.unshift(sess);
   clearBuilder();switchTab('sessions');
@@ -1144,7 +1143,7 @@ function renderSessions(){
     return`<div class="srow" onclick="viewSess('${s.id}')">
       <div class="sdt">${d}</div>
       <div style="flex:1;"><div class="stit">${s.title}</div>
-      <div class="mut">${t?`${t.emoji} ${t.name}`:''} ${s.location?'· '+s.location:''}</div></div>
+      <div class="mut">${t?`${t.emoji} ${t.name}`:''}</div></div>
       <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();printSess('${s.id}')" title="PDF" style="padding:3px 7px;font-size:11px;">📄</button>
       <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();mobileExport('${s.id}')" title="Mobil-Ansicht" style="padding:3px 7px;font-size:11px;">📱</button>
       <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();editSessDirect('${s.id}')">Bearbeiten</button>
@@ -1179,7 +1178,7 @@ function printSess(id){
     <h1>${s.title}</h1>
     <div class="logo">Knights Basketball</div>
   </div>
-  <div class="meta">${[t?`${t.emoji} ${t.name}`:'',d,s.location].filter(Boolean).join(' &nbsp;·&nbsp; ')}</div>
+  <div class="meta">${[t?`${t.emoji} ${t.name}`:'',d].filter(Boolean).join(' &nbsp;·&nbsp; ')}</div>
   ${s.goal?`<div class="goal"><strong>Trainingsziel:</strong> ${s.goal}</div>`:''}
   <div class="total">Gesamtdauer: ${s.totalDur} Min.</div>
   ${blocksHtml}
@@ -1221,7 +1220,7 @@ function mobileExport(id){
   </style></head><body>
   <div class="header">
     <h1>${s.title}</h1>
-    <div class="meta">${[t?`${t.emoji} ${t.name}`:'',d,s.location].filter(Boolean).join(' · ')}</div>
+    <div class="meta">${[t?`${t.emoji} ${t.name}`:'',d].filter(Boolean).join(' · ')}</div>
   </div>
   <div class="content">
     ${s.goal?`<div class="goal"><strong>Trainingsziel:</strong><br>${s.goal}</div>`:''}
@@ -1239,7 +1238,7 @@ function viewSess(id){
   const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'';
   document.getElementById('sdet-cnt').innerHTML=`
     <h3 style="margin-bottom:3px;">${s.title}</h3>
-    <div class="mut" style="margin-bottom:10px;">${[t?`${t.emoji} ${t.name}`:'',d,s.location,`<strong>${s.totalDur} Min.</strong>`].filter(Boolean).join(' · ')}</div>
+    <div class="mut" style="margin-bottom:10px;">${[t?`${t.emoji} ${t.name}`:'',d,`<strong>${s.totalDur} Min.</strong>`].filter(Boolean).join(' · ')}</div>
     ${s.goal?`<div style="background:#f4f5f7;border-radius:6px;padding:7px 11px;margin-bottom:10px;font-size:12px;"><strong>Ziel:</strong> ${s.goal}</div>`:''}
     ${s.blocks.map(b=>b.type==='section'?`<div class="bsec" style="margin-top:8px;">— ${b.name} —</div>`:`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||b.cat}</span><span class="bdur">${b.dur}min</span><div style="flex:1;"><div class="bname">${b.name}</div>${b.desc?`<div class="bdesc">${b.desc}</div>`:''}</div></div>`).join('')}
     ${s.notes?`<hr><div class="mut" style="font-size:11px;margin-top:6px;"><strong>Notizen:</strong> ${s.notes}</div>`:''}`;
@@ -1262,7 +1261,7 @@ function editCurSess(){
   document.getElementById('s-team').value=s.teamId;
   document.getElementById('s-title').value=s.title;
   document.getElementById('s-date').value=s.date||'';
-  document.getElementById('s-loc').value=s.location||'';
+
   document.getElementById('s-goal').value=s.goal||'';
   document.getElementById('s-notes').value=s.notes||'';
   currentBlocks=[...s.blocks];
