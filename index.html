@@ -10,7 +10,7 @@
 :root{color-scheme:light;--pri:#E85D04;--prid:#C44D03;--sec:#1a1a2e;--bg:#f4f5f7;--card:#fff;--brd:#e2e4e8;--txt:#1e1e2e;--mut:#6b7280;--r:8px;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
-.hdr{background:var(--sec);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;}
+.hdr{background:var(--sec);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:101;}
 .hdr h1{font-size:15px;font-weight:700;}
 .hdr small{font-size:11px;color:#9ca3af;}
 .hdr-r{display:flex;gap:5px;align-items:center;}
@@ -614,7 +614,7 @@ const fromDB={
 const toDB={
   team:t=>({id:t.id,name:t.name,cat:t.cat,age:t.age,emoji:t.emoji,description:(t.trainer||t.coTrainer)?`${t.trainer||''}|||${t.coTrainer||''}|||${t.desc||''}`:(t.desc||'')}),
   season:s=>({id:s.id,team_id:s.teamId,name:s.name,start_date:s.start,end_date:s.end,phases:s.phases||[],weeks:s.weeks||{}}),
-  drill:d=>({id:d.id,name:d.name,cat:d.cat,dur:d.dur,players:d.players,diff:d.diff,age_groups:d.ag||[],description:d.link?(d.desc||'')+'\u001F'+d.link:(d.desc||''),coaching:d.coaching||'',system_type:d.systemType||null,formation:d.formation||null,steps:d.steps||null}),
+  drill:d=>({id:d.id,name:d.name,cat:d.cat,dur:d.dur,players:d.players,diff:d.diff,age_groups:d.ag||[],description:(d.desc||'')+'\u001F'+(d.link||'')+'\u001E'+(d.author||''),coaching:d.coaching||'',system_type:d.systemType||null,formation:d.formation||null,steps:d.steps||null}),
   session:s=>({id:s.id,team_id:s.teamId,title:s.title,date:s.date||null,goal:s.goal||null,notes:s.notes||null,blocks:s.blocks||[],total_dur:s.totalDur||0}),
 };
 
