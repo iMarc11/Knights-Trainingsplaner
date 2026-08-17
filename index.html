@@ -181,7 +181,7 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
     </div>
   </div>
   <div class="flex jb ac mb4">
-    <div class="shd">Saisonplanung</div>
+    <div class="shd" id="saison-hdr">Saisonplanung</div>
     <div class="flex g2 ac">
       <select id="ss-team" onchange="onSsTeamChange()" style="width:auto;font-size:11px;"></select>
       <select id="ss-sel" onchange="renderSeason()" style="width:auto;font-size:11px;"></select>
@@ -406,6 +406,10 @@ hr{border:none;border-top:1px solid var(--brd);margin:9px 0;}
   <div class="fg"><label>Name *</label><input type="text" id="b-name"></div>
   <div class="fg"><label>Beschreibung</label><textarea id="b-desc"></textarea></div>
   <input type="hidden" id="b-idx" value="-1">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+    <input type="checkbox" id="b-tolib" checked style="width:15px;height:15px;cursor:pointer;">
+    <label for="b-tolib" style="font-size:12px;cursor:pointer;margin:0;">In Bibliothek speichern (wiederverwendbar)</label>
+  </div>
   <div class="mft"><button class="btn btn-sec" onclick="closeM('m-block')">Abbrechen</button><button class="btn btn-pri" onclick="saveBlock()">Speichern</button></div>
 </div></div>
 
@@ -680,20 +684,20 @@ function toggleTeamMgr(){
   if(open)renderTeams();
 }
 function selectTeamForSeason(teamId){
-  // Team in Saison-Selektor setzen
   const sel=document.getElementById('ss-team');
   if(!sel)return;
   sel.value=teamId;
   onSsTeamChange();
-  // Panel zusammenklappen und zur Saisonplanung scrollen
-  const body=document.getElementById('team-mgr-body');
-  const arrow=document.getElementById('team-mgr-arrow');
-  body.style.display='none';
-  arrow.textContent='▼';
+  // Ausgewähltes Team visuell hervorheben
+  document.querySelectorAll('[data-team-card]').forEach(el=>{
+    el.style.borderColor=el.dataset.teamCard===teamId?'var(--sec)':'var(--brd)';
+    el.style.background=el.dataset.teamCard===teamId?'var(--sec-soft,#fff7f0)':'var(--card)';
+  });
+  // Zur Saisonplanung scrollen
   setTimeout(()=>{
-    const sg=document.getElementById('season-grid');
-    if(sg)sg.scrollIntoView({behavior:'smooth',block:'start'});
-  },100);
+    const hdr=document.getElementById('saison-hdr');
+    if(hdr)hdr.scrollIntoView({behavior:'smooth',block:'start'});
+  },80);
 }
 function switchTab(t){
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',TABS[i]===t));
@@ -740,7 +744,7 @@ async function deleteTeam(id){
   await sbDelete('teams','id',id);
 }
 function renderTeams(){
-  const teamHTML=db.teams.length===0?'':db.teams.map(t=>`<div onclick="selectTeamForSeason('${t.id}')" onmouseenter="this.style.borderColor='var(--sec)'" onmouseleave="this.style.borderColor='var(--brd)'" style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px;cursor:pointer;">
+  const teamHTML=db.teams.length===0?'':db.teams.map(t=>`<div data-team-card="${t.id}" onclick="selectTeamForSeason('${t.id}')" style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px;cursor:pointer;transition:border-color .15s,background .15s;">
     <div style="font-size:22px;flex-shrink:0;">${t.emoji}</div>
     <div style="flex:1;min-width:0;">
       <div style="font-size:13px;font-weight:700;">${t.name}</div>
@@ -1052,13 +1056,29 @@ function openBlockMdl(idx){
   document.getElementById('b-dur').value=b?.dur||10;
   document.getElementById('b-name').value=b?.name||'';
   document.getElementById('b-desc').value=b?.desc||'';
+  // Checkbox: bei neuem Block → standardmässig an; bei Edit → aus
+  document.getElementById('b-tolib').checked=idx<0;
   openM('m-block');
 }
-function saveBlock(){
+async function saveBlock(){
   const name=document.getElementById('b-name').value.trim();
   if(!name)return alert('Name fehlt.');
-  const block={cat:document.getElementById('b-cat').value,dur:parseInt(document.getElementById('b-dur').value)||10,name,desc:document.getElementById('b-desc').value.trim()};
+  const cat=document.getElementById('b-cat').value;
+  const dur=parseInt(document.getElementById('b-dur').value)||10;
+  const desc=document.getElementById('b-desc').value.trim();
   const idx=parseInt(document.getElementById('b-idx').value);
+  const toLib=document.getElementById('b-tolib').checked;
+  let drillId=idx>=0?currentBlocks[idx]?.drillId:null;
+  // Neu und "In Bibliothek" → Drill anlegen/aktualisieren
+  if(toLib){
+    const drill={id:drillId||Date.now().toString(),name,cat,dur,players:4,diff:1,ag:['herren','junioren','damen'],desc,link:'',coaching:'',custom:true};
+    drillId=drill.id;
+    const ex=db.drills.findIndex(d=>d.id===drill.id);
+    if(ex>=0)db.drills[ex]=drill;else db.drills.push(drill);
+    if(document.getElementById('pnl-drills').classList.contains('active'))renderDrills();
+    await sbUpsert('custom_drills',toDB.drill(drill));
+  }
+  const block={cat,dur,name,desc,drillId:drillId||undefined};
   if(idx>=0)currentBlocks[idx]=block;else currentBlocks.push(block);
   closeM('m-block');renderBlocks();
 }
