@@ -747,12 +747,13 @@ const BD=[
 
 // ── STATE ─────────────────────────────────────────────────
 const DEFAULT_COACHES=['Ali','Andrea','Lori','Marc','Mone','Pino','Rehan'];
-let db={teams:[],seasons:[],drills:[],sessions:[],drillDrawings:{},coaches:[...DEFAULT_COACHES]};
+let db={teams:[],seasons:[],drills:[],sessions:[],drillDrawings:{},coaches:[...DEFAULT_COACHES],deletedBD:[]};
 
 function allDrills(){
-  // Custom drills newest first (id is timestamp string), then built-in drills
+  // Custom drills newest first (id is timestamp string), then built-in drills (minus deleted)
   const custom=[...db.drills].sort((a,b)=>b.id.localeCompare(a.id));
-  return[...custom,...BD];
+  const builtIn=BD.filter(d=>!db.deletedBD.includes(d.id));
+  return[...custom,...builtIn];
 }
 function getTeam(id){return db.teams.find(t=>t.id===id);}
 
