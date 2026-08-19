@@ -1205,17 +1205,6 @@ async function deleteGame(id){
   renderSeason();if(document.getElementById('m-week').classList.contains('open'))openWeekMdl(document.getElementById('wk-key').value);
   await sbDelete('games','id',id);
 }
-function openScoutingMdl(opponent){
-  if(!opponent){const v=document.getElementById('gm-opp').value.trim();if(!v)return alert('Zuerst Gegner eingeben.');opponent=v;}
-  const key=slugOpp(opponent);
-  const sc=db.scouting[key]||{};
-  document.getElementById('scout-opp-title').textContent=opponent;
-  document.getElementById('scout-opp-key').value=key;
-  document.getElementById('scout-offense').value=sc.offense||'';
-  document.getElementById('scout-defense').value=sc.defense||'';
-  renderScoutPlayers(sc.keyPlayers||[]);
-  openM('m-scouting');
-}
 function renderScoutPlayers(players){
   document.getElementById('scout-players-list').innerHTML=players.map((p,i)=>
     `<div style="display:flex;gap:6px;align-items:center;margin-bottom:5px;">
