@@ -1297,6 +1297,167 @@ async function saveScouting(){
   closeM('m-scouting');renderGamesOverview();
   await sbUpsert('scouting',{id:key,opponent:opp,offense:sc.offense||null,defense:sc.defense||null,key_players:JSON.stringify(sc.keyPlayers)});
 }
+// ── OPPONENTS PANEL ───────────────────────────────────────
+let _oppPlayers=[];
+function renderOpponentsPanel(){
+  const el=document.getElementById('opponents-panel');if(!el)return;
+  const s=getCurSeason();
+  const card=document.getElementById('opp-panel-card');
+  if(!s){el.innerHTML='<div class="empty" style="font-size:11px;">Saison wählen.</div>';return;}
+  // Gegner = explizit hinzugefügte + aus Spielen abgeleitet
+  const fromGames=[...new Set((db.games||[]).filter(g=>g.seasonId===s.id).map(g=>g.opponent))];
+  const all=[...new Set([...(s.opponents||[]),...fromGames])].sort((a,b)=>a.localeCompare(b));
+  if(all.length===0){
+    el.innerHTML='<div style="font-size:11px;color:var(--mut);padding:4px 0;">Noch keine Gegner. «+ Gegner» klicken.</div>';
+    return;
+  }
+  const today=new Date().toISOString().slice(0,10);
+  el.innerHTML=all.map(name=>{
+    const key=slugOpp(name);
+    const hasScout=!!db.scouting[key]&&!!(db.scouting[key].offense||db.scouting[key].defense||db.scouting[key].keyPlayers?.length);
+    const games=(db.games||[]).filter(g=>g.seasonId===s.id&&g.opponent===name).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    const wins=games.filter(g=>g.scoreUs!==null&&g.scoreThem!==null&&g.scoreUs>g.scoreThem).length;
+    const losses=games.filter(g=>g.scoreUs!==null&&g.scoreThem!==null&&g.scoreUs<g.scoreThem).length;
+    const played=games.filter(g=>g.date&&g.date<today&&g.scoreUs!==null&&g.scoreThem!==null).length;
+    const upcoming=games.filter(g=>!g.date||g.date>=today).length;
+    const recGame=games.filter(g=>g.date).sort((a,b)=>b.date.localeCompare(a.date))[0];
+    const resultStr=played>0?`<span style="color:#16a34a;font-weight:700;">${wins}S</span> <span style="color:#dc2626;font-weight:700;">${losses}N</span>`:'';
+    return`<div onclick="openOpponentMdl('${key}')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;border:1px solid #e5e7eb;margin-bottom:6px;transition:background .12s;" onmouseenter="this.style.background='#f8f9fa'" onmouseleave="this.style.background='transparent'">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:800;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(name)}</div>
+        <div style="font-size:10px;color:var(--mut);margin-top:1px;">${games.length} Spiel${games.length!==1?'e':''}${played?' · '+resultStr:''}${upcoming?' · '+upcoming+' ausstehend':''}</div>
+      </div>
+      <div style="display:flex;gap:4px;flex-shrink:0;">
+        ${hasScout?'<span title="Scouting vorhanden" style="font-size:14px;">🔍</span>':''}
+        <span style="font-size:14px;color:#ccc;">›</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openOpponentMdl(key){
+  const s=getCurSeason();if(!s)return;
+  const isNew=!key;
+  document.getElementById('opp-mdl-title').textContent=isNew?'Neuer Gegner':'Gegner';
+  document.getElementById('opp-del-btn').style.display=isNew?'none':'';
+  document.getElementById('opp-mdl-key').value=key||'';
+  // Scouting laden
+  const sc=key?(db.scouting[key]||{}):{};
+  const name=key?((db.scouting[key]?.opponent)||[...(s.opponents||[])].find(n=>slugOpp(n)===key)||''):'';
+  document.getElementById('opp-mdl-name').value=name;
+  document.getElementById('opp-offense').value=sc.offense||'';
+  document.getElementById('opp-defense').value=sc.defense||'';
+  _oppPlayers=[...(sc.keyPlayers||[]).map(p=>({...p}))];
+  renderOppPlayers();
+  renderOppGamesList(key,s);
+  document.getElementById('opp-add-game-form').style.display='none';
+  openM('m-opponent');
+}
+function renderOppPlayers(){
+  document.getElementById('opp-players-list').innerHTML=_oppPlayers.map((p,i)=>
+    `<div style="display:flex;gap:6px;align-items:center;margin-bottom:5px;">
+      <input type="text" placeholder="#" value="${esc(p.nr||'')}" style="width:45px;font-size:12px;" oninput="if(_oppPlayers[${i}])_oppPlayers[${i}].nr=this.value">
+      <input type="text" placeholder="Name" value="${esc(p.name||'')}" style="flex:1;font-size:12px;" oninput="if(_oppPlayers[${i}])_oppPlayers[${i}].name=this.value">
+      <input type="text" placeholder="Stärken / Rolle" value="${esc(p.notes||'')}" style="flex:2;font-size:12px;" oninput="if(_oppPlayers[${i}])_oppPlayers[${i}].notes=this.value">
+      <button class="btn btn-dan btn-xs" onclick="_oppPlayers.splice(${i},1);renderOppPlayers()">✕</button>
+    </div>`).join('');
+}
+function addOppPlayer(){_oppPlayers.push({nr:'',name:'',notes:''});renderOppPlayers();}
+function renderOppGamesList(key,s){
+  const el=document.getElementById('opp-games-list');if(!el)return;
+  const cs=s||getCurSeason();if(!cs)return;
+  const today=new Date().toISOString().slice(0,10);
+  const games=key?(db.games||[]).filter(g=>g.seasonId===cs.id&&slugOpp(g.opponent)===key).sort((a,b)=>(a.date||'zzzz').localeCompare(b.date||'zzzz')):[];
+  if(games.length===0){el.innerHTML='<div style="font-size:11px;color:var(--mut);">Noch kein Spiel erfasst.</div>';return;}
+  el.innerHTML=games.map(g=>{
+    const hasResult=g.scoreUs!==null&&g.scoreUs!==undefined&&g.scoreThem!==null&&g.scoreThem!==undefined;
+    const won=hasResult&&g.scoreUs>g.scoreThem;const lost=hasResult&&g.scoreUs<g.scoreThem;
+    const col=won?'#16a34a':lost?'#dc2626':'#6b7280';
+    const ha=g.homeAway==='home'?'🏠':'✈️';
+    const dateStr=g.date?new Date(g.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'short',day:'2-digit',month:'2-digit'}):'Kein Datum';
+    return`<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:#f8f9fa;border-radius:6px;margin-bottom:4px;font-size:12px;">
+      <span>${ha}</span>
+      <span style="color:var(--mut);min-width:70px;">${dateStr}</span>
+      ${hasResult?`<span style="font-weight:800;color:${col};">${g.scoreUs}:${g.scoreThem}</span>`:'<span style="color:var(--mut);">–:–</span>'}
+      <div style="margin-left:auto;display:flex;gap:4px;">
+        <button class="btn btn-sec btn-xs" onclick="showOppGameForm('${esc(g.id)}')">✏️</button>
+        <button class="btn btn-dan btn-xs" onclick="deleteOppGame('${esc(g.id)}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function showOppGameForm(gameId){
+  const g=gameId?(db.games||[]).find(x=>x.id===gameId):null;
+  document.getElementById('opp-gm-id').value=gameId||'';
+  document.getElementById('opp-gm-date').value=g?.date||'';
+  document.getElementById('opp-gm-ha').value=g?.homeAway||'home';
+  document.getElementById('opp-gm-us').value=g?.scoreUs??'';
+  document.getElementById('opp-gm-them').value=g?.scoreThem??'';
+  document.getElementById('opp-add-game-form').style.display='block';
+  document.getElementById('opp-add-game-form').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+async function saveOppGame(){
+  const s=getCurSeason();if(!s)return;
+  const oppName=document.getElementById('opp-mdl-name').value.trim();if(!oppName)return alert('Zuerst Gegner-Name eingeben und speichern.');
+  const oppKey=slugOpp(oppName);
+  const existingId=document.getElementById('opp-gm-id').value;
+  const id=existingId||Date.now().toString();
+  const weekKey=document.getElementById('opp-gm-date').value||'';
+  const g={id,teamId:s.teamId,seasonId:s.id,weekKey,
+    date:document.getElementById('opp-gm-date').value||'',
+    homeAway:document.getElementById('opp-gm-ha').value,
+    opponent:oppName,
+    scoreUs:document.getElementById('opp-gm-us').value!==''?parseInt(document.getElementById('opp-gm-us').value):null,
+    scoreThem:document.getElementById('opp-gm-them').value!==''?parseInt(document.getElementById('opp-gm-them').value):null,
+    notes:''};
+  const idx=db.games.findIndex(x=>x.id===id);
+  if(idx>=0)db.games[idx]=g;else db.games.push(g);
+  document.getElementById('opp-add-game-form').style.display='none';
+  renderOppGamesList(oppKey,s);renderOpponentsPanel();renderSeason();
+  await sbUpsert('games',{id:g.id,team_id:g.teamId,season_id:g.seasonId,week_key:g.weekKey||null,date:g.date||null,home_away:g.homeAway,opponent:g.opponent,score_us:g.scoreUs,score_them:g.scoreThem,notes:null});
+}
+async function deleteOppGame(gameId){
+  if(!confirm('Spiel löschen?'))return;
+  db.games=db.games.filter(g=>g.id!==gameId);
+  const key=document.getElementById('opp-mdl-key').value;
+  renderOppGamesList(key,getCurSeason());renderOpponentsPanel();renderSeason();
+  await sbDelete('games','id',gameId);
+}
+async function saveOpponent(){
+  const s=getCurSeason();if(!s)return;
+  const name=document.getElementById('opp-mdl-name').value.trim();if(!name)return alert('Name eingeben.');
+  const oldKey=document.getElementById('opp-mdl-key').value;
+  const newKey=slugOpp(name);
+  // Name in seasons.opponents aktualisieren
+  if(!s.opponents)s.opponents=[];
+  if(oldKey&&oldKey!==newKey){s.opponents=s.opponents.filter(n=>slugOpp(n)!==oldKey);}
+  if(!s.opponents.includes(name))s.opponents.push(name);
+  document.getElementById('opp-mdl-key').value=newKey;
+  document.getElementById('opp-mdl-title').textContent='Gegner';
+  document.getElementById('opp-del-btn').style.display='';
+  // Scouting speichern
+  const sc={opponent:name,offense:document.getElementById('opp-offense').value.trim(),defense:document.getElementById('opp-defense').value.trim(),keyPlayers:[..._oppPlayers]};
+  db.scouting[newKey]=sc;
+  renderOpponentsPanel();
+  await sbUpsert('seasons',toDB.season(s));
+  await sbUpsert('scouting',{id:newKey,opponent:name,offense:sc.offense||null,defense:sc.defense||null,key_players:JSON.stringify(sc.keyPlayers)});
+}
+async function deleteOpponent(key){
+  if(!key)return;
+  const s=getCurSeason();if(!s)return;
+  const name=db.scouting[key]?.opponent||key;
+  if(!confirm(`«${name}» und alle ${(db.games||[]).filter(g=>g.seasonId===s.id&&slugOpp(g.opponent)===key).length} Spiele löschen?`))return;
+  // Aus Season opponents entfernen
+  s.opponents=(s.opponents||[]).filter(n=>slugOpp(n)!==key);
+  // Spiele löschen
+  const gamesToDel=(db.games||[]).filter(g=>g.seasonId===s.id&&slugOpp(g.opponent)===key);
+  db.games=db.games.filter(g=>!(g.seasonId===s.id&&slugOpp(g.opponent)===key));
+  delete db.scouting[key];
+  closeM('m-opponent');renderOpponentsPanel();renderSeason();
+  await sbUpsert('seasons',toDB.season(s));
+  for(const g of gamesToDel)await sbDelete('games','id',g.id);
+  await sbDelete('scouting','id',key);
+}
+
 function renderGamesOverview(){
   const el=document.getElementById('games-overview');if(!el)return;
   const s=getCurSeason();
