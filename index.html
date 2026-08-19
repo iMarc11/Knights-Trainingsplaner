@@ -798,7 +798,7 @@ const BD=[
 
 // ── STATE ─────────────────────────────────────────────────
 const DEFAULT_COACHES=['Ali','Andrea','Lori','Marc','Mone','Pino','Rehan'];
-let db={teams:[],seasons:[],drills:[],sessions:[],drillDrawings:{},coaches:[...DEFAULT_COACHES],deletedBD:[]};
+let db={teams:[],seasons:[],drills:[],sessions:[],drillDrawings:{},coaches:[...DEFAULT_COACHES],deletedBD:[],games:[],scouting:{}};
 
 function allDrills(){
   // Custom drills newest first (id is timestamp string), then built-in drills (minus deleted)
