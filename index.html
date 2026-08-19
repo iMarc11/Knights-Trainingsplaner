@@ -785,7 +785,7 @@ const fromDB={
 };
 const toDB={
   team:t=>({id:t.id,name:t.name,cat:t.cat,age:t.age,emoji:t.emoji,description:(t.trainer||t.coTrainer)?`${t.trainer||''}|||${t.coTrainer||''}|||${t.desc||''}`:(t.desc||'')}),
-  season:s=>({id:s.id,team_id:s.teamId,name:s.name,start_date:s.start,end_date:s.end,phases:s.phases||[],weeks:s.weeks||{}}),
+  season:s=>({id:s.id,team_id:s.teamId,name:s.name,start_date:s.start,end_date:s.end,phases:s.phases||[],weeks:{...(s.weeks||{}),__opponents__:s.opponents||[]}}),
   drill:d=>({id:d.id,name:d.name,cat:d.cat,dur:d.dur,players:d.players,diff:d.diff,age_groups:d.ag||[],description:(d.desc||'')+'\u001F'+(d.link||'')+'\u001E'+(d.author||''),coaching:d.coaching||'',system_type:d.systemType||null,formation:d.formation||null,steps:d.steps||null}),
   session:s=>({id:s.id,team_id:s.teamId,title:s.title,date:s.date||null,goal:s.goal||null,notes:s.notes||null,blocks:s.blocks||[],total_dur:s.totalDur||0}),
 };
