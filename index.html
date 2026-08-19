@@ -1157,7 +1157,7 @@ function dcHTML(d){
         ${d.link?`<a href="${esc(d.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-sec btn-xs" style="text-decoration:none;">▶ Video-Link</a>`:''}
         <button class="btn btn-sec btn-xs" onclick="dupDrill('${esc(d.id)}')">Kopieren</button>
         <button class="btn btn-sec btn-xs" onclick="openDrillMdl('${esc(d.id)}',${isSys})">Bearbeiten</button>
-        ${isCustom?`<button class="btn btn-dan btn-xs" onclick="deleteDrill('${esc(d.id)}')">✕</button>`:''}
+        ${isCustom||isSys?`<button class="btn btn-dan btn-xs" onclick="deleteDrill('${esc(d.id)}')">✕</button>`:''}
       </div>
     </div>
     <div class="mut" style="font-size:10px;margin-bottom:3px;">${isSys?'':`👥 min. ${esc(d.players)} · `}${(d.ag||[]).map(esc).join(', ')}${isSys&&d.formation?` · ${esc(d.formation)}`:''}${d.author?` · <span style="color:var(--mut);">von ${esc(d.author)}</span>`:` · <span style="color:var(--mut);">Bot</span>`}</div>
