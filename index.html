@@ -1260,7 +1260,15 @@ async function addCoachAndSelect(name){
   document.getElementById('d-author-new').style.display='none';
 }
 async function deleteDrill(id){
-  if(!confirm('Drill löschen?'))return;
+  const isBD=BD.some(d=>d.id===id);
+  if(!confirm(isBD?'Eingebautes System löschen? Es ist für alle Coaches verschwunden.':'Drill löschen?'))return;
+  if(isBD){
+    if(!db.deletedBD.includes(id))db.deletedBD.push(id);
+    // persist deletedBD list in coaches_cfg sentinel
+    renderDrills();
+    await saveCoachesCfg();
+    return;
+  }
   db.drills=db.drills.filter(d=>d.id!==id);
   delete db.drillDrawings[id];
   renderDrills();
