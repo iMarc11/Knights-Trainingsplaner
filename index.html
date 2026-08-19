@@ -1096,9 +1096,18 @@ function renderSeason(){
     const lbl=wd.focus?wd.focus:(phase?`<span style="opacity:.4;">${phase.name}</span>`:'');
     const wsess=teamSess.filter(sess=>sess.date&&sess.date>=key&&sess.date<=wEnd);
     const badges=wsess.map(sess=>`<span onclick="event.stopPropagation();closeM('m-week');switchTab('sessions');viewSess('${sess.id}')" style="display:inline-flex;align-items:center;gap:4px;background:#E85D04;color:#fff;border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.18);" title="${sess.title}"><span style="opacity:.8;">${sess.date?new Date(sess.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'short',day:'2-digit',month:'2-digit'}):''}</span><span style="width:1px;background:rgba(255,255,255,.4);align-self:stretch;"></span>${sess.title.substring(0,18)}</span>`).join('');
+    const wEnd2=we.toISOString().slice(0,10);
+    const wGames=(db.games||[]).filter(g=>g.seasonId===s.id&&g.date&&g.date>=key&&g.date<=wEnd2);
+    const gameBadges=wGames.map(g=>{
+      const ha=g.homeAway==='home'?'🏠':'✈️';
+      const result=g.scoreUs!==null&&g.scoreUs!==undefined&&g.scoreThem!==null&&g.scoreThem!==undefined?` ${g.scoreUs}:${g.scoreThem}`:'';
+      const win=result?(g.scoreUs>g.scoreThem?'#16a34a':g.scoreUs<g.scoreThem?'#dc2626':'#6b7280'):null;
+      const bg2=win||'#4f46e5';
+      return`<span onclick="event.stopPropagation();openGameMdl('${g.id}','${key}')" style="display:inline-flex;align-items:center;gap:4px;background:${bg2};color:#fff;border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.18);" title="${g.opponent}">${ha} ${esc(g.opponent.substring(0,14))}${result?`<span style="opacity:.85;">${result}</span>`:''}</span>`;
+    }).join('');
     return`<div class="wlbl" ${isCurrent?`id="cur-week-lbl"`:''}><span style="${isCurrent?'font-weight:800;color:var(--pri)':''}">${fmt(w)}</span><span style="color:#ccc;font-size:8px;">${fmt(we)}</span>${isCurrent?'<span style="font-size:8px;color:var(--pri);font-weight:700;">Heute</span>':''}</div>
            <div class="wbar" id="${isCurrent?'cur-week-bar':''}" style="background:${bg};border-color:${bd};flex-wrap:wrap;gap:5px;min-height:34px;height:auto;padding:6px 8px;align-items:center;" onclick="openWeekMdl('${key}')">
-             ${wd.game?'<span>🏀</span>':''}<span class="wnote">${lbl}</span>${badges?`<div style='display:flex;flex-wrap:wrap;gap:5px;margin-left:4px;'>${badges}</div>`:''}</div>`;
+             <span class="wnote">${lbl}</span>${badges?`<div style='display:flex;flex-wrap:wrap;gap:5px;margin-left:4px;'>${badges}</div>`:''}${gameBadges?`<div style='display:flex;flex-wrap:wrap;gap:5px;margin-left:4px;'>${gameBadges}</div>`:''}</div>`;
   }).join('');
   grid.innerHTML=`<div class="wgrid" style="row-gap:3px;">${rows}</div>`;
   // Zur aktuellen Woche scrollen
