@@ -456,7 +456,58 @@ function checkPw(){
     <div id="wk-sessions" style="margin-bottom:8px;"></div>
     <button class="btn btn-sec btn-sm" onclick="addTrainingToWeek()" style="width:100%;">+ Neues Training für diese Woche</button>
   </div>
+  <div class="fg" style="margin-top:8px;">
+    <label>Spiele in dieser Woche</label>
+    <div id="wk-games" style="margin-bottom:8px;"></div>
+    <button class="btn btn-sec btn-sm" onclick="openGameMdl(null,document.getElementById('wk-key').value)" style="width:100%;">+ Spiel erfassen</button>
+  </div>
   <div class="mft"><button class="btn btn-sec" onclick="closeM('m-week')">Abbrechen</button><button class="btn btn-pri" onclick="saveWeek()">Speichern</button></div>
+</div></div>
+
+<!-- SPIEL MODAL -->
+<div class="mbk" id="m-game"><div class="mdl" style="max-width:480px;">
+  <h3 id="game-title">Spiel erfassen</h3>
+  <div class="form-row">
+    <div class="fg" style="flex:1;"><label>Datum</label><input type="date" id="gm-date"></div>
+    <div class="fg" style="width:110px;"><label>Heim / Auswärts</label>
+      <select id="gm-ha"><option value="home">🏠 Heim</option><option value="away">✈️ Auswärts</option></select>
+    </div>
+  </div>
+  <div class="fg"><label>Gegner *</label><input type="text" id="gm-opp" placeholder="z.B. BBC Nyon"></div>
+  <div class="form-row">
+    <div class="fg"><label>Resultat – Wir</label><input type="number" id="gm-us" min="0" placeholder="–"></div>
+    <div class="fg"><label>Resultat – Gegner</label><input type="number" id="gm-them" min="0" placeholder="–"></div>
+  </div>
+  <div class="fg"><label>Notizen zum Spiel</label><textarea id="gm-notes" rows="2" placeholder="Stichworte, Highlights…"></textarea></div>
+  <input type="hidden" id="gm-id">
+  <input type="hidden" id="gm-week">
+  <div class="mft">
+    <button class="btn btn-sec" onclick="closeM('m-game')">Abbrechen</button>
+    <button class="btn btn-sec" onclick="openScoutingMdl(document.getElementById('gm-opp').value)" style="color:#7c3aed;border-color:#a78bfa;">🔍 Scouting</button>
+    <button class="btn btn-pri" onclick="saveGame()">Speichern</button>
+  </div>
+</div></div>
+
+<!-- SCOUTING MODAL -->
+<div class="mbk" id="m-scouting"><div class="mdl wide">
+  <h3>🔍 Scouting – <span id="scout-opp-title"></span></h3>
+  <div class="form-row">
+    <div class="fg" style="flex:1;">
+      <label>⚡ Offense</label>
+      <textarea id="scout-offense" rows="4" placeholder="Spielsystem, bevorzugte Aktionen, Setplays…"></textarea>
+    </div>
+    <div class="fg" style="flex:1;">
+      <label>🛡️ Defense</label>
+      <textarea id="scout-defense" rows="4" placeholder="Zone / Mann, Pressingverhalten, Schwächen…"></textarea>
+    </div>
+  </div>
+  <div class="fg">
+    <label>⭐ Schlüsselspieler</label>
+    <div id="scout-players-list" style="margin-bottom:6px;"></div>
+    <button class="btn btn-sec btn-sm" onclick="addScoutPlayer()">+ Spieler</button>
+  </div>
+  <input type="hidden" id="scout-opp-key">
+  <div class="mft"><button class="btn btn-sec" onclick="closeM('m-scouting')">Schliessen</button><button class="btn btn-pri" onclick="saveScouting()">Speichern</button></div>
 </div></div>
 
 <div class="mbk" id="m-drill"><div class="mdl">
