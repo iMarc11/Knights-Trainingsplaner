@@ -1246,7 +1246,7 @@ async function saveScouting(){
   const opp=document.getElementById('scout-opp-title').textContent;
   const sc={opponent:opp,offense:document.getElementById('scout-offense').value.trim(),defense:document.getElementById('scout-defense').value.trim(),keyPlayers:[..._scoutPlayers]};
   db.scouting[key]=sc;
-  closeM('m-scouting');
+  closeM('m-scouting');renderGamesOverview();
   await sbUpsert('scouting',{id:key,opponent:opp,offense:sc.offense||null,defense:sc.defense||null,key_players:JSON.stringify(sc.keyPlayers)});
 }
 function renderGamesOverview(){
