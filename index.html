@@ -1146,6 +1146,111 @@ async function saveWeek(){
   await sbUpsert('seasons',toDB.season(s));
 }
 
+// ── GAMES & SCOUTING ──────────────────────────────────────
+function slugOpp(name){return(name||'').toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,40);}
+
+function openGameMdl(gameId,weekKey){
+  const g=gameId?db.games.find(x=>x.id===gameId):null;
+  const s=getCurSeason();
+  document.getElementById('game-title').textContent=g?'Spiel bearbeiten':'Spiel erfassen';
+  document.getElementById('gm-id').value=g?.id||'';
+  document.getElementById('gm-week').value=weekKey||g?.weekKey||'';
+  document.getElementById('gm-date').value=g?.date||weekKey||'';
+  document.getElementById('gm-ha').value=g?.homeAway||'home';
+  document.getElementById('gm-opp').value=g?.opponent||'';
+  document.getElementById('gm-us').value=g?.scoreUs??'';
+  document.getElementById('gm-them').value=g?.scoreThem??'';
+  document.getElementById('gm-notes').value=g?.notes||'';
+  openM('m-game');
+}
+async function saveGame(){
+  const opp=document.getElementById('gm-opp').value.trim();
+  if(!opp)return alert('Gegner eingeben.');
+  const s=getCurSeason();
+  const id=document.getElementById('gm-id').value||Date.now().toString();
+  const weekKey=document.getElementById('gm-week').value;
+  const g={id,teamId:s?.teamId||'',seasonId:s?.id||'',weekKey,
+    date:document.getElementById('gm-date').value,
+    homeAway:document.getElementById('gm-ha').value,
+    opponent:opp,
+    scoreUs:document.getElementById('gm-us').value!==''?parseInt(document.getElementById('gm-us').value):null,
+    scoreThem:document.getElementById('gm-them').value!==''?parseInt(document.getElementById('gm-them').value):null,
+    notes:document.getElementById('gm-notes').value.trim()};
+  const idx=db.games.findIndex(x=>x.id===id);
+  if(idx>=0)db.games[idx]=g;else db.games.push(g);
+  closeM('m-game');renderSeason();
+  await sbUpsert('games',{id:g.id,team_id:g.teamId,season_id:g.seasonId,week_key:g.weekKey,date:g.date||null,home_away:g.homeAway,opponent:g.opponent,score_us:g.scoreUs,score_them:g.scoreThem,notes:g.notes||null});
+}
+async function deleteGame(id){
+  if(!confirm('Spiel löschen?'))return;
+  db.games=db.games.filter(g=>g.id!==id);
+  renderSeason();if(document.getElementById('m-week').classList.contains('open'))openWeekMdl(document.getElementById('wk-key').value);
+  await sbDelete('games','id',id);
+}
+function openScoutingMdl(opponent){
+  if(!opponent){const v=document.getElementById('gm-opp').value.trim();if(!v)return alert('Zuerst Gegner eingeben.');opponent=v;}
+  const key=slugOpp(opponent);
+  const sc=db.scouting[key]||{};
+  document.getElementById('scout-opp-title').textContent=opponent;
+  document.getElementById('scout-opp-key').value=key;
+  document.getElementById('scout-offense').value=sc.offense||'';
+  document.getElementById('scout-defense').value=sc.defense||'';
+  renderScoutPlayers(sc.keyPlayers||[]);
+  openM('m-scouting');
+}
+function renderScoutPlayers(players){
+  document.getElementById('scout-players-list').innerHTML=players.map((p,i)=>
+    `<div style="display:flex;gap:6px;align-items:center;margin-bottom:5px;">
+      <input type="text" placeholder="#" value="${esc(p.nr||'')}" style="width:45px;font-size:12px;" oninput="updateScoutPlayer(${i},'nr',this.value)">
+      <input type="text" placeholder="Name" value="${esc(p.name||'')}" style="flex:1;font-size:12px;" oninput="updateScoutPlayer(${i},'name',this.value)">
+      <input type="text" placeholder="Stärken / Rolle" value="${esc(p.notes||'')}" style="flex:2;font-size:12px;" oninput="updateScoutPlayer(${i},'notes',this.value)">
+      <button class="btn btn-dan btn-xs" onclick="removeScoutPlayer(${i})">✕</button>
+    </div>`).join('');
+}
+let _scoutPlayers=[];
+function addScoutPlayer(){_scoutPlayers.push({nr:'',name:'',notes:''});renderScoutPlayers(_scoutPlayers);}
+function updateScoutPlayer(i,field,val){if(_scoutPlayers[i])_scoutPlayers[i][field]=val;}
+function removeScoutPlayer(i){_scoutPlayers.splice(i,1);renderScoutPlayers(_scoutPlayers);}
+function openScoutingMdl(opponent){
+  if(!opponent){const v=document.getElementById('gm-opp').value.trim();if(!v)return alert('Zuerst Gegner eingeben.');opponent=v;}
+  const key=slugOpp(opponent);
+  const sc=db.scouting[key]||{};
+  document.getElementById('scout-opp-title').textContent=opponent;
+  document.getElementById('scout-opp-key').value=key;
+  document.getElementById('scout-offense').value=sc.offense||'';
+  document.getElementById('scout-defense').value=sc.defense||'';
+  _scoutPlayers=[...(sc.keyPlayers||[]).map(p=>({...p}))];
+  renderScoutPlayers(_scoutPlayers);
+  openM('m-scouting');
+}
+async function saveScouting(){
+  const key=document.getElementById('scout-opp-key').value;
+  const opp=document.getElementById('scout-opp-title').textContent;
+  const sc={opponent:opp,offense:document.getElementById('scout-offense').value.trim(),defense:document.getElementById('scout-defense').value.trim(),keyPlayers:[..._scoutPlayers]};
+  db.scouting[key]=sc;
+  closeM('m-scouting');
+  await sbUpsert('scouting',{id:key,opponent:opp,offense:sc.offense||null,defense:sc.defense||null,key_players:JSON.stringify(sc.keyPlayers)});
+}
+function renderWkGames(weekKey){
+  const el=document.getElementById('wk-games');if(!el)return;
+  const s=getCurSeason();
+  const wGames=(db.games||[]).filter(g=>g.weekKey===weekKey||(g.seasonId===s?.id&&g.date&&g.date.startsWith(weekKey.slice(0,7))&&g.date>=weekKey&&g.date<=(()=>{const e=new Date(weekKey+'T00:00:00');e.setDate(e.getDate()+6);return e.toISOString().slice(0,10);})()));
+  if(wGames.length===0){el.innerHTML='<div style="font-size:11px;color:var(--mut);">Noch kein Spiel.</div>';return;}
+  el.innerHTML=wGames.map(g=>{
+    const result=g.scoreUs!==null&&g.scoreThem!==null?` — ${g.scoreUs}:${g.scoreThem}`:'';
+    const ha=g.homeAway==='home'?'🏠':'✈️';
+    const win=g.scoreUs!==null&&g.scoreThem!==null?(g.scoreUs>g.scoreThem?'#16a34a':g.scoreUs<g.scoreThem?'#dc2626':'#6b7280'):null;
+    return`<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:#f8f9fa;border-radius:6px;margin-bottom:4px;font-size:12px;">
+      <span>${ha}</span>
+      <span style="flex:1;font-weight:600;">${esc(g.opponent)}</span>
+      ${win?`<span style="font-weight:800;color:${win};">${g.scoreUs}:${g.scoreThem}</span>`:''}
+      <button class="btn btn-sec btn-xs" onclick="openScoutingMdl('${esc(g.opponent)}')">🔍</button>
+      <button class="btn btn-sec btn-xs" onclick="openGameMdl('${esc(g.id)}','${esc(weekKey)}')">✏️</button>
+      <button class="btn btn-dan btn-xs" onclick="deleteGame('${esc(g.id)}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
 // ── DRILLS ────────────────────────────────────────────────
 const CL={aufwaermen:'🔥 Aufwärmen',ballhandling:'🏀 Ballhandling',passspiel:'🤝 Passspiel',technik:'🎯 Technik & Abschluss',verteidigung:'🛡️ Verteidigung',angriff:'⚡ Angriff & Taktik',kondition:'💪 Kondition',spielform:'🏆 Spielform',systeme:'🗂️ System'};
 const CL_DRILL={aufwaermen:'🔥 Aufwärmen',ballhandling:'🏀 Ballhandling',passspiel:'🤝 Passspiel',technik:'🎯 Technik & Abschluss',verteidigung:'🛡️ Verteidigung',angriff:'⚡ Angriff & Taktik',kondition:'💪 Kondition',spielform:'🏆 Spielform'};
