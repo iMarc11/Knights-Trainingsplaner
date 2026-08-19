@@ -1161,7 +1161,7 @@ function renderSeason(){
       const result=g.scoreUs!==null&&g.scoreUs!==undefined&&g.scoreThem!==null&&g.scoreThem!==undefined?` ${g.scoreUs}:${g.scoreThem}`:'';
       const win=result?(g.scoreUs>g.scoreThem?'#16a34a':g.scoreUs<g.scoreThem?'#dc2626':'#6b7280'):null;
       const bg2=win||'#4f46e5';
-      return`<span onclick="event.stopPropagation();openGameMdl('${g.id}','${key}')" style="display:inline-flex;align-items:center;gap:4px;background:${bg2};color:#fff;border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.18);" title="${g.opponent}">${ha} ${esc(g.opponent.substring(0,14))}${result?`<span style="opacity:.85;">${result}</span>`:''}</span>`;
+      return`<span onclick="event.stopPropagation();openOpponentMdl('${slugOpp(g.opponent)}')" style="display:inline-flex;align-items:center;gap:4px;background:${bg2};color:#fff;border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.18);" title="${g.opponent}">${ha} ${esc(g.opponent)}${result?`<span style="opacity:.85;">${result}</span>`:''}</span>`;
     }).join('');
     return`<div class="wlbl" ${isCurrent?`id="cur-week-lbl"`:''}><span style="${isCurrent?'font-weight:800;color:var(--pri)':''}">${fmt(w)}</span><span style="color:#ccc;font-size:8px;">${fmt(we)}</span>${isCurrent?'<span style="font-size:8px;color:var(--pri);font-weight:700;">Heute</span>':''}</div>
            <div class="wbar" id="${isCurrent?'cur-week-bar':''}" style="background:${bg};border-color:${bd};flex-wrap:wrap;gap:5px;min-height:34px;height:auto;padding:6px 8px;align-items:center;" onclick="openWeekMdl('${key}')">
