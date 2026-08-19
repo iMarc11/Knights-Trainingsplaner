@@ -1458,25 +1458,6 @@ async function deleteOppGame(gameId){
   renderOppGamesList(key,getCurSeason());renderOpponentsPanel();renderSeason();
   await sbDelete('games','id',gameId);
 }
-async function saveOpponent(){
-  const s=getCurSeason();if(!s)return;
-  const name=document.getElementById('opp-mdl-name').value.trim();if(!name)return alert('Name eingeben.');
-  const oldKey=document.getElementById('opp-mdl-key').value;
-  const newKey=slugOpp(name);
-  // Name in seasons.opponents aktualisieren
-  if(!s.opponents)s.opponents=[];
-  if(oldKey&&oldKey!==newKey){s.opponents=s.opponents.filter(n=>slugOpp(n)!==oldKey);}
-  if(!s.opponents.includes(name))s.opponents.push(name);
-  document.getElementById('opp-mdl-key').value=newKey;
-  document.getElementById('opp-mdl-title').textContent='Gegner';
-  document.getElementById('opp-del-btn').style.display='';
-  // Scouting speichern
-  const sc={opponent:name,offense:document.getElementById('opp-offense').value.trim(),defense:document.getElementById('opp-defense').value.trim(),keyPlayers:[..._oppPlayers]};
-  db.scouting[newKey]=sc;
-  renderOpponentsPanel();
-  await sbUpsert('seasons',toDB.season(s));
-  await sbUpsert('scouting',{id:newKey,opponent:name,offense:sc.offense||null,defense:sc.defense||null,key_players:JSON.stringify(sc.keyPlayers)});
-}
 async function deleteOpponent(key){
   if(!key)return;
   const s=getCurSeason();if(!s)return;
