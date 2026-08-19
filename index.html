@@ -779,7 +779,7 @@ async function sbDelete(table,col,val){
 // ── MAPPERS ──────────────────────────────────────────────
 const fromDB={
   team:r=>{const _tp=(r.description||'').split('|||');const _hasT=_tp.length>=3;return{id:r.id,name:r.name,cat:r.cat||'herren',age:r.age||'U16',emoji:r.emoji||'🏀',trainer:_hasT?_tp[0]:'',coTrainer:_hasT?_tp[1]:'',desc:_hasT?_tp[2]:(_tp[0]||'')};},
-  season:r=>{let ph=r.phases||[],wk=r.weeks||{};if(typeof ph==='string')try{ph=JSON.parse(ph);}catch(e){ph=[];}if(typeof wk==='string')try{wk=JSON.parse(wk);}catch(e){wk={};}return{id:r.id,teamId:r.team_id,name:r.name,start:r.start_date,end:r.end_date,phases:ph,weeks:wk};},
+  season:r=>{let ph=r.phases||[],wk=r.weeks||{};if(typeof ph==='string')try{ph=JSON.parse(ph);}catch(e){ph=[];}if(typeof wk==='string')try{wk=JSON.parse(wk);}catch(e){wk={};}const opps=wk.__opponents__||[];const cleanWk={...wk};delete cleanWk.__opponents__;return{id:r.id,teamId:r.team_id,name:r.name,start:r.start_date,end:r.end_date,phases:ph,weeks:cleanWk,opponents:opps};},
   drill:r=>{if(r.id==='__coaches_cfg__')return null;const _p=(r.description||'').split('\u001F');const _la=(_p[1]||'').split('\u001E');return{id:r.id,name:r.name,cat:r.cat,dur:r.dur||10,players:r.players||4,diff:r.diff||1,ag:r.age_groups||[],desc:_p[0]||'',link:_la[0]||'',author:_la[1]||'',coaching:r.coaching||'',systemType:r.system_type,formation:r.formation,steps:r.steps,custom:true};},
   session:r=>{let bl=r.blocks||[];if(typeof bl==='string')try{bl=JSON.parse(bl);}catch(e){bl=[];}return{id:r.id,teamId:r.team_id,title:r.title,date:r.date,location:r.location||'',goal:r.goal||'',notes:r.notes||'',blocks:bl,totalDur:r.total_dur||0};},
 };
