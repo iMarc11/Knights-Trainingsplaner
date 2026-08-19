@@ -1152,6 +1152,7 @@ function openWeekMdl(key){
       <span class="dpill">${sess.totalDur} Min.</span>
       <button class="btn btn-sec btn-xs" onclick="closeM('m-week');switchTab('sessions');viewSess('${sess.id}')">Öffnen</button>
     </div>`).join('');
+  renderWkGames(key);
   openM('m-week');
 }
 async function saveWeek(){
