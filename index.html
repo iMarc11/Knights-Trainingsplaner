@@ -811,14 +811,15 @@ function getTeam(id){return db.teams.find(t=>t.id===id);}
 // ── LOAD / RELOAD ─────────────────────────────────────────
 async function loadAll(){
   try{
+    const safeQ=async(fn)=>{try{const r=await fn();return r;}catch(e){return{data:[],error:e};}};
     const[teams,seasons,drills,sessions,drawings,gamesRes,scoutingRes]=await Promise.all([
       SB.from('teams').select('*').order('created_at'),
       SB.from('seasons').select('*').order('created_at'),
       SB.from('custom_drills').select('*').order('created_at'),
       SB.from('sessions').select('*').order('created_at',{ascending:false}),
       SB.from('drill_drawings').select('*'),
-      SB.from('games').select('*').order('date',{ascending:true}).catch(()=>({data:[]})),
-      SB.from('scouting').select('*').catch(()=>({data:[]})),
+      safeQ(()=>SB.from('games').select('*').order('date',{ascending:true})),
+      safeQ(()=>SB.from('scouting').select('*')),
     ]);
     db.teams=(teams.data||[]).map(fromDB.team);
     db.seasons=(seasons.data||[]).map(fromDB.season);
