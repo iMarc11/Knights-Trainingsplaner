@@ -1246,11 +1246,15 @@ async function saveDrill(){
   if(document.getElementById('pnl-drills').classList.contains('active'))renderDrills();
   if(toLib)await sbUpsert('custom_drills',toDB.drill(drill));
 }
+async function saveCoachesCfg(){
+  const custom=db.coaches.filter(c=>!DEFAULT_COACHES.includes(c));
+  const payload={coaches:custom,deletedBD:db.deletedBD||[]};
+  await sbUpsert('custom_drills',{id:'__coaches_cfg__',name:'__coaches_cfg__',cat:'config',description:JSON.stringify(payload),age_groups:[],dur:0,players:0,diff:0,coaching:''});
+}
 async function addCoach(name){
   if(!name||db.coaches.includes(name))return;
   db.coaches.push(name);
-  const custom=db.coaches.filter(c=>!DEFAULT_COACHES.includes(c));
-  await sbUpsert('custom_drills',{id:'__coaches_cfg__',name:'__coaches_cfg__',cat:'config',description:JSON.stringify(custom),age_groups:[],dur:0,players:0,diff:0,coaching:''});
+  await saveCoachesCfg();
 }
 async function addCoachAndSelect(name){
   if(!name)return;
