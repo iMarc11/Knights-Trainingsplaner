@@ -811,12 +811,14 @@ function getTeam(id){return db.teams.find(t=>t.id===id);}
 // ── LOAD / RELOAD ─────────────────────────────────────────
 async function loadAll(){
   try{
-    const[teams,seasons,drills,sessions,drawings]=await Promise.all([
+    const[teams,seasons,drills,sessions,drawings,gamesRes,scoutingRes]=await Promise.all([
       SB.from('teams').select('*').order('created_at'),
       SB.from('seasons').select('*').order('created_at'),
       SB.from('custom_drills').select('*').order('created_at'),
       SB.from('sessions').select('*').order('created_at',{ascending:false}),
       SB.from('drill_drawings').select('*'),
+      SB.from('games').select('*').order('date',{ascending:true}).catch(()=>({data:[]})),
+      SB.from('scouting').select('*').catch(()=>({data:[]})),
     ]);
     db.teams=(teams.data||[]).map(fromDB.team);
     db.seasons=(seasons.data||[]).map(fromDB.season);
@@ -831,6 +833,12 @@ async function loadAll(){
     }catch(e){db.coaches=[...DEFAULT_COACHES];db.deletedBD=[];}}
     db.drills=(drills.data||[]).filter(r=>r.id!=='__coaches_cfg__').map(fromDB.drill).filter(Boolean);
     db.sessions=(sessions.data||[]).map(fromDB.session);
+    db.games=(gamesRes.data||[]).map(r=>({id:r.id,teamId:r.team_id,seasonId:r.season_id,weekKey:r.week_key||'',date:r.date||'',homeAway:r.home_away||'home',opponent:r.opponent||'',scoreUs:r.score_us,scoreThem:r.score_them,notes:r.notes||''}));
+    db.scouting={};
+    (scoutingRes.data||[]).forEach(r=>{
+      let kp=[];try{kp=JSON.parse(r.key_players||'[]');}catch(e){}
+      db.scouting[r.id]={opponent:r.opponent,offense:r.offense||'',defense:r.defense||'',keyPlayers:kp};
+    });
     db.drillDrawings={};
     (drawings.data||[]).forEach(r=>{
       let urls=r.data_url;
