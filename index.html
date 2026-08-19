@@ -1213,7 +1213,7 @@ async function saveGame(){
 async function deleteGame(id){
   if(!confirm('Spiel löschen?'))return;
   db.games=db.games.filter(g=>g.id!==id);
-  renderSeason();if(document.getElementById('m-week').classList.contains('open'))openWeekMdl(document.getElementById('wk-key').value);
+  renderSeason();renderGamesOverview();if(document.getElementById('m-week').classList.contains('open'))openWeekMdl(document.getElementById('wk-key').value);
   await sbDelete('games','id',id);
 }
 function renderScoutPlayers(players){
