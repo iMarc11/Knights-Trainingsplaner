@@ -1168,7 +1168,7 @@ function renderSeason(){
              <span class="wnote">${lbl}</span>${badges?`<div style='display:flex;flex-wrap:wrap;gap:5px;margin-left:4px;'>${badges}</div>`:''}${gameBadges?`<div style='display:flex;flex-wrap:wrap;gap:5px;margin-left:4px;'>${gameBadges}</div>`:''}</div>`;
   }).join('');
   grid.innerHTML=`<div class="wgrid" style="row-gap:3px;">${rows}</div>`;
-  renderGamesOverview();
+  renderOpponentsPanel();
   // Zur aktuellen Woche scrollen
   if(currentWeekKey){setTimeout(()=>{const el=document.getElementById('cur-week-bar')||document.getElementById('cur-week-lbl');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},120);}
 }
@@ -1255,13 +1255,13 @@ async function saveGame(){
     notes:document.getElementById('gm-notes').value.trim()};
   const idx=db.games.findIndex(x=>x.id===id);
   if(idx>=0)db.games[idx]=g;else db.games.push(g);
-  closeM('m-game');renderSeason();renderGamesOverview();
+  closeM('m-game');renderSeason();renderOpponentsPanel();
   await sbUpsert('games',{id:g.id,team_id:g.teamId,season_id:g.seasonId,week_key:g.weekKey,date:g.date||null,home_away:g.homeAway,opponent:g.opponent,score_us:g.scoreUs,score_them:g.scoreThem,notes:g.notes||null});
 }
 async function deleteGame(id){
   if(!confirm('Spiel löschen?'))return;
   db.games=db.games.filter(g=>g.id!==id);
-  renderSeason();renderGamesOverview();if(document.getElementById('m-week').classList.contains('open'))openWeekMdl(document.getElementById('wk-key').value);
+  renderSeason();renderOpponentsPanel();if(document.getElementById('m-week').classList.contains('open'))openWeekMdl(document.getElementById('wk-key').value);
   await sbDelete('games','id',id);
 }
 function renderScoutPlayers(players){
@@ -1294,7 +1294,7 @@ async function saveScouting(){
   const opp=document.getElementById('scout-opp-title').textContent;
   const sc={opponent:opp,offense:document.getElementById('scout-offense').value.trim(),defense:document.getElementById('scout-defense').value.trim(),keyPlayers:[..._scoutPlayers]};
   db.scouting[key]=sc;
-  closeM('m-scouting');renderGamesOverview();
+  closeM('m-scouting');renderOpponentsPanel();
   await sbUpsert('scouting',{id:key,opponent:opp,offense:sc.offense||null,defense:sc.defense||null,key_players:JSON.stringify(sc.keyPlayers)});
 }
 // ── OPPONENTS PANEL ───────────────────────────────────────
@@ -1458,7 +1458,7 @@ async function deleteOpponent(key){
   await sbDelete('scouting','id',key);
 }
 
-function renderGamesOverview(){
+function renderOpponentsPanel(){
   const el=document.getElementById('games-overview');if(!el)return;
   const s=getCurSeason();
   const card=document.getElementById('games-card');
