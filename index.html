@@ -522,6 +522,51 @@ function checkPw(){
   <div class="mft"><button class="btn btn-sec" onclick="closeM('m-scouting')">Schliessen</button><button class="btn btn-pri" onclick="saveScouting()">Speichern</button></div>
 </div></div>
 
+<!-- OPPONENT MODAL -->
+<div class="mbk" id="m-opponent"><div class="mdl wide">
+  <h3 id="opp-mdl-title">Gegner</h3>
+  <div class="fg"><label>Gegner-Name *</label><input type="text" id="opp-mdl-name" placeholder="z.B. BBC Nyon"></div>
+  <div style="margin-top:14px;">
+    <div style="font-size:11px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">🔍 Scouting</div>
+    <div class="form-row">
+      <div class="fg" style="flex:1;"><label>Offense</label><textarea id="opp-offense" rows="3" placeholder="Spielsystem, bevorzugte Aktionen…"></textarea></div>
+      <div class="fg" style="flex:1;"><label>Defense</label><textarea id="opp-defense" rows="3" placeholder="Zone / Mann, Schwächen…"></textarea></div>
+    </div>
+    <div class="fg">
+      <label>⭐ Schlüsselspieler</label>
+      <div id="opp-players-list" style="margin-bottom:6px;"></div>
+      <button class="btn btn-sec btn-sm" onclick="addOppPlayer()">+ Spieler</button>
+    </div>
+  </div>
+  <div style="margin-top:14px;">
+    <div style="font-size:11px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">📅 Spiele</div>
+    <div id="opp-games-list" style="margin-bottom:8px;"></div>
+    <!-- Inline Spiel-Formular -->
+    <div id="opp-add-game-form" style="display:none;background:#f8f9fa;border-radius:8px;padding:10px;margin-bottom:8px;">
+      <div class="form-row" style="margin-bottom:6px;">
+        <div class="fg"><label style="font-size:10px;">Datum</label><input type="date" id="opp-gm-date"></div>
+        <div class="fg"><label style="font-size:10px;">Wo</label><select id="opp-gm-ha"><option value="home">🏠 Heim</option><option value="away">✈️ Auswärts</option></select></div>
+      </div>
+      <div class="form-row" style="margin-bottom:6px;">
+        <div class="fg"><label style="font-size:10px;">Wir</label><input type="number" id="opp-gm-us" min="0" placeholder="–"></div>
+        <div class="fg"><label style="font-size:10px;">Gegner</label><input type="number" id="opp-gm-them" min="0" placeholder="–"></div>
+      </div>
+      <input type="hidden" id="opp-gm-id">
+      <div class="flex g2">
+        <button class="btn btn-sec btn-sm" onclick="document.getElementById('opp-add-game-form').style.display='none'">Abbrechen</button>
+        <button class="btn btn-pri btn-sm" onclick="saveOppGame()">Spiel speichern</button>
+      </div>
+    </div>
+    <button class="btn btn-sec btn-sm" onclick="showOppGameForm(null)" style="width:100%;">+ Spiel hinzufügen</button>
+  </div>
+  <input type="hidden" id="opp-mdl-key">
+  <div class="mft">
+    <button class="btn btn-dan btn-sm" onclick="deleteOpponent(document.getElementById('opp-mdl-key').value)" id="opp-del-btn">Gegner löschen</button>
+    <button class="btn btn-sec" onclick="closeM('m-opponent')">Schliessen</button>
+    <button class="btn btn-pri" onclick="saveOpponent()">Scouting speichern</button>
+  </div>
+</div></div>
+
 <div class="mbk" id="m-drill"><div class="mdl">
   <h3 id="dr-title">Drill</h3>
   <div class="form-row">
