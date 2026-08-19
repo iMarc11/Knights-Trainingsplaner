@@ -1248,6 +1248,46 @@ async function saveScouting(){
   closeM('m-scouting');
   await sbUpsert('scouting',{id:key,opponent:opp,offense:sc.offense||null,defense:sc.defense||null,key_players:JSON.stringify(sc.keyPlayers)});
 }
+function renderGamesOverview(){
+  const el=document.getElementById('games-overview');if(!el)return;
+  const s=getCurSeason();
+  const card=document.getElementById('games-card');
+  if(!s){if(card)card.style.display='none';return;}
+  if(card)card.style.display='';
+  const games=(db.games||[]).filter(g=>g.seasonId===s.id).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  if(games.length===0){
+    el.innerHTML='<div style="font-size:12px;color:var(--mut);padding:8px 0;">Noch keine Spiele erfasst. Klick auf «+ Spiel erfassen» um zu starten.</div>';
+    return;
+  }
+  const today=new Date().toISOString().slice(0,10);
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;">
+    ${games.map(g=>{
+      const isPast=g.date&&g.date<today;
+      const hasResult=g.scoreUs!==null&&g.scoreUs!==undefined&&g.scoreThem!==null&&g.scoreThem!==undefined;
+      const won=hasResult&&g.scoreUs>g.scoreThem;
+      const lost=hasResult&&g.scoreUs<g.scoreThem;
+      const draw=hasResult&&g.scoreUs===g.scoreThem;
+      const resultColor=won?'#16a34a':lost?'#dc2626':'#6b7280';
+      const ha=g.homeAway==='home'?'🏠 Heim':'✈️ Auswärts';
+      const dateStr=g.date?new Date(g.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'short',day:'2-digit',month:'2-digit',year:'2-digit'}):'Kein Datum';
+      const scoutKey=slugOpp(g.opponent);
+      const hasScout=!!db.scouting[scoutKey];
+      return`<div style="background:${isPast?'#f8f9fa':'#fff7f0'};border:1.5px solid ${isPast?(hasResult?(won?'#bbf7d0':lost?'#fecaca':'#e5e7eb'):'#e5e7eb'):'var(--pri)'};border-radius:10px;padding:10px 12px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="font-size:11px;color:var(--mut);">${dateStr}</span>
+          <span style="font-size:10px;color:var(--mut);">${ha}</span>
+          ${hasResult?`<span style="margin-left:auto;font-size:13px;font-weight:900;color:${resultColor};">${g.scoreUs}:${g.scoreThem}</span>`:''}
+        </div>
+        <div style="font-size:14px;font-weight:800;color:var(--fg);margin-bottom:8px;">${esc(g.opponent)}</div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sec btn-xs" onclick="openScoutingMdl('${esc(g.opponent)}')" style="${hasScout?'color:#7c3aed;border-color:#a78bfa;font-weight:800;':''}">🔍 ${hasScout?'Scouting':'+ Scout'}</button>
+          <button class="btn btn-sec btn-xs" onclick="openGameMdl('${esc(g.id)}','${esc(g.weekKey||'')}')">✏️ Bearbeiten</button>
+          <button class="btn btn-dan btn-xs" onclick="deleteGame('${esc(g.id)}')">✕</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
 function renderWkGames(weekKey){
   const el=document.getElementById('wk-games');if(!el)return;
   const s=getCurSeason();
