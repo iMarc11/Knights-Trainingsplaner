@@ -1401,9 +1401,39 @@ function showOppGameForm(gameId){
   document.getElementById('opp-add-game-form').style.display='block';
   document.getElementById('opp-add-game-form').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
+async function _persistOpponent(){
+  // Gegner + Scouting speichern (interner Helper, kein UI-Feedback)
+  const s=getCurSeason();if(!s)return null;
+  const name=document.getElementById('opp-mdl-name').value.trim();if(!name)return null;
+  const oldKey=document.getElementById('opp-mdl-key').value;
+  const newKey=slugOpp(name);
+  if(!s.opponents)s.opponents=[];
+  if(oldKey&&oldKey!==newKey)s.opponents=s.opponents.filter(n=>slugOpp(n)!==oldKey);
+  if(!s.opponents.includes(name))s.opponents.push(name);
+  document.getElementById('opp-mdl-key').value=newKey;
+  document.getElementById('opp-del-btn').style.display='';
+  const sc={opponent:name,offense:document.getElementById('opp-offense').value.trim(),defense:document.getElementById('opp-defense').value.trim(),keyPlayers:[..._oppPlayers]};
+  db.scouting[newKey]=sc;
+  await sbUpsert('seasons',toDB.season(s));
+  await sbUpsert('scouting',{id:newKey,opponent:name,offense:sc.offense||null,defense:sc.defense||null,key_players:JSON.stringify(sc.keyPlayers)});
+  return newKey;
+}
+async function saveOpponent(){
+  const key=await _persistOpponent();if(!key)return alert('Name eingeben.');
+  renderOpponentsPanel();
+  // kurzes visuelles Feedback
+  const btn=document.querySelector('#m-opponent .btn-pri');
+  if(btn){btn.textContent='✓ Gespeichert';setTimeout(()=>{btn.textContent='Speichern & Schliessen';},1200);}
+}
+async function saveOpponentAndClose(){
+  const key=await _persistOpponent();if(!key)return alert('Name eingeben.');
+  closeM('m-opponent');renderOpponentsPanel();
+}
 async function saveOppGame(){
   const s=getCurSeason();if(!s)return;
-  const oppName=document.getElementById('opp-mdl-name').value.trim();if(!oppName)return alert('Zuerst Gegner-Name eingeben und speichern.');
+  const oppName=document.getElementById('opp-mdl-name').value.trim();if(!oppName)return alert('Zuerst Gegner-Name eingeben.');
+  // Gegner automatisch mit speichern
+  await _persistOpponent();
   const oppKey=slugOpp(oppName);
   const existingId=document.getElementById('opp-gm-id').value;
   const id=existingId||Date.now().toString();
