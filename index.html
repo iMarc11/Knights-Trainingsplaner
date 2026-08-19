@@ -771,7 +771,13 @@ async function loadAll(){
     db.seasons=(seasons.data||[]).map(fromDB.season);
     // coaches config laden
     const coachrec=(drills.data||[]).find(r=>r.id==='__coaches_cfg__');
-    if(coachrec){try{const extra=JSON.parse(coachrec.description||'[]');db.coaches=[...DEFAULT_COACHES,...extra.filter(c=>!DEFAULT_COACHES.includes(c))];}catch(e){db.coaches=[...DEFAULT_COACHES];}}
+    if(coachrec){try{
+      const raw=JSON.parse(coachrec.description||'{}');
+      // support old format (array) and new format (object)
+      const extra=Array.isArray(raw)?raw:(raw.coaches||[]);
+      db.coaches=[...DEFAULT_COACHES,...extra.filter(c=>!DEFAULT_COACHES.includes(c))];
+      db.deletedBD=Array.isArray(raw)?[]:(raw.deletedBD||[]);
+    }catch(e){db.coaches=[...DEFAULT_COACHES];db.deletedBD=[];}}
     db.drills=(drills.data||[]).filter(r=>r.id!=='__coaches_cfg__').map(fromDB.drill).filter(Boolean);
     db.sessions=(sessions.data||[]).map(fromDB.session);
     db.drillDrawings={};
