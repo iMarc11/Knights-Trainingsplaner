@@ -1241,7 +1241,8 @@ async function saveScouting(){
 function renderWkGames(weekKey){
   const el=document.getElementById('wk-games');if(!el)return;
   const s=getCurSeason();
-  const wGames=(db.games||[]).filter(g=>g.weekKey===weekKey||(g.seasonId===s?.id&&g.date&&g.date.startsWith(weekKey.slice(0,7))&&g.date>=weekKey&&g.date<=(()=>{const e=new Date(weekKey+'T00:00:00');e.setDate(e.getDate()+6);return e.toISOString().slice(0,10);})()));
+  const wkEnd=(()=>{const e=new Date(weekKey+'T00:00:00');e.setDate(e.getDate()+6);return e.toISOString().slice(0,10);})();
+  const wGames=(db.games||[]).filter(g=>g.seasonId===s?.id&&(g.weekKey===weekKey||(g.date&&g.date>=weekKey&&g.date<=wkEnd)));
   if(wGames.length===0){el.innerHTML='<div style="font-size:11px;color:var(--mut);">Noch kein Spiel.</div>';return;}
   el.innerHTML=wGames.map(g=>{
     const result=g.scoreUs!==null&&g.scoreThem!==null?` — ${g.scoreUs}:${g.scoreThem}`:'';
