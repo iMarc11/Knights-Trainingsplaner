@@ -1120,6 +1120,7 @@ function renderSeason(){
              <span class="wnote">${lbl}</span>${badges?`<div style='display:flex;flex-wrap:wrap;gap:5px;margin-left:4px;'>${badges}</div>`:''}${gameBadges?`<div style='display:flex;flex-wrap:wrap;gap:5px;margin-left:4px;'>${gameBadges}</div>`:''}</div>`;
   }).join('');
   grid.innerHTML=`<div class="wgrid" style="row-gap:3px;">${rows}</div>`;
+  renderGamesOverview();
   // Zur aktuellen Woche scrollen
   if(currentWeekKey){setTimeout(()=>{const el=document.getElementById('cur-week-bar')||document.getElementById('cur-week-lbl');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},120);}
 }
@@ -1206,7 +1207,7 @@ async function saveGame(){
     notes:document.getElementById('gm-notes').value.trim()};
   const idx=db.games.findIndex(x=>x.id===id);
   if(idx>=0)db.games[idx]=g;else db.games.push(g);
-  closeM('m-game');renderSeason();
+  closeM('m-game');renderSeason();renderGamesOverview();
   await sbUpsert('games',{id:g.id,team_id:g.teamId,season_id:g.seasonId,week_key:g.weekKey,date:g.date||null,home_away:g.homeAway,opponent:g.opponent,score_us:g.scoreUs,score_them:g.scoreThem,notes:g.notes||null});
 }
 async function deleteGame(id){
