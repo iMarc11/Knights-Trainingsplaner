@@ -1860,6 +1860,14 @@ function stampBall(x,y){
   ctx.beginPath();ctx.moveTo(x-9,y);ctx.lineTo(x+9,y);ctx.stroke();
   ctx.beginPath();ctx.arc(x,y,9,0,Math.PI,false);ctx.stroke();ctx.restore();
 }
+function stampCone(x,y){
+  const ctx=DM.ctx,s=13;
+  ctx.save();ctx.beginPath();
+  ctx.moveTo(x,y-s);ctx.lineTo(x+s,y+s);ctx.lineTo(x-s,y+s);ctx.closePath();
+  ctx.fillStyle=DM.color;ctx.fill();
+  ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=1;ctx.stroke();
+  ctx.restore();
+}
 // Draw a screen T-shape at end point, perpendicular to the approach direction
 function drawScreenShape(ctx,fromX,fromY,toX,toY){
   const dx=toX-fromX,dy=toY-fromY;
@@ -1882,6 +1890,7 @@ function onDrawStart(e){
   if(DM.tool==='def'){stampPlayer(pos.x,pos.y,false);DM.isDrawing=false;snapHistory();return;}
   if(DM.tool==='coach'){stampCoach(pos.x,pos.y);DM.isDrawing=false;snapHistory();return;}
   if(DM.tool==='ball'){stampBall(pos.x,pos.y);DM.isDrawing=false;snapHistory();return;}
+  if(DM.tool==='cone'){stampCone(pos.x,pos.y);DM.isDrawing=false;snapHistory();return;}
   // screen: drag to draw — preview on move, finalize on end
   if(DM.tool==='text'){
     DM.textX=pos.x;DM.textY=pos.y;
