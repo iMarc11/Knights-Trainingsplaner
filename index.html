@@ -267,22 +267,25 @@ function checkPw(){
       <button class="btn btn-sec btn-sm" onclick="openPhaseMdl()">+ Phase</button>
     </div>
   </div>
-  <div class="card">
-    <div class="flex ac mb3 g2 wrap">
-      <span style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.4px;">Phasen:</span>
-      <div class="plgd" id="phase-legend"></div>
+  <!-- Zwei-Spalten: Links Wochenplan, Rechts Gegner -->
+  <div style="display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start;">
+    <div>
+      <div class="card">
+        <div class="flex ac mb3 g2 wrap">
+          <span style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.4px;">Phasen:</span>
+          <div class="plgd" id="phase-legend"></div>
+        </div>
+        <hr style="margin-bottom:10px;">
+        <div id="season-grid"></div>
+      </div>
     </div>
-    <hr style="margin-bottom:10px;">
-    <div id="season-grid"></div>
-  </div>
-
-  <!-- SPIELE & SCOUTING ÜBERSICHT -->
-  <div class="card" id="games-card" style="margin-top:0;">
-    <div class="flex jb ac mb3">
-      <div style="font-size:14px;font-weight:900;color:var(--fg);">🏆 Spiele &amp; Gegner</div>
-      <button class="btn btn-pri btn-sm" onclick="openGameMdl(null,'')">+ Spiel erfassen</button>
+    <div class="card" id="opp-panel-card" style="position:sticky;top:10px;">
+      <div class="flex jb ac mb3">
+        <div style="font-size:13px;font-weight:900;color:var(--fg);">🏀 Gegner</div>
+        <button class="btn btn-pri btn-sm" onclick="openOpponentMdl(null)">+ Gegner</button>
+      </div>
+      <div id="opponents-panel"><div class="empty" style="font-size:11px;">Saison wählen um Gegner zu sehen.</div></div>
     </div>
-    <div id="games-overview"></div>
   </div>
 </div>
 
