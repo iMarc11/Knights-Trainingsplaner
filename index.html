@@ -2024,71 +2024,110 @@ function populateBuilderTeamSel(){
  const sel=document.getElementById('s-team');
  sel.innerHTML=db.teams.length===0?'<option value="">— Erst Team erstellen —</option>':db.teams.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
 }
+// ── GAME BLOCK ────────────────────────────────────────────
+function openGameBlockMdl(idx){
+ const b=idx>=0?currentBlocks[idx]:null;
+ document.getElementById('gb-dur').value=b?.dur||20;
+ document.getElementById('gb-format').value=b?.format||'5 vs. 5';
+ document.getElementById('gb-notes').value=b?.notes||'';
+ document.getElementById('gb-idx').value=idx;
+ openM('m-game-block');
+}
+function saveGameBlock(){
+ const dur=parseInt(document.getElementById('gb-dur').value)||20;
+ const format=document.getElementById('gb-format').value;
+ const notes=document.getElementById('gb-notes').value.trim();
+ const idx=parseInt(document.getElementById('gb-idx').value);
+ const block={type:'game',name:'Geführtes Spiel',dur,format,notes,cat:'game'};
+ if(idx>=0&&idx<currentBlocks.length)currentBlocks[idx]=block;
+ else currentBlocks.push(block);
+ closeM('m-game-block');renderBlocks();
+}
+
 // ── AUTO-TRAINING-GENERATOR ───────────────────────────────
 function _rnd(min,max){return Math.round(min+Math.random()*(max-min));}
 function _pickRandom(arr){return arr[Math.floor(Math.random()*arr.length)];}
-function _buildPlan(preview){
+function _fillDrills(pool,budget,excludeIds){
+ const chosen=[];const used=new Set(excludeIds||[]);let guard=0;
+ while(budget>3&&guard<80){
+  guard++;
+  const avail=pool.filter(d=>!used.has(d.id));
+  if(!avail.length){if(chosen.length===0)break;used.clear();(excludeIds||[]).forEach(id=>used.add(id));continue;}
+  const d=_pickRandom(avail);
+  const actualDur=Math.min(_rnd(Math.round(d.dur*0.7),Math.round(d.dur*1.3)),budget);
+  if(actualDur<2){used.add(d.id);continue;}
+  chosen.push({...d,actualDur});used.add(d.id);budget-=actualDur;
+ }
+ return chosen;
+}
+function _buildPlan(){
  const level=document.getElementById('gen-level').value;
  const totalDur=parseInt(document.getElementById('gen-dur').value)||75;
  const focus=document.getElementById('gen-focus').value;
- const available=allDrills().filter(d=>(d.ag||[]).includes(level)&&d.cat!=='systeme'||d.cat===focus);
- // Warmup: 10-15 min, category aufwaermen
+ const drillBudget=parseInt(document.getElementById('gen-drill-slider').value)||35;
+ // Warmup: 10-15 min, mehrere Drills möglich
  const warmupPool=allDrills().filter(d=>d.cat==='aufwaermen'&&(d.ag||[]).includes(level));
- const warmupDrill=warmupPool.length?_pickRandom(warmupPool):null;
- const warmupDur=_rnd(10,15);
- // Focus-Pool (ohne Aufwärmen, passend zur Stufe)
+ const warmupDrills=_fillDrills(warmupPool,_rnd(10,15),[]);
+ const warmupDur=warmupDrills.reduce((s,d)=>s+d.actualDur,0)||0;
+ // Focus-Drills
  const focusPool=allDrills().filter(d=>d.cat===focus&&(d.ag||[]).includes(level));
- // Fallback: alle Kategorien ausser Aufwärmen wenn Pool leer
- const mainPool=focusPool.length?focusPool:allDrills().filter(d=>d.cat!=='aufwaermen'&&d.cat!=='systeme'&&(d.ag||[]).includes(level));
- let budget=totalDur-warmupDur;
- const chosen=[];const usedIds=new Set(warmupDrill?[warmupDrill.id]:[]);
- let guard=0;
- while(budget>3&&guard<60){
-  guard++;
-  const pool=mainPool.filter(d=>!usedIds.has(d.id));
-  if(!pool.length){if(chosen.length===0)break;usedIds.clear();if(warmupDrill)usedIds.add(warmupDrill.id);continue;}
-  const d=_pickRandom(pool);
-  const minD=Math.round(d.dur*0.7),maxD=Math.round(d.dur*1.3);
-  const actualDur=Math.min(_rnd(minD,maxD),budget);
-  if(actualDur<2){usedIds.add(d.id);continue;}
-  chosen.push({...d,actualDur});
-  usedIds.add(d.id);
-  budget-=actualDur;
- }
- return{warmupDrill,warmupDur,chosen,totalDur,focus,level};
+ const mainPool=focusPool.length?focusPool:allDrills().filter(d=>d.cat!=='aufwaermen'&&(d.ag||[]).includes(level));
+ const mainDrills=_fillDrills(mainPool,drillBudget,warmupDrills.map(d=>d.id));
+ const drillDur=mainDrills.reduce((s,d)=>s+d.actualDur,0);
+ // Geführtes Spiel: Rest
+ const gameDur=Math.max(totalDur-warmupDur-drillDur,0);
+ return{warmupDrills,warmupDur,mainDrills,drillDur,gameDur,totalDur,focus,level};
+}
+function updateGenSlider(){
+ const total=parseInt(document.getElementById('gen-dur').value)||75;
+ const drills=parseInt(document.getElementById('gen-drill-slider').value)||35;
+ const warmupEst=12;
+ const game=Math.max(total-warmupEst-drills,0);
+ const pct=total>0?Math.round(drills/total*100):0;
+ document.getElementById('gen-drill-min').textContent=drills;
+ document.getElementById('gen-drill-pct').textContent=pct+'%';
+ document.getElementById('gen-game-min').textContent=game;
+ // Slider max anpassen
+ const sl=document.getElementById('gen-drill-slider');
+ sl.max=Math.max(total-warmupEst-10,10);
 }
 function openGenMdl(){
  document.getElementById('gen-preview').style.display='none';
+ updateGenSlider();
  openM('m-gen-training');
 }
 function previewGen(){
- const plan=_buildPlan(true);
+ const plan=_buildPlan();
  const el=document.getElementById('gen-preview');
- if(!plan.warmupDrill&&plan.chosen.length===0){
+ if(!plan.warmupDrills.length&&!plan.mainDrills.length){
   el.innerHTML='<span style="color:#c00;">Keine passenden Drills in der Bibliothek für diese Auswahl.</span>';
   el.style.display='';return;
  }
  let html=`<strong>🔥 Aufwärmen</strong> (${plan.warmupDur} Min.)<br>`;
- if(plan.warmupDrill)html+=`&nbsp;&nbsp;• ${esc(plan.warmupDrill.name)}<br>`;
- html+=`<br><strong>🏀 Hauptteil – ${esc((CL[plan.focus]||plan.focus).trim())}</strong> (${plan.chosen.reduce((a,d)=>a+d.actualDur,0)} Min.)<br>`;
- plan.chosen.forEach(d=>{html+=`&nbsp;&nbsp;• ${esc(d.name)} <span style="color:var(--mut);">(${d.actualDur} Min.)</span><br>`;});
- const used=plan.warmupDur+plan.chosen.reduce((a,d)=>a+d.actualDur,0);
- html+=`<br><span style="color:var(--mut);">Gesamt: ${used} / ${plan.totalDur} Min.</span>`;
+ plan.warmupDrills.forEach(d=>{html+=`&nbsp;&nbsp;• ${esc(d.name)} <span style="color:var(--mut);">(${d.actualDur} Min.)</span><br>`;});
+ html+=`<br><strong>🏀 Drills – ${esc((CL[plan.focus]||plan.focus).trim())}</strong> (${plan.drillDur} Min.)<br>`;
+ plan.mainDrills.forEach(d=>{html+=`&nbsp;&nbsp;• ${esc(d.name)} <span style="color:var(--mut);">(${d.actualDur} Min.)</span><br>`;});
+ if(plan.gameDur>0)html+=`<br><strong>🏟️ Geführtes Spiel</strong> (${plan.gameDur} Min.)<br>`;
+ html+=`<br><span style="color:var(--mut);">Gesamt: ${plan.warmupDur+plan.drillDur+plan.gameDur} / ${plan.totalDur} Min.</span>`;
  el.innerHTML=html;el.style.display='';
 }
 function generateTraining(){
- const plan=_buildPlan(false);
- if(!plan.warmupDrill&&plan.chosen.length===0){
+ const plan=_buildPlan();
+ if(!plan.warmupDrills.length&&!plan.mainDrills.length){
   return alert('Keine passenden Drills in der Bibliothek für diese Auswahl.');
  }
  clearBuilder();
- // Aufwärmen-Sektion
+ // Aufwärmen
  currentBlocks.push({type:'section',name:'Aufwärmen',dur:0,cat:'section'});
- if(plan.warmupDrill)currentBlocks.push({cat:'aufwaermen',dur:plan.warmupDur,name:plan.warmupDrill.name,desc:plan.warmupDrill.desc||'',drillId:plan.warmupDrill.id});
- // Hauptteil-Sektion
+ plan.warmupDrills.forEach(d=>currentBlocks.push({cat:'aufwaermen',dur:d.actualDur,name:d.name,desc:d.desc||'',drillId:d.id}));
+ // Hauptteil Drills
  currentBlocks.push({type:'section',name:'Hauptteil – '+(CL[plan.focus]||plan.focus).trim(),dur:0,cat:'section'});
- plan.chosen.forEach(d=>currentBlocks.push({cat:d.cat,dur:d.actualDur,name:d.name,desc:d.desc||'',drillId:d.id}));
- // Titel setzen
+ plan.mainDrills.forEach(d=>currentBlocks.push({cat:d.cat,dur:d.actualDur,name:d.name,desc:d.desc||'',drillId:d.id}));
+ // Geführtes Spiel
+ if(plan.gameDur>0){
+  currentBlocks.push({type:'section',name:'Geführtes Spiel',dur:0,cat:'section'});
+  currentBlocks.push({type:'game',name:'Geführtes Spiel',dur:plan.gameDur,format:'5 vs. 5',notes:'',cat:'game'});
+ }
  document.getElementById('s-title').value='Training – '+(CL[plan.focus]||plan.focus).trim();
  renderBlocks();closeM('m-gen-training');switchTab('builder');
 }
