@@ -2174,14 +2174,18 @@ function generateTraining(){
  currentBlocks.push({type:'section',name:'Aufwärmen',dur:0,cat:'section'});
  plan.warmupDrills.forEach(d=>currentBlocks.push({cat:'aufwaermen',dur:d.actualDur,name:d.name,desc:d.desc||'',drillId:d.id}));
  // Hauptteil Drills
- currentBlocks.push({type:'section',name:'Hauptteil – '+(CL[plan.focus]||plan.focus).trim(),dur:0,cat:'section'});
+ const f2=document.getElementById('gen-focus2')?.value;
+ const f3=document.getElementById('gen-focus3')?.value;
+ const extraLabels=[f2,f3].filter(c=>c).map(c=>(CL[c]||c).trim());
+ const sectionLabel='Hauptteil – '+(CL[plan.focus]||plan.focus).trim()+(extraLabels.length?' + '+extraLabels.join(' + '):'');
+ currentBlocks.push({type:'section',name:sectionLabel,dur:0,cat:'section'});
  plan.mainDrills.forEach(d=>currentBlocks.push({cat:d.cat,dur:d.actualDur,name:d.name,desc:d.desc||'',drillId:d.id}));
  // Spielblock
  if(plan.gameDur>0){
   currentBlocks.push({type:'section',name:'Spielblock',dur:0,cat:'section'});
   currentBlocks.push({type:'game',name:'Spielblock',dur:plan.gameDur,format:'5 vs. 5',notes:'',cat:'game'});
  }
- document.getElementById('s-title').value='Training – '+(CL[plan.focus]||plan.focus).trim();
+ document.getElementById('s-title').value='Training – '+(CL[plan.focus]||plan.focus).trim()+(extraLabels.length?' + '+extraLabels.join(' + '):'');
  renderBlocks();closeM('m-gen-training');switchTab('builder');
 }
 function clearBuilder(){
