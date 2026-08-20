@@ -1654,9 +1654,13 @@ function popDrillTF(){
 }
 function renderDrillCatFilter(){
  const cats=aLibTab==='systeme'?CL_SYS:CL_DRILL;
+ const tabDrills=allDrills().filter(d=>aLibTab==='systeme'?d.cat==='systeme':d.cat!=='systeme');
+ const counts={};tabDrills.forEach(d=>{counts[d.cat]=(counts[d.cat]||0)+1;});
+ const total=tabDrills.length;
+ const badge=n=>`<span style="font-size:10px;opacity:.6;margin-left:3px;">(${n})</span>`;
  document.getElementById('dcat-filter').innerHTML=
- `<div class="chip ${!aDrillCat?'on':''}" onclick="setDC('')">Alle</div>`+
- Object.entries(cats).map(([k,v])=>`<div class="chip ${aDrillCat===k?'on':''}" onclick="setDC('${k}')">${v}</div>`).join('');
+ `<div class="chip ${!aDrillCat?'on':''}" onclick="setDC('')">Alle${badge(total)}</div>`+
+ Object.entries(cats).map(([k,v])=>`<div class="chip ${aDrillCat===k?'on':''}" onclick="setDC('${k}')">${v}${badge(counts[k]||0)}</div>`).join('');
 }
 function setDC(c){aDrillCat=c;renderDrillCatFilter();renderDrills();}
 function renderDrills(){
