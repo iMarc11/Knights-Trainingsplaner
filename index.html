@@ -776,6 +776,41 @@ function checkPw(){
  <input type="hidden" id="cmt-drill-id">
 </div></div>
 
+<div class="mbk" id="m-gen-training"><div class="mdl" style="max-width:420px;">
+ <h3 style="display:flex;align-items:center;gap:8px;">🪄 <span>Training generieren</span></h3>
+ <p style="font-size:13px;color:var(--mut);margin-top:-8px;margin-bottom:16px;">Ich wähle passende Drills aus der Bibliothek und baue ein Training zusammen.</p>
+ <div class="form-row">
+  <div class="fg"><label>Stufe</label>
+   <select id="gen-level">
+    <option value="junioren">Junioren</option>
+    <option value="herren" selected>Herren</option>
+    <option value="damen">Damen</option>
+   </select>
+  </div>
+  <div class="fg"><label>Gesamtdauer (Min.)</label>
+   <input type="number" id="gen-dur" value="75" min="30" max="180" step="5">
+  </div>
+ </div>
+ <div class="fg"><label>Schwerpunkt</label>
+  <select id="gen-focus">
+   <option value="ballhandling"> Ballhandling</option>
+   <option value="passspiel"> Passspiel</option>
+   <option value="technik"> Technik &amp; Abschluss</option>
+   <option value="verteidigung"> Verteidigung</option>
+   <option value="angriff"> Angriff &amp; Taktik</option>
+   <option value="kondition"> Kondition</option>
+   <option value="spielform"> Spielform</option>
+   <option value="systeme"> System / Setplay</option>
+  </select>
+ </div>
+ <div id="gen-preview" style="display:none;background:var(--card2,#F3F4F6);border-radius:6px;padding:12px 14px;font-size:12px;line-height:1.8;color:var(--fg);margin-top:4px;"></div>
+ <div class="mft">
+  <button class="btn btn-sec" onclick="closeM('m-gen-training')">Abbrechen</button>
+  <button class="btn btn-gho btn-sm" onclick="previewGen()" style="margin-right:auto;">Vorschau</button>
+  <button class="btn btn-pri" onclick="generateTraining()">✨ Generieren &amp; öffnen</button>
+ </div>
+</div></div>
+
 <div class="mbk" id="m-section"><div class="mdl" style="max-width:380px;">
  <h3>Abschnitt hinzufügen</h3>
  <div class="bsec-presets">
