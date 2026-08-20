@@ -402,7 +402,10 @@ function checkPw(){
 <div class="pnl" id="pnl-sessions">
  <div class="flex jb ac mb3">
  <div class="shd">Trainingsübersicht</div>
- <button class="btn btn-pri btn-sm" onclick="switchTab('builder');clearBuilder();">+ Neues Training</button>
+ <div style="display:flex;gap:8px;align-items:center;">
+  <button class="btn btn-sec btn-sm" onclick="openGenMdl()" title="Training automatisch generieren" style="font-size:16px;padding:6px 10px;">🪄</button>
+  <button class="btn btn-pri btn-sm" onclick="switchTab('builder');clearBuilder();">+ Neues Training</button>
+ </div>
  </div>
  <div class="fb" id="sess-team-filter"></div>
  <div id="sess-list"></div>
