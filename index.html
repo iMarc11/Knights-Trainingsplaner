@@ -1734,10 +1734,6 @@ function dcHTML(d){
  </div>
  ${drawThumb}
  </div>
- <div style="margin-top:8px;border-top:1px solid var(--brd);padding-top:6px;display:flex;align-items:center;gap:6px;">
-  <button onclick="openCommentsMdl('${esc(d.id)}')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--mut);padding:2px 4px;border-radius:4px;display:flex;align-items:center;gap:4px;" title="Kommentare anzeigen / hinzufügen">${esc(cmtLabel)}</button>
-  ${cmts.length?`<span style="font-size:10px;color:var(--mut);">${esc(cmts[cmts.length-1].author)}: ${esc((cmts[cmts.length-1].text||'').substring(0,60))}${(cmts[cmts.length-1].text||'').length>60?'…':''}</span>`:''}
- </div>
  </div>`;
 }
 async function saveDrillComments(){
