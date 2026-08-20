@@ -2104,14 +2104,27 @@ function _buildPlan(){
  const totalDur=parseInt(document.getElementById('gen-dur').value)||75;
  const focus=document.getElementById('gen-focus').value;
  const drillBudget=parseInt(document.getElementById('gen-drill-slider').value)||35;
+ const focus2=(document.getElementById('gen-focus2')?.value)||'';
+ const focus3=(document.getElementById('gen-focus3')?.value)||'';
  // Warmup: 10-15 min, mehrere Drills möglich
  const warmupPool=allDrills().filter(d=>d.cat==='aufwaermen'&&(d.ag||[]).includes(level));
  const warmupDrills=_fillDrills(warmupPool,_rnd(10,15),[]);
  const warmupDur=warmupDrills.reduce((s,d)=>s+d.actualDur,0)||0;
- // Focus-Drills
- const focusPool=allDrills().filter(d=>d.cat===focus&&(d.ag||[]).includes(level));
- const mainPool=focusPool.length?focusPool:allDrills().filter(d=>d.cat!=='aufwaermen'&&(d.ag||[]).includes(level));
- const mainDrills=_fillDrills(mainPool,drillBudget,warmupDrills.map(d=>d.id));
+ // Focus-Drills: Schwerpunkt zuerst, dann Zusatzthemen auffüllen
+ const excludeWarmup=warmupDrills.map(d=>d.id);
+ const primaryPool=allDrills().filter(d=>d.cat===focus&&(d.ag||[]).includes(level));
+ const fallbackPool=allDrills().filter(d=>d.cat!=='aufwaermen'&&(d.ag||[]).includes(level));
+ const basePool=primaryPool.length?primaryPool:fallbackPool;
+ // Zusatzthemen: separat, werden nach Schwerpunkt-Drills aufgefüllt
+ const extraCats=[focus2,focus3].filter(c=>c&&c!==focus);
+ const extraPool=extraCats.length?allDrills().filter(d=>extraCats.includes(d.cat)&&(d.ag||[]).includes(level)):[];
+ // Schwerpunkt-Budget: ~60% der Drill-Zeit, Rest für Extras (wenn vorhanden)
+ const primaryBudget=extraPool.length?Math.round(drillBudget*0.65):drillBudget;
+ const extraBudget=drillBudget-primaryBudget;
+ const primaryDrills=_fillDrills(basePool,primaryBudget,excludeWarmup);
+ const excludeAll=[...excludeWarmup,...primaryDrills.map(d=>d.id)];
+ const extraDrills=extraPool.length?_fillDrills(extraPool,extraBudget,excludeAll):[];
+ const mainDrills=[...primaryDrills,...extraDrills];
  const drillDur=mainDrills.reduce((s,d)=>s+d.actualDur,0);
  // Spielblock: Rest
  const gameDur=Math.max(totalDur-warmupDur-drillDur,0);
