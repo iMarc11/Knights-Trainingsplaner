@@ -1725,7 +1725,7 @@ function dcHTML(d){
  <button class="btn btn-dan btn-xs" onclick="deleteDrill('${esc(d.id)}')">Löschen</button>
  </div>
  </div>
- <div class="mut" style="font-size:10px;margin-bottom:3px;">${isSys?'':` min. ${esc(d.players)} · `}${(d.ag||[]).map(esc).join(', ')}${isSys&&d.formation?` · ${esc(d.formation)}`:''}${d.author?` · <span style="color:var(--mut);">von ${esc(d.author)}</span>`:` · <span style="color:var(--mut);">Bot</span>`}</div>
+ <div class="mut" style="font-size:10px;margin-bottom:3px;display:flex;align-items:center;flex-wrap:wrap;">${isSys?'':` min. ${esc(d.players)} · `}${(d.ag||[]).map(esc).join(', ')}${isSys&&d.formation?` · ${esc(d.formation)}`:''}${d.author?` · <span style="color:var(--mut);">von ${esc(d.author)}</span>`:` · <span style="color:var(--mut);">Bot</span>`}${cmtBtn}</div>
  <div style="display:flex;align-items:flex-start;">
  <div style="flex:1;min-width:0;">
  ${d.desc?`<div class="dc-desc">${esc(d.desc)}</div>`:''}
