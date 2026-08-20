@@ -777,9 +777,9 @@ function checkPw(){
  <input type="hidden" id="cmt-drill-id">
 </div></div>
 
-<div class="mbk" id="m-gen-training"><div class="mdl" style="max-width:420px;">
+<div class="mbk" id="m-gen-training"><div class="mdl" style="max-width:460px;">
  <h3 style="display:flex;align-items:center;gap:8px;">🪄 <span>Training generieren</span></h3>
- <p style="font-size:13px;color:var(--mut);margin-top:-8px;margin-bottom:16px;">Ich wähle passende Drills aus der Bibliothek und baue ein Training zusammen.</p>
+ <p style="font-size:13px;color:var(--mut);margin-top:-8px;margin-bottom:16px;">Drills aus der Bibliothek + Aufwärmen + Geführtes Spiel — alles automatisch zusammengestellt.</p>
  <div class="form-row">
   <div class="fg"><label>Stufe</label>
    <select id="gen-level">
@@ -789,7 +789,7 @@ function checkPw(){
    </select>
   </div>
   <div class="fg"><label>Gesamtdauer (Min.)</label>
-   <input type="number" id="gen-dur" value="75" min="30" max="180" step="5">
+   <input type="number" id="gen-dur" value="75" min="30" max="180" step="5" oninput="updateGenSlider()">
   </div>
  </div>
  <div class="fg"><label>Schwerpunkt</label>
@@ -803,6 +803,15 @@ function checkPw(){
    <option value="spielform"> Spielform</option>
    <option value="systeme"> System / Setplay</option>
   </select>
+ </div>
+ <div class="fg">
+  <label>Drill-Anteil: <strong id="gen-drill-min">35</strong> Min. <span id="gen-drill-pct" style="color:var(--mut);font-weight:400;">(47%)</span></label>
+  <input type="range" id="gen-drill-slider" min="10" max="53" value="35" step="5" oninput="updateGenSlider()" style="width:100%;margin:6px 0 4px;accent-color:var(--pri);">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:11px;margin-top:6px;">
+   <div style="background:#fff8f0;border:1px solid #fde68a;border-radius:5px;padding:6px 8px;text-align:center;">🔥 Aufwärmen<br><strong>~12 Min.</strong></div>
+   <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:5px;padding:6px 8px;text-align:center;">🏀 Drills<br><strong id="gen-drill-min2">35 Min.</strong></div>
+   <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:5px;padding:6px 8px;text-align:center;">🏟️ Spiel<br><strong id="gen-game-min">28 Min.</strong></div>
+  </div>
  </div>
  <div id="gen-preview" style="display:none;background:var(--card2,#F3F4F6);border-radius:6px;padding:12px 14px;font-size:12px;line-height:1.8;color:var(--fg);margin-top:4px;"></div>
  <div class="mft">
