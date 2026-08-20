@@ -2005,6 +2005,74 @@ function populateBuilderTeamSel(){
  const sel=document.getElementById('s-team');
  sel.innerHTML=db.teams.length===0?'<option value="">— Erst Team erstellen —</option>':db.teams.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
 }
+// ── AUTO-TRAINING-GENERATOR ───────────────────────────────
+function _rnd(min,max){return Math.round(min+Math.random()*(max-min));}
+function _pickRandom(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function _buildPlan(preview){
+ const level=document.getElementById('gen-level').value;
+ const totalDur=parseInt(document.getElementById('gen-dur').value)||75;
+ const focus=document.getElementById('gen-focus').value;
+ const available=allDrills().filter(d=>(d.ag||[]).includes(level)&&d.cat!=='systeme'||d.cat===focus);
+ // Warmup: 10-15 min, category aufwaermen
+ const warmupPool=allDrills().filter(d=>d.cat==='aufwaermen'&&(d.ag||[]).includes(level));
+ const warmupDrill=warmupPool.length?_pickRandom(warmupPool):null;
+ const warmupDur=_rnd(10,15);
+ // Focus-Pool (ohne Aufwärmen, passend zur Stufe)
+ const focusPool=allDrills().filter(d=>d.cat===focus&&(d.ag||[]).includes(level));
+ // Fallback: alle Kategorien ausser Aufwärmen wenn Pool leer
+ const mainPool=focusPool.length?focusPool:allDrills().filter(d=>d.cat!=='aufwaermen'&&d.cat!=='systeme'&&(d.ag||[]).includes(level));
+ let budget=totalDur-warmupDur;
+ const chosen=[];const usedIds=new Set(warmupDrill?[warmupDrill.id]:[]);
+ let guard=0;
+ while(budget>3&&guard<60){
+  guard++;
+  const pool=mainPool.filter(d=>!usedIds.has(d.id));
+  if(!pool.length){if(chosen.length===0)break;usedIds.clear();if(warmupDrill)usedIds.add(warmupDrill.id);continue;}
+  const d=_pickRandom(pool);
+  const minD=Math.round(d.dur*0.7),maxD=Math.round(d.dur*1.3);
+  const actualDur=Math.min(_rnd(minD,maxD),budget);
+  if(actualDur<2){usedIds.add(d.id);continue;}
+  chosen.push({...d,actualDur});
+  usedIds.add(d.id);
+  budget-=actualDur;
+ }
+ return{warmupDrill,warmupDur,chosen,totalDur,focus,level};
+}
+function openGenMdl(){
+ document.getElementById('gen-preview').style.display='none';
+ openM('m-gen-training');
+}
+function previewGen(){
+ const plan=_buildPlan(true);
+ const el=document.getElementById('gen-preview');
+ if(!plan.warmupDrill&&plan.chosen.length===0){
+  el.innerHTML='<span style="color:#c00;">Keine passenden Drills in der Bibliothek für diese Auswahl.</span>';
+  el.style.display='';return;
+ }
+ let html=`<strong>🔥 Aufwärmen</strong> (${plan.warmupDur} Min.)<br>`;
+ if(plan.warmupDrill)html+=`&nbsp;&nbsp;• ${esc(plan.warmupDrill.name)}<br>`;
+ html+=`<br><strong>🏀 Hauptteil – ${esc((CL[plan.focus]||plan.focus).trim())}</strong> (${plan.chosen.reduce((a,d)=>a+d.actualDur,0)} Min.)<br>`;
+ plan.chosen.forEach(d=>{html+=`&nbsp;&nbsp;• ${esc(d.name)} <span style="color:var(--mut);">(${d.actualDur} Min.)</span><br>`;});
+ const used=plan.warmupDur+plan.chosen.reduce((a,d)=>a+d.actualDur,0);
+ html+=`<br><span style="color:var(--mut);">Gesamt: ${used} / ${plan.totalDur} Min.</span>`;
+ el.innerHTML=html;el.style.display='';
+}
+function generateTraining(){
+ const plan=_buildPlan(false);
+ if(!plan.warmupDrill&&plan.chosen.length===0){
+  return alert('Keine passenden Drills in der Bibliothek für diese Auswahl.');
+ }
+ clearBuilder();
+ // Aufwärmen-Sektion
+ currentBlocks.push({type:'section',name:'Aufwärmen',dur:0,cat:'section'});
+ if(plan.warmupDrill)currentBlocks.push({cat:'aufwaermen',dur:plan.warmupDur,name:plan.warmupDrill.name,desc:plan.warmupDrill.desc||'',drillId:plan.warmupDrill.id});
+ // Hauptteil-Sektion
+ currentBlocks.push({type:'section',name:'Hauptteil – '+(CL[plan.focus]||plan.focus).trim(),dur:0,cat:'section'});
+ plan.chosen.forEach(d=>currentBlocks.push({cat:d.cat,dur:d.actualDur,name:d.name,desc:d.desc||'',drillId:d.id}));
+ // Titel setzen
+ document.getElementById('s-title').value='Training – '+(CL[plan.focus]||plan.focus).trim();
+ renderBlocks();closeM('m-gen-training');switchTab('builder');
+}
 function clearBuilder(){
  currentBlocks=[];editSessId=null;_autoSaveId=null;clearTimeout(_autoSaveTimer);_setAutoStatus('');
  document.getElementById('builder-title').textContent='Neues Training';
