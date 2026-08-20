@@ -2047,7 +2047,7 @@ function saveGameBlock(){
  const format=document.getElementById('gb-format').value;
  const notes=document.getElementById('gb-notes').value.trim();
  const idx=parseInt(document.getElementById('gb-idx').value);
- const block={type:'game',name:'Geführtes Spiel',dur,format,notes,cat:'game'};
+ const block={type:'game',name:'Spielblock',dur,format,notes,cat:'game'};
  if(idx>=0&&idx<currentBlocks.length)currentBlocks[idx]=block;
  else currentBlocks.push(block);
  closeM('m-game-block');renderBlocks();
@@ -2083,7 +2083,7 @@ function _buildPlan(){
  const mainPool=focusPool.length?focusPool:allDrills().filter(d=>d.cat!=='aufwaermen'&&(d.ag||[]).includes(level));
  const mainDrills=_fillDrills(mainPool,drillBudget,warmupDrills.map(d=>d.id));
  const drillDur=mainDrills.reduce((s,d)=>s+d.actualDur,0);
- // Geführtes Spiel: Rest
+ // Spielblock: Rest
  const gameDur=Math.max(totalDur-warmupDur-drillDur,0);
  return{warmupDrills,warmupDur,mainDrills,drillDur,gameDur,totalDur,focus,level};
 }
@@ -2117,7 +2117,7 @@ function previewGen(){
  plan.warmupDrills.forEach(d=>{html+=`&nbsp;&nbsp;• ${esc(d.name)} <span style="color:var(--mut);">(${d.actualDur} Min.)</span><br>`;});
  html+=`<br><strong>🏀 Drills – ${esc((CL[plan.focus]||plan.focus).trim())}</strong> (${plan.drillDur} Min.)<br>`;
  plan.mainDrills.forEach(d=>{html+=`&nbsp;&nbsp;• ${esc(d.name)} <span style="color:var(--mut);">(${d.actualDur} Min.)</span><br>`;});
- if(plan.gameDur>0)html+=`<br><strong>🏟️ Geführtes Spiel</strong> (${plan.gameDur} Min.)<br>`;
+ if(plan.gameDur>0)html+=`<br><strong>🏟️ Spielblock</strong> (${plan.gameDur} Min.)<br>`;
  html+=`<br><span style="color:var(--mut);">Gesamt: ${plan.warmupDur+plan.drillDur+plan.gameDur} / ${plan.totalDur} Min.</span>`;
  el.innerHTML=html;el.style.display='';
 }
@@ -2133,10 +2133,10 @@ function generateTraining(){
  // Hauptteil Drills
  currentBlocks.push({type:'section',name:'Hauptteil – '+(CL[plan.focus]||plan.focus).trim(),dur:0,cat:'section'});
  plan.mainDrills.forEach(d=>currentBlocks.push({cat:d.cat,dur:d.actualDur,name:d.name,desc:d.desc||'',drillId:d.id}));
- // Geführtes Spiel
+ // Spielblock
  if(plan.gameDur>0){
-  currentBlocks.push({type:'section',name:'Geführtes Spiel',dur:0,cat:'section'});
-  currentBlocks.push({type:'game',name:'Geführtes Spiel',dur:plan.gameDur,format:'5 vs. 5',notes:'',cat:'game'});
+  currentBlocks.push({type:'section',name:'Spielblock',dur:0,cat:'section'});
+  currentBlocks.push({type:'game',name:'Spielblock',dur:plan.gameDur,format:'5 vs. 5',notes:'',cat:'game'});
  }
  document.getElementById('s-title').value='Training – '+(CL[plan.focus]||plan.focus).trim();
  renderBlocks();closeM('m-gen-training');switchTab('builder');
@@ -2278,7 +2278,7 @@ function renderBlocks(){
  <span style="cursor:grab;color:#86efac;font-size:16px;flex-shrink:0;padding:0 2px;user-select:none;">⠿</span>
  <span class="btt" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;">🏟️ Spiel</span>
  <span class="bdur">${b.dur}min</span>
- <div style="flex:1;"><div class="bname" style="color:#166534;">${esc(b.name||'Geführtes Spiel')}${b.format?` <span style="font-weight:400;color:#4ade80;">· ${esc(b.format)}</span>`:''}</div>${b.notes?`<div class="bdesc">${esc(b.notes.length>80?b.notes.slice(0,80)+'…':b.notes)}</div>`:''}</div>
+ <div style="flex:1;"><div class="bname" style="color:#166534;">${esc(b.name||'Spielblock')}${b.format?` <span style="font-weight:400;color:#4ade80;">· ${esc(b.format)}</span>`:''}</div>${b.notes?`<div class="bdesc">${esc(b.notes.length>80?b.notes.slice(0,80)+'…':b.notes)}</div>`:''}</div>
  <div class="bact">
  <button class="btn btn-sec btn-xs" onclick="openGameBlockMdl(${i})">Bearbeiten</button>
  <button class="btn btn-dan btn-xs" onclick="delBlock(${i})">Entfernen</button>
@@ -2415,7 +2415,7 @@ function printSess(id){
  const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'';
  const cc={aufwaermen:'#f97316',ballhandling:'#f59e0b',passspiel:'#10b981',technik:'#06b6d4',verteidigung:'#3b82f6',angriff:'#ef4444',kondition:'#8b5cf6',spielform:'#ec4899',systeme:'#6b7280'};
  const _pst=calcSecTotals(s.blocks);
- const blocksHtml=s.blocks.map((b,i)=>b.type==='text'?`<div style="background:#F8F9FA;border:1px solid #e2e4e8;border-radius:6px;padding:9px 13px;margin-bottom:8px;"><strong style="font-size:12px;color:#374151;">${b.name}</strong>${b.dur?`<span style="float:right;font-size:11px;color:#888;">${b.dur} Min.</span>`:''}${b.text?`<div style='font-size:12px;color:#555;margin-top:3px;white-space:pre-line;clear:both;'>${b.text}</div>`:''}</div>`:b.type==='section'?`<div style="background:#002F5F;color:#fff;padding:7px 13px;border-radius:5px;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin:14px 0 7px;display:flex;justify-content:space-between;align-items:center;">— ${b.name} —${_pst[i]?`<span style="font-size:10px;font-weight:700;opacity:.8;background:rgba(255,255,255,.15);border-radius:4px;padding:2px 7px;">${_pst[i]} Min.</span>`:''}</div>`:b.type==='game'?`<div style="border-left:4px solid #16a34a;padding:9px 13px;margin-bottom:8px;background:#f0fdf4;border-radius:0 6px 6px 0;page-break-inside:avoid;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><strong style="font-size:13px;color:#166534;">🏟️ ${b.name||'Geführtes Spiel'}${b.format?' · '+b.format:''}</strong><span style="font-size:11px;color:#666;white-space:nowrap;margin-left:8px;">${b.dur} Min.</span></div>${b.notes?`<div style="font-size:12px;color:#444;white-space:pre-line;">${b.notes}</div>`:''}</div>`:`<div style="border-left:4px solid ${cc[b.cat]||'#888'};padding:9px 13px;margin-bottom:8px;background:#F8F9FA;border-radius:0 6px 6px 0;page-break-inside:avoid;">
+ const blocksHtml=s.blocks.map((b,i)=>b.type==='text'?`<div style="background:#F8F9FA;border:1px solid #e2e4e8;border-radius:6px;padding:9px 13px;margin-bottom:8px;"><strong style="font-size:12px;color:#374151;">${b.name}</strong>${b.dur?`<span style="float:right;font-size:11px;color:#888;">${b.dur} Min.</span>`:''}${b.text?`<div style='font-size:12px;color:#555;margin-top:3px;white-space:pre-line;clear:both;'>${b.text}</div>`:''}</div>`:b.type==='section'?`<div style="background:#002F5F;color:#fff;padding:7px 13px;border-radius:5px;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin:14px 0 7px;display:flex;justify-content:space-between;align-items:center;">— ${b.name} —${_pst[i]?`<span style="font-size:10px;font-weight:700;opacity:.8;background:rgba(255,255,255,.15);border-radius:4px;padding:2px 7px;">${_pst[i]} Min.</span>`:''}</div>`:b.type==='game'?`<div style="border-left:4px solid #16a34a;padding:9px 13px;margin-bottom:8px;background:#f0fdf4;border-radius:0 6px 6px 0;page-break-inside:avoid;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><strong style="font-size:13px;color:#166534;">🏟️ ${b.name||'Spielblock'}${b.format?' · '+b.format:''}</strong><span style="font-size:11px;color:#666;white-space:nowrap;margin-left:8px;">${b.dur} Min.</span></div>${b.notes?`<div style="font-size:12px;color:#444;white-space:pre-line;">${b.notes}</div>`:''}</div>`:`<div style="border-left:4px solid ${cc[b.cat]||'#888'};padding:9px 13px;margin-bottom:8px;background:#F8F9FA;border-radius:0 6px 6px 0;page-break-inside:avoid;">
  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">
  <strong style="font-size:13px;">${b.name}</strong>
  <span style="font-size:11px;color:#666;white-space:nowrap;margin-left:8px;">${b.dur} Min. · ${CL[b.cat]||b.cat}</span>
@@ -2455,7 +2455,7 @@ function mobileExport(id){
  const _mst=calcSecTotals(s.blocks);
  const blocksHtml=s.blocks.map((b,i)=>b.type==='text'?`<div style="background:#F8F9FA;border:1px solid #e8e8e8;border-radius:8px;padding:12px 15px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:baseline;"><strong style='font-size:14px;color:#374151;'>${b.name}</strong>${b.dur?`<span style="font-size:13px;color:#888;">${b.dur} Min.</span>`:''}</div>${b.text?`<div style='font-size:14px;color:#555;margin-top:5px;line-height:1.5;white-space:pre-line;'>${b.text}</div>`:''}</div>`:b.type==='section'
  ?`<div style="background:#002F5F;color:#fff;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin:18px 0 10px;display:flex;justify-content:space-between;align-items:center;">— ${b.name} —${_mst[i]?`<span style="font-size:12px;font-weight:700;opacity:.8;background:rgba(255,255,255,.15);border-radius:5px;padding:3px 9px;">${_mst[i]} Min.</span>`:''}</div>`
- :b.type==='game'?`<div style="border-left:5px solid #16a34a;padding:12px 15px;margin-bottom:10px;background:#f0fdf4;border-radius:0 8px 8px 0;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;flex-wrap:wrap;gap:4px;"><strong style="font-size:16px;color:#166534;">🏟️ ${b.name||'Geführtes Spiel'}${b.format?' · '+b.format:''}</strong><span style="font-size:13px;color:#15803d;">${b.dur} Min.</span></div>${b.notes?`<div style="font-size:14px;color:#444;line-height:1.5;white-space:pre-line;">${b.notes}</div>`:''}</div>`
+ :b.type==='game'?`<div style="border-left:5px solid #16a34a;padding:12px 15px;margin-bottom:10px;background:#f0fdf4;border-radius:0 8px 8px 0;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;flex-wrap:wrap;gap:4px;"><strong style="font-size:16px;color:#166534;">🏟️ ${b.name||'Spielblock'}${b.format?' · '+b.format:''}</strong><span style="font-size:13px;color:#15803d;">${b.dur} Min.</span></div>${b.notes?`<div style="font-size:14px;color:#444;line-height:1.5;white-space:pre-line;">${b.notes}</div>`:''}</div>`
  :`<div style="border-left:5px solid ${cc[b.cat]||'#888'};padding:12px 15px;margin-bottom:10px;background:#F8F9FA;border-radius:0 8px 8px 0;">
  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;flex-wrap:wrap;gap:4px;">
  <strong style="font-size:16px;">${b.name}</strong>
@@ -2504,7 +2504,7 @@ function viewSess(id){
  <div class="mut" style="font-size:14px;line-height:1.7;">${[t?`${esc(t.name)}`:'',esc(d),`<strong style="color:var(--txt);">${esc(s.totalDur)} Min.</strong>`].filter(Boolean).join(' · ')}</div>
  ${s.goal?`<div style="margin-top:14px;font-size:14px;line-height:1.65;"><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:4px;">Trainingsziel</span>${esc(s.goal)}</div>`:''}
  </div>
- ${(()=>{const st=calcSecTotals(s.blocks);return s.blocks.map((b,i)=>b.type==='section'?`<div class="sdet-sec"${i===0?' style="margin-top:0;border-top:none;padding-top:0;"':''}><span>${esc(b.name)}</span>${st[i]?`<span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:13px;color:var(--mut);">${st[i]} Min.</span>`:''}</div>`:b.type==='game'?`<div class="bli" style="border-left:3px solid #16a34a;background:#f0fdf4;"><span class="btt" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;">🏟️ Spiel</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;"><div class="bname" style="color:#166534;">${esc(b.name||'Geführtes Spiel')}${b.format?` · <span style="font-weight:400;">${esc(b.format)}</span>`:''}</div>${b.notes?`<div class="bdesc">${esc(b.notes)}</div>`:''}</div></div>`:`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||esc(b.cat)}</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;"><div class="bname">${esc(b.name)}</div>${b.desc?`<div class="bdesc">${esc(b.desc)}</div>`:''}</div></div>`).join('');})()}
+ ${(()=>{const st=calcSecTotals(s.blocks);return s.blocks.map((b,i)=>b.type==='section'?`<div class="sdet-sec"${i===0?' style="margin-top:0;border-top:none;padding-top:0;"':''}><span>${esc(b.name)}</span>${st[i]?`<span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:13px;color:var(--mut);">${st[i]} Min.</span>`:''}</div>`:b.type==='game'?`<div class="bli" style="border-left:3px solid #16a34a;background:#f0fdf4;"><span class="btt" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;">🏟️ Spiel</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;"><div class="bname" style="color:#166534;">${esc(b.name||'Spielblock')}${b.format?` · <span style="font-weight:400;">${esc(b.format)}</span>`:''}</div>${b.notes?`<div class="bdesc">${esc(b.notes)}</div>`:''}</div></div>`:`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||esc(b.cat)}</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;"><div class="bname">${esc(b.name)}</div>${b.desc?`<div class="bdesc">${esc(b.desc)}</div>`:''}</div></div>`).join('');})()}
  ${s.notes?`<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--brd);font-size:14px;line-height:1.65;color:var(--mut);"><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;">Notizen</span>${esc(s.notes)}</div>`:''}`;
  openM('m-sdet');
 }
