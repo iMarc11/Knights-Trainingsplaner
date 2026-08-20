@@ -811,6 +811,24 @@ function checkPw(){
  </div>
 </div></div>
 
+<div class="mbk" id="m-game-block"><div class="mdl" style="max-width:380px;">
+ <h3>🏟️ Geführtes Spiel</h3>
+ <div class="form-row">
+  <div class="fg"><label>Dauer (Min.)</label><input type="number" id="gb-dur" value="20" min="5" max="90"></div>
+  <div class="fg"><label>Format</label>
+   <select id="gb-format">
+    <option>3 vs. 3</option><option>4 vs. 4</option><option selected>5 vs. 5</option>
+    <option>Halbfeld</option><option>Vollfeld</option><option>Freigewählt</option>
+   </select>
+  </div>
+ </div>
+ <div class="fg"><label>Regeln / Coaching-Fokus (optional)</label>
+  <textarea id="gb-notes" placeholder="z.B. Keine Zone, 2-Pässe-Regel, Transition-Fokus…" style="min-height:60px;"></textarea>
+ </div>
+ <input type="hidden" id="gb-idx">
+ <div class="mft"><button class="btn btn-sec" onclick="closeM('m-game-block')">Abbrechen</button><button class="btn btn-pri" onclick="saveGameBlock()">Speichern</button></div>
+</div></div>
+
 <div class="mbk" id="m-section"><div class="mdl" style="max-width:380px;">
  <h3>Abschnitt hinzufügen</h3>
  <div class="bsec-presets">
