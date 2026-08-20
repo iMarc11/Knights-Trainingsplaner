@@ -1022,7 +1022,9 @@ async function loadAll(){
  db.coaches=[...DEFAULT_COACHES,...extra.filter(c=>!DEFAULT_COACHES.includes(c))];
  db.deletedBD=Array.isArray(raw)?[]:(raw.deletedBD||[]);
  }catch(e){db.coaches=[...DEFAULT_COACHES];db.deletedBD=[];}}
- db.drills=(drills.data||[]).filter(r=>r.id!=='__coaches_cfg__').map(fromDB.drill).filter(Boolean);
+ const commentsRec=(drills.data||[]).find(r=>r.id==='__drill_comments__');
+ if(commentsRec){try{db.drillComments=JSON.parse(commentsRec.description||'{}');}catch(e){db.drillComments={};}}
+ db.drills=(drills.data||[]).filter(r=>r.id!=='__coaches_cfg__'&&r.id!=='__drill_comments__').map(fromDB.drill).filter(Boolean);
  db.sessions=(sessions.data||[]).map(fromDB.session);
  db.games=(gamesRes.data||[]).map(r=>({id:r.id,teamId:r.team_id,seasonId:r.season_id,weekKey:r.week_key||'',date:r.date||'',homeAway:r.home_away||'home',opponent:r.opponent||'',scoreUs:r.score_us,scoreThem:r.score_them,notes:r.notes||''}));
  db.scouting={};
