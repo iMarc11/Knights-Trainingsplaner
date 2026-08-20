@@ -2406,6 +2406,7 @@ function renderSessions(){
  <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();dupSessFromList('${esc(s.id)}')">Kopieren</button>
  <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();printSess('${esc(s.id)}')">PDF</button>
  <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();mobileExport('${esc(s.id)}')">Mobil</button>
+ <button class="btn btn-dan btn-xs" onclick="event.stopPropagation();deleteSessDirect('${esc(s.id)}')">Löschen</button>
  </div>`;
  }).join('');
 }
