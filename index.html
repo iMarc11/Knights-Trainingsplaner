@@ -1691,7 +1691,7 @@ function dcHTML(d){
  <button class="btn btn-sec btn-xs" onclick="openDrillPreview('${esc(d.id)}')">Vorschau</button>
  <button class="btn btn-sec btn-xs" onclick="dupDrill('${esc(d.id)}')">Kopieren</button>
  <button class="btn btn-sec btn-xs" onclick="openDrillMdl('${esc(d.id)}',${isSys})">Bearbeiten</button>
- ${isCustom||isSys?`<button class="btn btn-dan btn-xs" onclick="deleteDrill('${esc(d.id)}')">Löschen</button>`:''}
+ <button class="btn btn-dan btn-xs" onclick="deleteDrill('${esc(d.id)}')">Löschen</button>
  </div>
  </div>
  <div class="mut" style="font-size:10px;margin-bottom:3px;">${isSys?'':` min. ${esc(d.players)} · `}${(d.ag||[]).map(esc).join(', ')}${isSys&&d.formation?` · ${esc(d.formation)}`:''}${d.author?` · <span style="color:var(--mut);">von ${esc(d.author)}</span>`:` · <span style="color:var(--mut);">Bot</span>`}</div>
