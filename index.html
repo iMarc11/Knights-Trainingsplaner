@@ -709,6 +709,47 @@ function checkPw(){
  <div class="mft"><button class="btn btn-sec" onclick="closeM('m-drill')">Abbrechen</button><button class="btn btn-pri" id="dr-savebtn" onclick="saveDrill()">Speichern</button></div>
 </div></div>
 
+<div class="mbk" id="m-drill-preview"><div class="mdl" style="max-width:720px;padding:0;overflow:hidden;">
+ <div id="dp-header" style="padding:22px 26px 16px;border-bottom:1px solid var(--brd);">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+   <div style="flex:1;min-width:0;">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+     <span id="dp-cat-badge" class="cat" style="font-size:11px;"></span>
+     <span id="dp-sys-badge" class="sysb" style="display:none;font-size:11px;"></span>
+    </div>
+    <h2 id="dp-name" style="margin:0;font-size:22px;font-weight:900;line-height:1.2;color:var(--fg);"></h2>
+    <div id="dp-meta" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:12px;color:var(--mut);"></div>
+   </div>
+   <button onclick="closeM('m-drill-preview')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--mut);flex-shrink:0;line-height:1;padding:2px 4px;">&times;</button>
+  </div>
+ </div>
+ <div style="padding:20px 26px;overflow-y:auto;max-height:calc(80vh - 120px);display:flex;flex-direction:column;gap:18px;">
+  <div id="dp-desc-sec" style="display:none;">
+   <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:6px;">Beschreibung</div>
+   <div id="dp-desc" style="font-size:14px;line-height:1.7;color:var(--fg);white-space:pre-wrap;"></div>
+  </div>
+  <div id="dp-steps-sec" style="display:none;">
+   <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:8px;">Spielzug-Ablauf</div>
+   <ol id="dp-steps" style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;"></ol>
+  </div>
+  <div id="dp-coach-sec" style="display:none;">
+   <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:6px;">Coaching-Punkte</div>
+   <div id="dp-coach" style="background:#FFFBEA;border:1px solid #F5E27B;border-radius:6px;padding:12px 14px;font-size:13px;line-height:1.7;color:#5A4A00;white-space:pre-wrap;"></div>
+  </div>
+  <div id="dp-drawings-sec" style="display:none;">
+   <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:8px;">Zeichnungen</div>
+   <div id="dp-drawings" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+  </div>
+ </div>
+ <div style="padding:14px 26px;border-top:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center;gap:10px;">
+  <a id="dp-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sec btn-sm" style="text-decoration:none;display:none;">▶ Video ansehen</a>
+  <div style="margin-left:auto;display:flex;gap:8px;">
+   <button id="dp-edit-btn" class="btn btn-sec btn-sm" onclick="">Bearbeiten</button>
+   <button class="btn btn-pri btn-sm" onclick="closeM('m-drill-preview')">Schliessen</button>
+  </div>
+ </div>
+</div></div>
+
 <div class="mbk" id="m-section"><div class="mdl" style="max-width:380px;">
  <h3>Abschnitt hinzufügen</h3>
  <div class="bsec-presets">
