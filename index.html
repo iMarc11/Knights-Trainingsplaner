@@ -1704,6 +1704,62 @@ function dcHTML(d){
  </div>
  </div>`;
 }
+function openDrillPreview(id){
+ const d=allDrills().find(dr=>dr.id===id);
+ if(!d)return;
+ const isSys=d.cat==='systeme';
+ // Header
+ const catBadge=document.getElementById('dp-cat-badge');
+ catBadge.textContent=CL[d.cat]||d.cat;
+ catBadge.className='cat cat-'+d.cat;
+ const sysBadge=document.getElementById('dp-sys-badge');
+ if(isSys&&d.systemType){sysBadge.textContent=d.systemType;sysBadge.style.display='';}
+ else{sysBadge.style.display='none';}
+ document.getElementById('dp-name').textContent=d.name;
+ // Meta
+ const metaParts=[];
+ if(!isSys&&d.dur)metaParts.push(`⏱ ${d.dur} Min.`);
+ if(!isSys&&d.players)metaParts.push(`👥 min. ${d.players} Spieler`);
+ if(d.ag&&d.ag.length)metaParts.push(`🏀 ${d.ag.join(', ')}`);
+ if(isSys&&d.formation)metaParts.push(`📐 ${d.formation}`);
+ if(d.author)metaParts.push(`✍️ ${d.author}`);else metaParts.push('✍️ Bot');
+ document.getElementById('dp-meta').innerHTML=metaParts.map(p=>`<span style="background:var(--card2,#F3F4F6);border-radius:4px;padding:2px 8px;">${esc(p)}</span>`).join('');
+ // Beschreibung
+ const descSec=document.getElementById('dp-desc-sec');
+ if(d.desc){document.getElementById('dp-desc').textContent=d.desc;descSec.style.display='';}
+ else{descSec.style.display='none';}
+ // Schritte
+ const stepsSec=document.getElementById('dp-steps-sec');
+ const stepsList=document.getElementById('dp-steps');
+ if(isSys&&d.steps){
+  const lines=d.steps.split('\n').map(l=>l.trim()).filter(l=>l);
+  stepsList.innerHTML=lines.map(l=>{
+   const clean=l.replace(/^\d+[\.\)]\s*/,'');
+   return`<li style="font-size:14px;line-height:1.65;color:var(--fg);">${esc(clean)}</li>`;
+  }).join('');
+  stepsSec.style.display='';
+ }else{stepsSec.style.display='none';}
+ // Coaching
+ const coachSec=document.getElementById('dp-coach-sec');
+ if(d.coaching){document.getElementById('dp-coach').textContent=d.coaching;coachSec.style.display='';}
+ else{coachSec.style.display='none';}
+ // Zeichnungen
+ const drawings=db.drillDrawings[d.id]||[];
+ const drawSec=document.getElementById('dp-drawings-sec');
+ if(drawings.length){
+  document.getElementById('dp-drawings').innerHTML=drawings.map((url,idx)=>
+   `<img src="${url}" style="max-width:320px;width:100%;height:auto;border-radius:6px;border:1px solid var(--brd);cursor:pointer;" onclick="closeM('m-drill-preview');openDrawMdl('${d.id}',${idx})" title="Zeichnung ${idx+1}">`
+  ).join('');
+  drawSec.style.display='';
+ }else{drawSec.style.display='none';}
+ // Video-Link
+ const linkEl=document.getElementById('dp-link');
+ if(d.link){linkEl.href=d.link;linkEl.style.display='';}
+ else{linkEl.style.display='none';}
+ // Bearbeiten-Button
+ document.getElementById('dp-edit-btn').onclick=()=>{closeM('m-drill-preview');openDrillMdl(d.id,isSys);};
+ openM('m-drill-preview');
+}
 function onDCatChange(){
  const isSys=document.getElementById('d-cat').value==='systeme';
  document.getElementById('sys-flds').classList.toggle('hidden',!isSys);
