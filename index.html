@@ -1119,11 +1119,15 @@ function openTeamMdl(id){
 async function saveTeam(){
  const name=document.getElementById('t-name').value.trim();
  if(!name)return alert('Name fehlt.');
- const id=document.getElementById('t-id').value||Date.now().toString();
+ const existingId=document.getElementById('t-id').value;
+ const id=existingId||Date.now().toString();
+ const isNew=!existingId;
  const team={id,name,cat:document.getElementById('t-cat').value,age:document.getElementById('t-age').value,emoji:document.getElementById('t-em').value||'',trainer:document.getElementById('t-trainer').value.trim(),coTrainer:document.getElementById('t-co').value.trim(),desc:document.getElementById('t-desc').value.trim()};
  const idx=db.teams.findIndex(t=>t.id===id);
  if(idx>=0)db.teams[idx]=team;else db.teams.push(team);
  closeM('m-team');renderTeams();populateBuilderTeamSel();
+ popSsTeamSel();
+ if(isNew){document.getElementById('ss-team').value=id;popSsSel();renderSeason();}
  await sbUpsert('teams',toDB.team(team));
 }
 async function deleteTeam(id){
