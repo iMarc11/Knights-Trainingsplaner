@@ -804,6 +804,36 @@ function checkPw(){
    <option value="systeme"> System / Setplay</option>
   </select>
  </div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+  <div class="fg" style="margin-bottom:0;">
+   <label style="color:var(--mut);opacity:.75;">Weitere Themen (optional)</label>
+   <select id="gen-focus2" style="font-size:12px;color:var(--mut);">
+    <option value="">— keines —</option>
+    <option value="ballhandling">Ballhandling</option>
+    <option value="passspiel">Passspiel</option>
+    <option value="technik">Technik &amp; Abschluss</option>
+    <option value="verteidigung">Verteidigung</option>
+    <option value="angriff">Angriff &amp; Taktik</option>
+    <option value="kondition">Kondition</option>
+    <option value="spielform">Spielform</option>
+    <option value="systeme">System / Setplay</option>
+   </select>
+  </div>
+  <div class="fg" style="margin-bottom:0;">
+   <label style="color:var(--mut);opacity:.75;">&nbsp;</label>
+   <select id="gen-focus3" style="font-size:12px;color:var(--mut);">
+    <option value="">— keines —</option>
+    <option value="ballhandling">Ballhandling</option>
+    <option value="passspiel">Passspiel</option>
+    <option value="technik">Technik &amp; Abschluss</option>
+    <option value="verteidigung">Verteidigung</option>
+    <option value="angriff">Angriff &amp; Taktik</option>
+    <option value="kondition">Kondition</option>
+    <option value="spielform">Spielform</option>
+    <option value="systeme">System / Setplay</option>
+   </select>
+  </div>
+ </div>
  <div class="fg">
   <label>Drill-Anteil: <strong id="gen-drill-min">35</strong> Min. <span id="gen-drill-pct" style="color:var(--mut);font-weight:400;">(47%)</span></label>
   <input type="range" id="gen-drill-slider" min="10" max="53" value="35" step="5" oninput="updateGenSlider()" style="width:100%;margin:6px 0 4px;accent-color:var(--pri);">
