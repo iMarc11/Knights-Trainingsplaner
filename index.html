@@ -750,6 +750,29 @@ function checkPw(){
  </div>
 </div></div>
 
+<div class="mbk" id="m-drill-comments"><div class="mdl" style="max-width:560px;padding:0;overflow:hidden;">
+ <div style="padding:18px 22px 14px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;">
+  <div>
+   <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:2px;">Kommentare</div>
+   <div id="cmt-drill-name" style="font-size:16px;font-weight:800;color:var(--fg);"></div>
+  </div>
+  <button onclick="closeM('m-drill-comments')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--mut);line-height:1;padding:2px 6px;">&times;</button>
+ </div>
+ <div id="cmt-list" style="padding:16px 22px;overflow-y:auto;max-height:320px;display:flex;flex-direction:column;gap:12px;"></div>
+ <div style="padding:14px 22px;border-top:1px solid var(--brd);display:flex;flex-direction:column;gap:10px;">
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);">Neuer Kommentar</div>
+  <div style="display:flex;gap:8px;align-items:flex-start;">
+   <select id="cmt-author" style="width:140px;font-size:12px;flex-shrink:0;"></select>
+   <textarea id="cmt-text" rows="2" placeholder="Kommentar eingeben…" style="flex:1;font-family:inherit;font-size:13px;line-height:1.5;resize:vertical;min-height:54px;"></textarea>
+  </div>
+  <div style="display:flex;justify-content:flex-end;gap:8px;">
+   <button class="btn btn-sec btn-sm" onclick="closeM('m-drill-comments')">Schliessen</button>
+   <button class="btn btn-pri btn-sm" onclick="addDrillComment()">Kommentar speichern</button>
+  </div>
+ </div>
+ <input type="hidden" id="cmt-drill-id">
+</div></div>
+
 <div class="mbk" id="m-section"><div class="mdl" style="max-width:380px;">
  <h3>Abschnitt hinzufügen</h3>
  <div class="bsec-presets">
