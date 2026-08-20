@@ -1687,6 +1687,8 @@ function dcHTML(d){
  const isSys=d.cat==='systeme';
  const isCustom=!!d.custom;
  const drawings=db.drillDrawings[d.id]||[];
+ const cmts=(db.drillComments[d.id]||[]);
+ const cmtLabel=cmts.length?`💬 ${cmts.length}`:'💬';
  const drawThumb=drawings.length>0?`<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-left:8px;">${drawings.map((url,idx)=>`<img src="${url}" style="width:100px;height:68px;object-fit:contain;border-radius:4px;border:1px solid var(--brd);cursor:pointer;display:block;" onclick="openDrawMdl('${d.id}',${idx})" title="Zeichnung ${idx+1}">`).join('')}<button class="btn btn-sec btn-xs" onclick="openDrawMdl('${d.id}',-1)" style="margin-top:2px;">+ Zeichnung</button></div>`:`<button class="btn btn-sec btn-xs" onclick="openDrawMdl('${d.id}',-1)" style="flex-shrink:0;margin-left:8px;align-self:flex-start;margin-top:2px;">+ Zeichnen</button>`;
  return`<div class="dc">
  <div class="dc-top">
