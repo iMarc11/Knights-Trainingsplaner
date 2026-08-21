@@ -238,12 +238,26 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
   .dc-btns .btn-icon{display:inline;}
   .dc-top{flex-wrap:wrap;gap:6px;}
   .dc-btns{order:3;width:100%;}
+  /* Saisonplanung: Einspaltig */
+  .season-layout{grid-template-columns:1fr!important;}
+  .season-hdr-ctrl{flex-wrap:wrap;gap:6px!important;}
+  /* Builder Toolbar: Pill-Gruppen umbrechen */
+  .bld-pill{flex-wrap:wrap!important;}
+  /* Drills Filter: kompakt */
+  .drill-filter-row{flex-wrap:nowrap!important;gap:4px!important;}
+  .drill-filter-row input[type=text]{min-width:0;flex:1;}
+  .drill-filter-row select{min-width:0;flex:1;font-size:11px!important;}
+  /* Kategorie-Filter als Dropdown auf Mobile */
+  .dcat-mobile-sel{display:block!important;}
+  .fb#dcat-filter{display:none!important;}
 }
 @media(min-width:600px){
   .srow-actions .btn-label{display:inline;}
   .srow-actions .btn-icon{display:none;}
   .dc-btns .btn-label{display:inline;}
   .dc-btns .btn-icon{display:none;}
+  .dcat-mobile-sel{display:none!important;}
+  .fb#dcat-filter{display:flex!important;}
 }
 </style>
 <!-- PASSWORT SCREEN -->
