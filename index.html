@@ -389,17 +389,17 @@ function checkPw(){
  <div id="team-mgr-empty" class="empty hidden">Noch keine Teams.</div>
  </div>
  </div>
- <div class="flex jb ac mb4">
+ <div class="flex jb ac mb4" style="flex-wrap:wrap;gap:8px;">
  <div class="shd" id="saison-hdr">Saisonplanung</div>
- <div class="flex g2 ac">
+ <div class="flex g2 ac season-hdr-ctrl" style="flex-wrap:wrap;gap:6px;">
  <select id="ss-team" onchange="onSsTeamChange()" style="width:auto;font-size:11px;"></select>
  <select id="ss-sel" onchange="renderSeason()" style="width:auto;font-size:11px;"></select>
  <button class="btn btn-sec btn-sm" onclick="openSeasonMdl()">+ Saison</button>
  <button class="btn btn-sec btn-sm" onclick="openPhaseMdl()">+ Phase</button>
  </div>
  </div>
- <!-- Zwei-Spalten: Links Wochenplan, Rechts Gegner -->
- <div style="display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start;">
+ <!-- Zwei-Spalten (Desktop) / Einspaltig (Mobile) -->
+ <div class="season-layout" style="display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start;">
  <div>
  <div class="card">
  <div class="flex ac mb3 g2 wrap">
