@@ -1165,7 +1165,8 @@ async function loadAll(){
  db.games=(gamesRes.data||[]).map(r=>({id:r.id,teamId:r.team_id,seasonId:r.season_id,weekKey:r.week_key||'',date:r.date||'',homeAway:r.home_away||'home',opponent:r.opponent||'',scoreUs:r.score_us,scoreThem:r.score_them,notes:r.notes||''}));
  db.scouting={};
  (scoutingRes.data||[]).forEach(r=>{
- let kp=[];try{kp=JSON.parse(r.key_players||'[]');}catch(e){}
+ let kp=[];
+ try{if(Array.isArray(r.key_players))kp=r.key_players;else kp=JSON.parse(r.key_players||'[]');}catch(e){}
  db.scouting[r.id]={opponent:r.opponent,offense:r.offense||'',defense:r.defense||'',keyPlayers:kp};
  });
  db.drillDrawings={};
