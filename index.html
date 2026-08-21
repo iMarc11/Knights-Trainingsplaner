@@ -3140,6 +3140,20 @@ async function deleteDrawing(){
  else{db.drillDrawings[DM.editId]=drs;await sbUpsert('drill_drawings',{drill_id:DM.editId,data_url:JSON.stringify(drs),updated_at:new Date().toISOString()});}
 }
 
+// ── BROWSER HISTORY (back/forward) ────────────────────────
+window.addEventListener('popstate',function(e){
+ const t=e.state&&e.state.tab?e.state.tab:'home';
+ switchTab(t,true);
+});
+
+// ── PREVENT PINCH-ZOOM ON IOS ─────────────────────────────
+// iOS 10+ ignores user-scalable=no in meta viewport → JS fallback
+document.addEventListener('touchmove',function(e){
+ if(e.touches&&e.touches.length>1){e.preventDefault();}
+},{passive:false});
+document.addEventListener('gesturestart',function(e){e.preventDefault();},{passive:false});
+document.addEventListener('gesturechange',function(e){e.preventDefault();},{passive:false});
+
 // ── INIT ──────────────────────────────────────────────────
 (async()=>{
  initDrawColors();
