@@ -433,8 +433,8 @@ function checkPw(){
  <div id="ltab-drills" onclick="setLibTab('drills')" style="padding:9px 18px;font-size:15px;font-weight:600;cursor:pointer;transition:color .15s;color:var(--sec);box-shadow:inset 0 -3px 0 var(--pri);">Drills</div>
  <div id="ltab-systeme" onclick="setLibTab('systeme')" style="padding:9px 18px;font-size:15px;font-weight:600;cursor:pointer;transition:color .15s;color:var(--mut);box-shadow:none;">Systeme</div>
  </div>
- <div class="flex g2 mb2" style="flex-wrap:wrap;align-items:center;">
- <input type="text" id="dsearch" placeholder="Suchen…" style="width:160px;font-size:12px;" oninput="renderDrills()">
+ <div class="drill-filter-row flex g2 mb2" style="flex-wrap:wrap;align-items:center;">
+ <input type="text" id="dsearch" placeholder="Suchen…" style="width:140px;font-size:12px;" oninput="renderDrills()">
  <select id="dtf" onchange="renderDrills()" style="width:auto;font-size:12px;"><option value="">Alle Teams</option></select>
  <select id="dauthor" onchange="renderDrills()" style="width:auto;font-size:12px;"><option value="">Alle Autoren</option></select>
  <select id="dsystype" onchange="renderDrills()" style="width:auto;font-size:12px;display:none;"><option value="">Alle Typen</option><option>Angriffssystem</option><option>Verteidigungssystem</option><option>Setplay Angriff</option><option>Setplay Verteidigung</option><option>ATO (After Timeout)</option><option>BOB (Baseline Out of Bounds)</option><option>SLOB (Sideline Out of Bounds)</option><option>Press-Breaker</option><option>Zonenbrecher</option></select>
