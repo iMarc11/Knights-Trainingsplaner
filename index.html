@@ -403,7 +403,8 @@ function checkPw(){
  <button class="btn btn-pri btn-sm" onclick="openTeamMdl()">+ Team</button>
  </div>
  <div id="team-mgr-body">
- <div id="team-mgr-grid"></div>
+ <div class="team-mgr-desktop" id="team-mgr-grid"></div>
+ <select class="team-mgr-mobile" id="team-mgr-sel" onchange="selectTeamForSeason(this.value)" style="display:none;width:100%;font-size:13px;"></select>
  <div id="team-mgr-empty" class="empty hidden">Noch keine Teams.</div>
  </div>
  </div>
