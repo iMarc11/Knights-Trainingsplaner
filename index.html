@@ -233,13 +233,17 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
   /* Session-Liste: Icon-Buttons */
   .srow-actions .btn-label{display:none;}
   .srow-actions .btn-icon{display:inline;}
-  /* Bibliothek: Karten-Buttons umbrechen */
-  .dc-top{flex-wrap:wrap;}
-  .dc-top>div:last-child{flex-wrap:wrap;}
+  /* Bibliothek: Icon-Buttons + Wrapping */
+  .dc-btns .btn-label{display:none;}
+  .dc-btns .btn-icon{display:inline;}
+  .dc-top{flex-wrap:wrap;gap:6px;}
+  .dc-btns{order:3;width:100%;}
 }
 @media(min-width:600px){
   .srow-actions .btn-label{display:inline;}
   .srow-actions .btn-icon{display:none;}
+  .dc-btns .btn-label{display:inline;}
+  .dc-btns .btn-icon{display:none;}
 }
 </style>
 <!-- PASSWORT SCREEN -->
