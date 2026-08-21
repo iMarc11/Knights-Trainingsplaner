@@ -1851,12 +1851,12 @@ function dcHTML(d){
  <div class="dc-top">
  <span class="cat cat-${d.cat}">${CL[d.cat]}</span>
  <div class="dc-name" style="margin-left:6px;">${esc(d.name)}${isSys&&d.systemType?` <span class="sysb">${esc(d.systemType)}</span>`:''}</div>
- <div style="display:flex;gap:5px;align-items:center;flex-shrink:0;">
- ${d.link?`<a href="${esc(d.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-sec btn-xs" style="text-decoration:none;">▶ Video-Link</a>`:''}
- <button class="btn btn-sec btn-xs" onclick="openDrillPreview('${esc(d.id)}')">Vorschau</button>
- <button class="btn btn-sec btn-xs" onclick="dupDrill('${esc(d.id)}')">Kopieren</button>
- <button class="btn btn-sec btn-xs" onclick="openDrillMdl('${esc(d.id)}',${isSys})">Bearbeiten</button>
- <button class="btn btn-dan btn-xs" onclick="deleteDrill('${esc(d.id)}')">Löschen</button>
+ <div class="dc-btns" style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+ ${d.link?`<a href="${esc(d.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-sec btn-xs" style="text-decoration:none;"><span class="btn-icon">▶</span><span class="btn-label"> Video-Link</span></a>`:''}
+ <button class="btn btn-sec btn-xs" onclick="openDrillPreview('${esc(d.id)}')"><span class="btn-icon">🔍</span><span class="btn-label">Vorschau</span></button>
+ <button class="btn btn-sec btn-xs" onclick="dupDrill('${esc(d.id)}')"><span class="btn-icon">📋</span><span class="btn-label">Kopieren</span></button>
+ <button class="btn btn-sec btn-xs" onclick="openDrillMdl('${esc(d.id)}',${isSys})"><span class="btn-icon">✏️</span><span class="btn-label">Bearbeiten</span></button>
+ <button class="btn btn-dan btn-xs" onclick="deleteDrill('${esc(d.id)}')"><span class="btn-icon">🗑️</span><span class="btn-label">Löschen</span></button>
  </div>
  </div>
  <div class="mut" style="font-size:10px;margin-bottom:3px;display:flex;align-items:center;flex-wrap:wrap;">${isSys?'':` min. ${esc(d.players)} · `}${(d.ag||[]).map(esc).join(', ')}${isSys&&d.formation?` · ${esc(d.formation)}`:''}${d.author?` · <span style="color:var(--mut);">von ${esc(d.author)}</span>`:` · <span style="color:var(--mut);">Bot</span>`}${cmtBtn}</div>
