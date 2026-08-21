@@ -1752,7 +1752,7 @@ async function _persistOpponent(){
  await sbUpsert('seasons',toDB.season(s));
  setSyncing();
  const{error:scErr}=await SB.from('scouting').upsert({id:newKey,opponent:name,offense:sc.offense||null,defense:sc.defense||null,key_players:sc.keyPlayers},{onConflict:'id'});
- if(scErr){setSyncErr();console.error('scouting upsert',scErr);}
+ if(scErr){setSyncErr();alert('Gegner konnte nicht gespeichert werden: '+scErr.message);}
  else setSyncOk();
  return newKey;
 }
