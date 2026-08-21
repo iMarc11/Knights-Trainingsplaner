@@ -265,6 +265,11 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
   .srow{flex-direction:column;align-items:stretch;gap:4px;padding:10px 12px;}
   .srow-top{display:flex;align-items:center;gap:8px;}
   .srow-actions{justify-content:flex-start;}
+  /* Dashboard: 4 Nav-Kacheln auf Mobile ausblenden */
+  .home-nav-grid{display:none!important;}
+  /* Builder: Drag-Handle verstecken, ↑↓ Buttons zeigen */
+  .blk-drag-handle{display:none!important;}
+  .blk-move-btn{display:inline-flex!important;align-items:center;justify-content:center;}
 }
 @media(min-width:600px){
   .srow-actions .btn-label{display:inline;}
@@ -276,6 +281,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
   .team-mgr-desktop{display:block!important;}
   .team-mgr-mobile{display:none!important;}
   .srow-top{display:contents;}
+  .blk-move-btn{display:none!important;}
 }
 </style>
 <!-- PASSWORT SCREEN -->
