@@ -222,7 +222,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
   .btn-sm{min-height:30px;font-size:12px;padding:5px 8px;}
   .btn-xs{min-height:26px;font-size:11px;padding:2px 6px;}
   .hdr-r .btn{min-height:28px;font-size:11px;padding:3px 5px;}
-  .cnt{padding:12px 10px 96px;}
+  .cnt{padding:12px 10px 96px;overflow-x:hidden;}
   .shd{font-size:20px;}
   .card{padding:12px 12px;}
   .cht{font-size:14px;}
@@ -230,6 +230,16 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
   .sdt{font-size:12px;}
   .stit{font-size:14px;}
   input[type=text],input[type=date],input[type=number],select,textarea{min-height:40px;}
+  /* Session-Liste: Icon-Buttons */
+  .srow-actions .btn-label{display:none;}
+  .srow-actions .btn-icon{display:inline;}
+  /* Bibliothek: Karten-Buttons umbrechen */
+  .dc-top{flex-wrap:wrap;}
+  .dc-top>div:last-child{flex-wrap:wrap;}
+}
+@media(min-width:600px){
+  .srow-actions .btn-label{display:inline;}
+  .srow-actions .btn-icon{display:none;}
 }
 </style>
 <!-- PASSWORT SCREEN -->
