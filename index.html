@@ -2533,11 +2533,13 @@ function renderSessions(){
  const t=getTeam(s.teamId);
  const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit',year:'numeric'}):'–';
  return`<div class="srow" onclick="viewSess('${esc(s.id)}')">
+ <div class="srow-top">
  <div class="sdt">${esc(d)}</div>
  <div style="flex:1;min-width:0;"><div class="stit">${esc(s.title)}</div>
- <div class="mut">${t?`${esc(t.name)}`:''}</div></div>
- <div class="dpill" style="margin-right:4px;flex-shrink:0;">${esc(s.totalDur)} Min.</div>
- <div class="srow-actions" style="display:flex;gap:3px;flex-shrink:0;" onclick="event.stopPropagation()">
+ <div class="mut" style="font-size:11px;">${t?`${esc(t.name)}`:''}</div></div>
+ <div class="dpill" style="flex-shrink:0;">${esc(s.totalDur)} Min.</div>
+ </div>
+ <div class="srow-actions" style="display:flex;gap:4px;flex-shrink:0;" onclick="event.stopPropagation()">
  <button class="btn btn-sec btn-xs" onclick="editSessDirect('${esc(s.id)}')"><span class="btn-icon">✏️</span><span class="btn-label">Bearbeiten</span></button>
  <button class="btn btn-sec btn-xs" onclick="dupSessFromList('${esc(s.id)}')"><span class="btn-icon">⊕</span><span class="btn-label">Duplizieren</span></button>
  <button class="btn btn-sec btn-xs" onclick="printSess('${esc(s.id)}')"><span class="btn-icon">📄</span><span class="btn-label">PDF</span></button>
