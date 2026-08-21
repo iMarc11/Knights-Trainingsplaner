@@ -1686,7 +1686,10 @@ async function _persistOpponent(){
  const sc={opponent:name,offense:document.getElementById('opp-offense').value.trim(),defense:document.getElementById('opp-defense').value.trim(),keyPlayers:[..._oppPlayers]};
  db.scouting[newKey]=sc;
  await sbUpsert('seasons',toDB.season(s));
- await sbUpsert('scouting',{id:newKey,opponent:name,offense:sc.offense||null,defense:sc.defense||null,key_players:JSON.stringify(sc.keyPlayers)});
+ setSyncing();
+ const{error:scErr}=await SB.from('scouting').upsert({id:newKey,opponent:name,offense:sc.offense||null,defense:sc.defense||null,key_players:sc.keyPlayers},{onConflict:'id'});
+ if(scErr){setSyncErr();console.error('scouting upsert',scErr);}
+ else setSyncOk();
  return newKey;
 }
 async function saveOpponent(){
