@@ -2443,11 +2443,13 @@ function renderBlocks(){
  </div></div>`;
  }
  return`<div class="bli bblk-dnd" draggable="true" ondragstart="_dndStart(event,${i})" ondragover="_dndOver(event,${i})" ondragleave="_dndLeave(event)" ondrop="_dndDrop(event,${i})" ondragend="_dndEnd(event)">
- <span style="cursor:grab;color:#ccc;font-size:16px;flex-shrink:0;padding:0 2px;user-select:none;">⠿</span>
+ <span class="blk-drag-handle" style="cursor:grab;color:#ccc;font-size:16px;flex-shrink:0;padding:0 2px;user-select:none;">⠿</span>
  <span class="btt type-${b.cat}">${CL[b.cat]||b.cat}</span>
  <span class="bdur">${b.dur}min</span>
  <div style="flex:1;"><div class="bname">${b.name}</div>${b.desc?`<div class="bdesc">${b.desc.length>80?b.desc.slice(0,80)+'…':b.desc}</div>`:''}</div>
  <div class="bact">
+ <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''}>↑</button>
+ <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''}>↓</button>
  <button class="btn btn-sec btn-xs" onclick="openDrillForBlock(${i})">Bearbeiten</button>
  <button class="btn btn-dan btn-xs" onclick="delBlock(${i})">Entfernen</button>
  </div></div>`;
