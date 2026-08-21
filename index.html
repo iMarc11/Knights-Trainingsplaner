@@ -2680,6 +2680,16 @@ async function submitWish(){
  renderWishlist();
  }catch(e){msg.style.color='#ef4444';msg.textContent='Fehler: '+e.message;}
 }
+async function toggleWlDone(id,done){
+ const{error}=await SB.from('wishlist').update({implemented:done}).eq('id',id);
+ if(error){
+ // Spalte existiert noch nicht → ignorieren; User sieht keinen Effekt
+ console.warn('toggleWlDone:',error.message);
+ renderWishlist();
+ return;
+ }
+ renderWishlist();
+}
 
 // ── DRAW ──────────────────────────────────────────────────
 const DM={canvas:null,ctx:null,tool:'pen',color:'#F5A800',size:2,isDrawing:false,startX:0,startY:0,history:[],snapshot:null,offNum:1,defNum:1,coachNum:1,editId:null,courtTemplate:'half',drawingIdx:-1};
