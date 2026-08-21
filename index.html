@@ -1569,7 +1569,10 @@ async function saveScouting(){
  const sc={opponent:opp,offense:document.getElementById('scout-offense').value.trim(),defense:document.getElementById('scout-defense').value.trim(),keyPlayers:[..._scoutPlayers]};
  db.scouting[key]=sc;
  closeM('m-scouting');renderOpponentsPanel();
- await sbUpsert('scouting',{id:key,opponent:opp,offense:sc.offense||null,defense:sc.defense||null,key_players:JSON.stringify(sc.keyPlayers)});
+ setSyncing();
+ const{error}=await SB.from('scouting').upsert({id:key,opponent:opp,offense:sc.offense||null,defense:sc.defense||null,key_players:sc.keyPlayers},{onConflict:'id'});
+ if(error){setSyncErr();alert('Scouting konnte nicht gespeichert werden: '+error.message);}
+ else setSyncOk();
 }
 // ── OPPONENTS PANEL ───────────────────────────────────────
 let _oppPlayers=[];
