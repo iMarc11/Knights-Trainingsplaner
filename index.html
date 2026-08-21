@@ -960,21 +960,25 @@ function checkPw(){
 <!-- DRAW MODAL -->
 <div class="mbk" id="m-draw"><div class="mdl draw-mdl">
  <h3>Zeichnung bearbeiten</h3>
- <div class="draw-tb">
+ <div class="draw-tb" style="gap:4px;">
+ <span style="font-size:9px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;align-self:center;padding-right:2px;">Zeichnen</span>
  <button class="dtool on" data-tool="pen" onclick="setTool(this,'pen')">Stift</button>
  <button class="dtool" data-tool="arrow" onclick="setTool(this,'arrow')">↗ Bewegung</button>
  <button class="dtool" data-tool="dash" onclick="setTool(this,'dash')">⤳ Pass</button>
  <button class="dtool" data-tool="line" onclick="setTool(this,'line')">— Linie</button>
- <button class="dtool" data-tool="off" onclick="setTool(this,'off')">Angreifer</button>
- <button class="dtool" data-tool="def" onclick="setTool(this,'def')">Verteidiger</button>
+ <span style="width:1px;background:var(--brd);align-self:stretch;margin:0 4px;flex-shrink:0;"></span>
+ <span style="font-size:9px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;align-self:center;padding-right:2px;">Objekte</span>
+ <button class="dtool" data-tool="off" onclick="setTool(this,'off')">🔵 Angreifer</button>
+ <button class="dtool" data-tool="def" onclick="setTool(this,'def')">🔴 Verteidiger</button>
  <button class="dtool" data-tool="coach" onclick="setTool(this,'coach')">Coach</button>
- <button class="dtool" data-tool="ball" onclick="setTool(this,'ball')">Ball</button>
+ <button class="dtool" data-tool="ball" onclick="setTool(this,'ball')">🏀 Ball</button>
  <button class="dtool" data-tool="screen" onclick="setTool(this,'screen')">⊞ Screen</button>
- <button class="dtool" data-tool="cone" onclick="setTool(this,'cone')">Hüttchen</button>
+ <button class="dtool" data-tool="cone" onclick="setTool(this,'cone')">△ Hüttchen</button>
  <button class="dtool" data-tool="text" onclick="setTool(this,'text')">T Text</button>
- <button class="dtool" data-tool="erase" onclick="setTool(this,'erase')">Radieren</button>
- <button class="dtool" onclick="undoDraw()" style="margin-left:4px;">↩ Undo</button>
- <button class="dtool btn-dan" onclick="clearDraw()">Alles löschen</button>
+ <span style="width:1px;background:var(--brd);align-self:stretch;margin:0 4px;flex-shrink:0;"></span>
+ <button class="dtool" data-tool="erase" onclick="setTool(this,'erase')">⌫ Radieren</button>
+ <button class="dtool" onclick="undoDraw()">↩ Undo</button>
+ <button class="dtool" onclick="clearDraw()" style="color:#dc2626;border-color:#fca5a5;">Alles löschen</button>
  </div>
  <div class="flex ac g2 mb2">
  <div class="dcolors" id="draw-colors"></div>
