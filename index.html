@@ -2434,9 +2434,11 @@ function renderBlocks(){
  if(b.type==='section'){
  const secMin=secTotals[i]||0;
  return`<div class="bsec bblk-dnd" draggable="true" ondragstart="_dndStart(event,${i})" ondragover="_dndOver(event,${i})" ondragleave="_dndLeave(event)" ondrop="_dndDrop(event,${i})" ondragend="_dndEnd(event)">
- <div style="display:flex;align-items:center;gap:6px;"><span style="cursor:grab;color:rgba(255,255,255,.4);font-size:16px;user-select:none;">⠿</span><span>— ${b.name} —</span></div>
+ <div style="display:flex;align-items:center;gap:6px;"><span class="blk-drag-handle" style="cursor:grab;color:rgba(255,255,255,.4);font-size:16px;user-select:none;">⠿</span><span>— ${b.name} —</span></div>
  <div class="flex g1" style="align-items:center;">
  ${secMin>0?`<span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.75);background:rgba(0,0,0,.2);border-radius:4px;padding:2px 8px;">${secMin} Min.</span>`:''}
+ <button class="blk-move-btn btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''}>↑</button>
+ <button class="blk-move-btn btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''}>↓</button>
  <button class="btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="delBlock(${i})">Entfernen</button>
  </div></div>`;
  }
