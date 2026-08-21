@@ -1834,9 +1834,17 @@ function renderDrillCatFilter(){
  const counts={};tabDrills.forEach(d=>{counts[d.cat]=(counts[d.cat]||0)+1;});
  const total=tabDrills.length;
  const badge=n=>`<span style="font-size:10px;opacity:.6;margin-left:3px;">(${n})</span>`;
+ // Desktop chips
  document.getElementById('dcat-filter').innerHTML=
  `<div class="chip ${!aDrillCat?'on':''}" onclick="setDC('')">Alle${badge(total)}</div>`+
  Object.entries(cats).map(([k,v])=>`<div class="chip ${aDrillCat===k?'on':''}" onclick="setDC('${k}')">${v}${badge(counts[k]||0)}</div>`).join('');
+ // Mobile dropdown
+ const mSel=document.getElementById('dcat-mobile-sel');
+ if(mSel){
+ mSel.innerHTML=`<option value="">Alle Kategorien (${total})</option>`+
+ Object.entries(cats).map(([k,v])=>`<option value="${k}" ${aDrillCat===k?'selected':''}>${v} (${counts[k]||0})</option>`).join('');
+ mSel.value=aDrillCat||'';
+ }
 }
 function setDC(c){aDrillCat=c;renderDrillCatFilter();renderDrills();}
 function renderDrills(){
