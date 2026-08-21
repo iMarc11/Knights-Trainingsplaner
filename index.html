@@ -1388,6 +1388,12 @@ function renderTeams(){
  const g2=document.getElementById('team-mgr-grid'),e2=document.getElementById('team-mgr-empty');
  if(g2){g2.innerHTML=teamHTML;}
  if(e2){db.teams.length===0?e2.classList.remove('hidden'):e2.classList.add('hidden');}
+ // Mobile team dropdown in Saison-Panel
+ const tSel=document.getElementById('team-mgr-sel');
+ if(tSel){
+ const curTeamId=document.getElementById('ss-team')?.value||'';
+ tSel.innerHTML='<option value="">— Team wählen —</option>'+db.teams.map(t=>`<option value="${t.id}" ${t.id===curTeamId?'selected':''}>${t.emoji?t.emoji+' ':''}${esc(t.name)}</option>`).join('');
+ }
 }
 
 // ── SEASON ────────────────────────────────────────────────
