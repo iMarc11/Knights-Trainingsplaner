@@ -1248,7 +1248,10 @@ async function reloadAll(){
  renderAll();
 }
 function renderAll(){
- renderTeams();populateBuilderTeamSel();popDrillTF();renderDrills();renderSessions();renderSessTeamFilter();popSsTeamSel();renderSeason();switchTab('home');
+ renderTeams();populateBuilderTeamSel();popDrillTF();renderDrills();renderSessions();renderSessTeamFilter();popSsTeamSel();renderSeason();
+ const _hash=(location.hash||'').replace('#','');
+ const _validTabs=['home','sessions','drills','season','wishlist','builder'];
+ switchTab(_validTabs.includes(_hash)?_hash:'home');
 }
 
 // ── EXPORT / IMPORT / DOWNLOAD ────────────────────────────
