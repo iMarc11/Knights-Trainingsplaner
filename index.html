@@ -2829,10 +2829,10 @@ function drawLine(ctx,x1,y1,x2,y2){ctx.save();ctx.strokeStyle=DM.color;ctx.lineW
 function stampPlayer(x,y,isOff){
  const ctx=DM.ctx,r=14,n=isOff?DM.offNum++:DM.defNum++;
  ctx.save();ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
- ctx.fillStyle=isOff?DM.color:'#2563eb';ctx.fill();
+ ctx.fillStyle=isOff?'#2563eb':'#dc2626';ctx.fill();
  ctx.strokeStyle='rgba(255,255,255,0.7)';ctx.lineWidth=1.5;ctx.stroke();
  ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
- ctx.fillText(isOff?n:'X',x,y);ctx.restore();
+ ctx.fillText(n,x,y);ctx.restore();
 }
 function stampCoach(x,y){
  const ctx=DM.ctx,r=14,n=DM.coachNum++;
