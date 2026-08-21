@@ -421,9 +421,9 @@ function checkPw(){
  <div class="season-layout" style="display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start;">
  <div>
  <div class="card">
- <div class="flex ac mb3 g2 wrap">
- <span style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.4px;">Phasen:</span>
- <div class="plgd" id="phase-legend"></div>
+ <div class="flex ac mb3 g2 phase-legend-wrap" style="flex-wrap:wrap;">
+ <span class="phase-legend-label" style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.4px;flex-shrink:0;">Phasen:</span>
+ <div class="plgd" id="phase-legend" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
  </div>
  <hr style="margin-bottom:10px;">
  <div id="season-grid"></div>
@@ -535,7 +535,7 @@ function checkPw(){
  </div>
  <div class="card">
  <div class="flex jb ac mb3">
- <div class="cht" style="margin:0;">Trainingsblöcke</div>
+ <div class="cht bld-blocks-title" style="margin:0;">Trainingsblöcke</div>
  <div class="flex g1">
  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
  <div class="bld-pill" style="display:flex;gap:4px;flex-wrap:wrap;background:#f0f1f3;border-radius:8px;padding:4px 6px;">
