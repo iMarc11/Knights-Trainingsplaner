@@ -241,7 +241,16 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
   /* Saisonplanung: Einspaltig */
   .season-layout{grid-template-columns:1fr!important;}
   .season-hdr-ctrl{flex-wrap:wrap;gap:6px!important;}
-  /* Builder Toolbar: Pill-Gruppen umbrechen */
+  /* Teams in Saison-Panel: Dropdown statt Kacheln */
+  .team-mgr-desktop{display:none!important;}
+  .team-mgr-mobile{display:block!important;}
+  /* Phasen-Legende: kompakt scrollbar */
+  .phase-legend-wrap{overflow-x:auto;flex-wrap:nowrap!important;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
+  .phase-legend-wrap .chip,.phase-legend-wrap [class*="phase"]{white-space:nowrap;font-size:10px!important;padding:2px 6px!important;}
+  .phase-legend-label{display:none;}
+  /* Builder: Trainingsblöcke-Titel ausblenden */
+  .bld-blocks-title{display:none!important;}
+  /* Builder: flex-row für Toolbar umbrechen */
   .bld-pill{flex-wrap:wrap!important;}
   /* Drills Filter: kompakt */
   .drill-filter-row{flex-wrap:nowrap!important;gap:4px!important;}
@@ -250,6 +259,12 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
   /* Kategorie-Filter als Dropdown auf Mobile */
   .dcat-mobile-sel{display:block!important;}
   .fb#dcat-filter{display:none!important;}
+  /* Datum-Input: kein Overflow */
+  input[type=date]{width:100%;box-sizing:border-box;max-width:100%;}
+  /* Session-Zeilen: grosszügiger 2-Zeilen-Layout */
+  .srow{flex-direction:column;align-items:stretch;gap:4px;padding:10px 12px;}
+  .srow-top{display:flex;align-items:center;gap:8px;}
+  .srow-actions{justify-content:flex-start;}
 }
 @media(min-width:600px){
   .srow-actions .btn-label{display:inline;}
