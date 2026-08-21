@@ -2514,7 +2514,7 @@ function renderSessions(){
  <div class="dpill" style="margin-right:4px;flex-shrink:0;">${esc(s.totalDur)} Min.</div>
  <div class="srow-actions" style="display:flex;gap:3px;flex-shrink:0;" onclick="event.stopPropagation()">
  <button class="btn btn-sec btn-xs" onclick="editSessDirect('${esc(s.id)}')"><span class="btn-icon">✏️</span><span class="btn-label">Bearbeiten</span></button>
- <button class="btn btn-sec btn-xs" onclick="dupSessFromList('${esc(s.id)}')"><span class="btn-icon">📋</span><span class="btn-label">Kopieren</span></button>
+ <button class="btn btn-sec btn-xs" onclick="dupSessFromList('${esc(s.id)}')"><span class="btn-icon">⊕</span><span class="btn-label">Duplizieren</span></button>
  <button class="btn btn-sec btn-xs" onclick="printSess('${esc(s.id)}')"><span class="btn-icon">📄</span><span class="btn-label">PDF</span></button>
  <button class="btn btn-sec btn-xs" onclick="mobileExport('${esc(s.id)}')"><span class="btn-icon">📱</span><span class="btn-label">Mobil</span></button>
  <button class="btn btn-dan btn-xs" onclick="deleteSessDirect('${esc(s.id)}')"><span class="btn-icon">🗑️</span><span class="btn-label">Löschen</span></button>
