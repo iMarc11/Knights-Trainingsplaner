@@ -1307,7 +1307,7 @@ function selectTeamForSeason(teamId){
  if(hdr)hdr.scrollIntoView({behavior:'smooth',block:'start'});
  },80);
 }
-function switchTab(t){
+function switchTab(t,fromHistory){
  document.querySelectorAll('[data-tab]').forEach(el=>{
  el.classList.toggle('active',el.dataset.tab===t);
  });
@@ -1318,6 +1318,10 @@ function switchTab(t){
  if(t==='drills'){popDrillTF();setLibTab(aLibTab);}
  if(t==='sessions'){renderSessTeamFilter();renderSessions();}
  if(t==='wishlist'){popWlAuthor();renderWishlist();}
+ if(!fromHistory){
+  if(history.state){history.pushState({tab:t},'','#'+t);}
+  else{history.replaceState({tab:t},'','#'+t);}
+ }
 }
 function renderHome(){
  // Letzte Trainings
