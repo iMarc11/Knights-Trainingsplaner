@@ -5,6 +5,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Knights Basketball – Trainingsplaner</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Knights">
+<script>
+// Homescreen-Icon: Logo auf blauem Hintergrund (iOS)
+window.addEventListener('load',function(){
+ try{
+  var img=document.querySelector('img.hdr-logo');
+  if(!img)return;
+  var c=document.createElement('canvas');c.width=c.height=180;
+  var ctx=c.getContext('2d');
+  ctx.fillStyle='#002F5F';ctx.fillRect(0,0,180,180);
+  var pad=18,sz=180-2*pad;
+  var sc=Math.min(sz/img.naturalWidth,sz/img.naturalHeight);
+  var w=img.naturalWidth*sc,h=img.naturalHeight*sc;
+  ctx.drawImage(img,(180-w)/2,(180-h)/2,w,h);
+  var lnk=document.createElement('link');
+  lnk.rel='apple-touch-icon';lnk.href=c.toDataURL('image/png');
+  document.head.appendChild(lnk);
+ }catch(e){}
+});
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap">
