@@ -2437,12 +2437,13 @@ function _ytId(url){
  return m?m[1]:null;
 }
 function blockPreviews(b){
- if(!b.drillId)return'';
- const d=allDrills().find(dr=>dr.id===b.drillId);
- const drs=db.drillDrawings[b.drillId]||[];
+ // Drill über ID finden, sonst über Namen (ältere Blöcke ohne drillId)
+ const d=allDrills().find(dr=>b.drillId?dr.id===b.drillId:dr.name===b.name);
+ if(!d)return'';
+ const drs=db.drillDrawings[d.id]||[];
  const link=d&&d.link;
  if(!drs.length&&!link)return'';
- const thumbs=drs.map((url,idx)=>`<img src="${url}" class="bprev-img" onclick="openDrillPreview('${b.drillId}')" title="Zeichnung ${idx+1} – Vorschau öffnen">`).join('');
+ const thumbs=drs.map((url,idx)=>`<img src="${url}" class="bprev-img" onclick="openDrillPreview('${d.id}')" title="Zeichnung ${idx+1} – Vorschau öffnen">`).join('');
  let vid='';
  if(link){
   const yt=_ytId(link);
