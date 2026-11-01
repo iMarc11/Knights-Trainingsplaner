@@ -159,7 +159,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .mbk{display:none;position:fixed;inset:0;background:rgba(0,47,95,.45);z-index:200;align-items:center;justify-content:center;padding:20px;}
 .mbk.open{display:flex;}
 .mdl{background:#fff;border-radius:4px;padding:22px 24px;width:520px;max-width:96vw;max-height:90vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,.14);}
-.mdl.wide{width:720px;}.mdl.draw-mdl{width:740px;max-width:98vw;}
+.mdl.wide{width:720px;}.mdl.draw-mdl{width:780px;max-width:98vw;}
 .mdl h3{font-family:'Barlow Condensed','Barlow',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:var(--sec);margin-bottom:16px;}
 .mft{display:flex;gap:9px;justify-content:flex-end;margin-top:16px;border-top:1px solid var(--brd);padding-top:14px;}
 .pkl{max-height:300px;overflow-y:auto;border:1px solid var(--brd);border-radius:3px;}
@@ -182,6 +182,34 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .dsize{display:flex;gap:4px;align-items:center;}
 .dsz{padding:6px 11px;border-radius:2px;border:1px solid var(--brd);background:#fff;font-family:inherit;cursor:pointer;font-size:12px;min-height:32px;}
 .dsz.on{background:var(--sec);color:#fff;border-color:var(--sec);}
+.dbar{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:flex-end;padding:8px 10px;background:#F8F9FA;border:1px solid var(--brd);border-radius:6px;margin-bottom:6px;}
+.dgrp{display:flex;flex-direction:column;gap:3px;}
+.dgrp+.dgrp{padding-left:8px;border-left:1px solid var(--brd);}
+.dgrp-l{font-size:9px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;padding-left:2px;}
+.dgrp-b{display:flex;gap:2px;}
+.dt{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:50px;height:50px;padding:0;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--txt);font-family:inherit;font-size:10px;font-weight:600;cursor:pointer;}
+.dt:hover{background:#fff;border-color:var(--brd);}
+.dt[data-tool="select"]{width:62px;}
+.dfoot{display:flex;gap:8px 16px;align-items:flex-start;flex-wrap:wrap;margin-top:8px;}
+.dfoot .draw-hint{flex:1;min-width:220px;margin-top:0;}
+.dt.on{background:var(--sec);color:#fff;border-color:var(--sec);}
+.dt svg{display:block;}
+.dt-T{font-size:19px;line-height:20px;font-weight:900;}
+.dt-dot{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;color:#fff;font-size:10px;font-weight:800;line-height:1;}
+.dbar2{align-items:center;gap:8px 16px;padding:6px 10px;}
+.dbar2 .dcolors{margin:0;}
+.dopt{display:flex;align-items:center;gap:6px;}
+.dopt-l{font-size:11px;color:var(--mut);}
+.dseg{display:flex;}
+.dseg .dsz{border-radius:0;margin-left:-1px;min-height:30px;padding:5px 10px;}
+.dseg .dsz:first-child{border-radius:4px 0 0 4px;margin-left:0;}
+.dseg .dsz:last-child{border-radius:0 4px 4px 0;}
+.dopt-act{margin-left:auto;gap:4px;}
+.dact{display:inline-flex;align-items:center;gap:4px;min-height:30px;padding:4px 9px;border:1px solid var(--brd);border-radius:4px;background:#fff;font-family:inherit;font-size:12px;color:var(--txt);cursor:pointer;}
+.dact svg{width:16px;height:16px;}
+.dact:disabled{opacity:.4;cursor:default;}
+.dact-red{color:#dc2626;border-color:#fca5a5;}
+@media(max-width:599px){.dt{width:48px;height:48px;font-size:9px;}.dgrp+.dgrp{padding-left:6px;}.dbar{gap:6px;}.dopt-act{margin-left:0;}.dcsw{width:24px;height:24px;}}
 .draw-hint{font-size:12px;color:var(--mut);margin-top:6px;}
 
 /* Status */
@@ -1030,47 +1058,14 @@ function checkPw(){
 <!-- DRAW MODAL -->
 <div class="mbk" id="m-draw"><div class="mdl draw-mdl">
  <h3>Zeichnung bearbeiten</h3>
- <div class="draw-tb" style="gap:4px;">
- <button class="dtool on" data-tool="select" onclick="setTool(this,'select')">➚ Auswählen</button>
- <span style="width:1px;background:var(--brd);align-self:stretch;margin:0 4px;flex-shrink:0;"></span>
- <span style="font-size:9px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;align-self:center;padding-right:2px;">Zeichnen</span>
- <button class="dtool" data-tool="pen" onclick="setTool(this,'pen')">Stift</button>
- <button class="dtool" data-tool="arrow" onclick="setTool(this,'arrow')">↗ Bewegung</button>
- <button class="dtool" data-tool="dash" onclick="setTool(this,'dash')">⤳ Pass</button>
- <button class="dtool" data-tool="screen" onclick="setTool(this,'screen')"><b style="font-size:15px;line-height:1;">T</b> Screen</button>
- <button class="dtool" data-tool="line" onclick="setTool(this,'line')">— Linie</button>
- <span style="width:1px;background:var(--brd);align-self:stretch;margin:0 4px;flex-shrink:0;"></span>
- <span style="font-size:9px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;align-self:center;padding-right:2px;">Objekte</span>
- <button class="dtool" data-tool="off" onclick="setTool(this,'off')">🔵 Angreifer</button>
- <button class="dtool" data-tool="def" onclick="setTool(this,'def')">🔴 Verteidiger</button>
- <button class="dtool" data-tool="coach" onclick="setTool(this,'coach')">Coach</button>
- <button class="dtool" data-tool="ball" onclick="setTool(this,'ball')">🏀 Ball</button>
- <button class="dtool" data-tool="cone" onclick="setTool(this,'cone')">△ Hütchen</button>
- <button class="dtool" data-tool="text" onclick="setTool(this,'text')">Aa Text</button>
- <span style="width:1px;background:var(--brd);align-self:stretch;margin:0 4px;flex-shrink:0;"></span>
- <button class="dtool" onclick="deleteSelected()">🗑 Auswahl löschen</button>
- <button class="dtool" data-tool="erase" onclick="setTool(this,'erase')">⌫ Radieren</button>
- <button class="dtool" onclick="undoDraw()">↩ Undo</button>
- <button class="dtool" onclick="clearDraw()" style="color:#dc2626;border-color:#fca5a5;">Alles löschen</button>
- </div>
- <div class="flex ac g2 mb2">
- <div class="dcolors" id="draw-colors"></div>
- <div class="dsize">
- <span style="font-size:11px;color:var(--mut);">Stärke:</span>
- <button class="dsz on" data-sz="2" onclick="setSize(this,2)">S</button>
- <button class="dsz" data-sz="4" onclick="setSize(this,4)">M</button>
- <button class="dsz" data-sz="7" onclick="setSize(this,7)">L</button>
- </div>
- </div>
+ <div class="dbar"><div class="dgrp"><div class="dgrp-l">&nbsp;</div><div class="dgrp-b"><button class="dt on" data-tool="select" onclick="setTool(this,'select')" title="Auswählen"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 8-6 1.5L10 19z" fill="currentColor"/></svg><span>Auswählen</span></button></div></div><div class="dgrp"><div class="dgrp-l">Linien</div><div class="dgrp-b"><button class="dt" data-tool="arrow" onclick="setTool(this,'arrow')" title="Bewegung"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19C8 8 14 6 19 6"/><path d="M14 4l5 2-2 5"/></svg><span>Bewegung</span></button><button class="dt" data-tool="dash" onclick="setTool(this,'dash')" title="Pass"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18L19 6" stroke-dasharray="3 3"/><path d="M13 5h6v6"/></svg><span>Pass</span></button><button class="dt" data-tool="screen" onclick="setTool(this,'screen')" title="Screen"><b class="dt-T">T</b><span>Screen</span></button><button class="dt" data-tool="line" onclick="setTool(this,'line')" title="Linie"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20L20 4"/></svg><span>Linie</span></button><button class="dt" data-tool="pen" onclick="setTool(this,'pen')" title="Stift"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c3-6 5 2 8-3s4-8 7-6 1 6 3 7"/></svg><span>Stift</span></button></div></div><div class="dgrp"><div class="dgrp-l">Spieler</div><div class="dgrp-b"><button class="dt" data-tool="off" onclick="setTool(this,'off')" title="Angriff"><span class="dt-dot" style="background:#2563eb;">1</span><span>Angriff</span></button><button class="dt" data-tool="def" onclick="setTool(this,'def')" title="Verteid."><span class="dt-dot" style="background:#dc2626;">1</span><span>Verteid.</span></button><button class="dt" data-tool="coach" onclick="setTool(this,'coach')" title="Coach"><span class="dt-dot" style="background:#16a34a;">C</span><span>Coach</span></button></div></div><div class="dgrp"><div class="dgrp-l">Material</div><div class="dgrp-b"><button class="dt" data-tool="ball" onclick="setTool(this,'ball')" title="Ball"><span class="dt-dot" style="background:#F5A800;border:1.5px solid #7c2d00;width:16px;height:16px;"></span><span>Ball</span></button><button class="dt" data-tool="cone" onclick="setTool(this,'cone')" title="Hütchen"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l7 15H5z" fill="currentColor" stroke="none" opacity=".9"/></svg><span>Hütchen</span></button><button class="dt" data-tool="text" onclick="setTool(this,'text')" title="Text"><b class="dt-T" style="font-size:15px;">Aa</b><span>Text</span></button></div></div></div>
+ <div class="dbar dbar2"><div class="dopt"><div class="dcolors" id="draw-colors"></div></div><div class="dopt"><span class="dopt-l">Stärke</span><div class="dseg"><button class="dsz on" data-sz="2" onclick="setSize(this,2)">S</button><button class="dsz" data-sz="4" onclick="setSize(this,4)">M</button><button class="dsz" data-sz="7" onclick="setSize(this,7)">L</button></div></div><div class="dopt dopt-act"><button class="dact" onclick="undoDraw()" title="Rückgängig (Cmd+Z)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span>Zurück</span></button><button class="dact" id="dt-del" onclick="deleteSelected()" title="Ausgewähltes Element löschen (Entf)" disabled><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg><span>Löschen</span></button><button class="dact dact-red" onclick="clearDraw()" title="Alle Elemente entfernen"><span>Alles löschen</span></button></div></div>
  <div id="draw-text-inp" class="hidden" style="margin-bottom:6px;">
  <input type="text" id="draw-text-val" placeholder="Text eingeben, Enter zum Platzieren">
  </div>
- <div class="draw-tb" style="margin-bottom:8px;">
- <button class="dtool on" id="dmode-draw" onclick="setDrawMode('draw')">Zeichnen</button>
- <button class="dtool" id="dmode-upload" onclick="setDrawMode('upload')">Foto / Upload</button>
- </div>
  <div id="upload-section" style="display:none;">
  <div class="flex g2 mb2" style="flex-wrap:wrap;">
+ <button class="btn btn-sec btn-sm" onclick="resetCrop();setDrawMode('draw')">← Zurück zum Feld</button>
  <label class="btn btn-sec btn-sm" style="cursor:pointer;">Datei wählen<input type="file" id="img-upload" accept="image/*" onchange="loadImageForCrop(event)" style="display:none;"></label>
  <label class="btn btn-sec btn-sm" style="cursor:pointer;">Kamera<input type="file" id="img-camera" accept="image/*" capture="environment" onchange="loadImageForCrop(event)" style="display:none;"></label>
  </div>
@@ -1082,13 +1077,8 @@ function checkPw(){
  </div>
  </div>
  <div id="draw-section">
- <div class="draw-tb" style="margin-top:4px;margin-bottom:6px;">
- <span style="font-size:11px;color:var(--mut);margin-right:4px;">Vorlage:</span>
- <button class="dtool on" id="tpl-half" onclick="setCourtTemplate('half')">Halbfeld</button>
- <button class="dtool" id="tpl-full" onclick="setCourtTemplate('full')">Vollfeld</button>
- </div>
  <canvas id="draw-canvas" width="660" height="430"></canvas>
- <div class="draw-hint"><b>Auswählen:</b> Element antippen und verschieben · Bei Bewegung, Pass und Screen den <b>orangen Mittelpunkt</b> ziehen für einen Bogen · Radieren: Element antippen zum Entfernen · Entf-Taste löscht die Auswahl</div>
+ <div class="dfoot"><div class="dopt"><span class="dopt-l">Vorlage</span><div class="dseg"><button class="dsz on" id="tpl-half" onclick="setCourtTemplate('half')">Halbfeld</button><button class="dsz" id="tpl-full" onclick="setCourtTemplate('full')">Vollfeld</button><button class="dsz" id="tpl-photo" onclick="setDrawMode('upload')">Foto</button></div></div><div class="draw-hint">Element antippen = auswählen &amp; verschieben (mit jedem Werkzeug) · Bei Linien den <b style="color:#E5630F;">orangen Mittelpunkt</b> ziehen für einen Bogen · Entf löscht die Auswahl</div></div>
  </div><!-- /draw-section -->
  <div class="mft">
  <button class="btn btn-dan btn-sm" onclick="deleteDrawing()">Zeichnung löschen</button>
@@ -2861,7 +2851,7 @@ function setDrawColor(el,c){
 }
 function setTool(el,t){
  DM.tool=t;
- document.querySelectorAll('.dtool[data-tool]').forEach(x=>x.classList.remove('on'));
+ document.querySelectorAll('.dt[data-tool]').forEach(x=>x.classList.remove('on'));
  el.classList.add('on');
  if(t!=='select'&&!LINE_T.includes(t)){DM.sel=-1;}
  if(DM.canvas){DM.canvas.style.cursor=t==='select'?'default':t==='erase'?'not-allowed':'crosshair';drawRender();}
@@ -2898,7 +2888,7 @@ function drawCourt(ctx,W,H){
  ctx.beginPath();ctx.arc(cx,midY,68,Math.PI,0);ctx.stroke();
 }
 function setCourtTemplate(t){
- DM.courtTemplate=t;
+ DM.courtTemplate=t;setDrawMode('draw');
  document.getElementById('tpl-half').classList.toggle('on',t==='half');
  document.getElementById('tpl-full').classList.toggle('on',t==='full');
  DM.canvas.height=t==='full'?820:430;
@@ -3103,6 +3093,7 @@ function drawRender(withSel=true){
  DM.objs.forEach(o=>drawObj(ctx,o));
  if(DM.draft)drawObj(ctx,DM.draft);
  if(withSel&&DM.sel>=0&&DM.objs[DM.sel])drawSelection(ctx,DM.objs[DM.sel]);
+ const del=document.getElementById('dt-del');if(del)del.disabled=!(DM.sel>=0&&DM.objs[DM.sel]);
 }
 
 // ── Eingabe (Maus + Touch über Pointer Events) ──
@@ -3114,14 +3105,17 @@ function onDrawStart(e){
  // Griffe einer ausgewählten Linie (Start, Ende, Bogen) haben Vorrang – bei jedem Werkzeug
  const h=hitHandle(DM.objs[DM.sel],p.x,p.y,tol);
  if(h){DM.drag={kind:'handle',h};return;}
- const t=DM.tool;
- if(t==='select'){
-  DM.sel=hitTest(p.x,p.y,tol);
-  if(DM.sel>=0)DM.drag={kind:'move',last:p,moved:false};
+ const t=DM.tool,hit=hitTest(p.x,p.y,tol),isLine=t==='pen'||LINE_T.includes(t);
+ DM.pendingHit=-1;
+ if(t==='select'||t==='erase'||(hit>=0&&!isLine)){
+  // Element direkt antippen → auswählen & verschieben (mit jedem Werkzeug)
+  DM.sel=hit;
+  if(hit>=0)DM.drag={kind:'move',last:p,moved:false};
   drawRender();return;
  }
+ // Linienwerkzeug auf einem Element: Ziehen = Linie zeichnen, Tippen = Element auswählen
+ if(hit>=0)DM.pendingHit=hit;
  DM.sel=-1;
- if(t==='erase'){DM.drag={kind:'erase',tol};eraseAt(p,tol);return;}
  if(t==='off'||t==='def'||t==='coach'){addObj({t,x:p.x,y:p.y,n:nextNum(t)});return;}
  if(t==='ball'){addObj({t,x:p.x,y:p.y});return;}
  if(t==='cone'){addObj({t,x:p.x,y:p.y,c:DM.color});return;}
@@ -3162,9 +3156,12 @@ function onDrawEnd(e){
  }
  const d=DM.draft;if(!d)return;
  DM.draft=null;
- if(d.t==='pen'){DM.objs.push(d);}
+ const short=d.t==='pen'?d.pts.every(q=>Math.hypot(q[0]-d.pts[0][0],q[1]-d.pts[0][1])<8):Math.hypot(d.x2-d.x1,d.y2-d.y1)<8;
+ if(short&&DM.pendingHit>=0){DM.sel=DM.pendingHit;DM.pendingHit=-1;drawRender();return;} // nur getippt → auswählen
+ DM.pendingHit=-1;
+ if(d.t==='pen'){if(short){drawRender();return;}DM.objs.push(d);}
  else{
-  if(Math.hypot(d.x2-d.x1,d.y2-d.y1)<8){
+  if(short){
    if(d.t!=='screen'){drawRender();return;}
    d.y1=d.y2+30; // kurzer Klick = kleiner Screen
   }
@@ -3227,8 +3224,8 @@ function sceneFromPng(dataURL){
 const CS={img:null,sx:0,sy:0,ex:0,ey:0,drag:false,scale:1,ox:0,oy:0};
 function setDrawMode(m){
  const isDraw=m==='draw';
- document.getElementById('dmode-draw').classList.toggle('on',isDraw);
- document.getElementById('dmode-upload').classList.toggle('on',!isDraw);
+ document.getElementById('tpl-photo').classList.toggle('on',!isDraw);
+ if(isDraw)_tplButtons();else{document.getElementById('tpl-half').classList.remove('on');document.getElementById('tpl-full').classList.remove('on');}
  document.getElementById('draw-section').style.display=isDraw?'':'none';
  document.getElementById('upload-section').style.display=isDraw?'none':'';
 }
@@ -3311,6 +3308,7 @@ function updateDrawTitle(){
  document.querySelector('#m-draw h3').textContent=` Zeichnung ${cur} von ${total}`;
 }
 function _tplButtons(){
+ document.getElementById('tpl-photo').classList.remove('on');
  document.getElementById('tpl-half').classList.toggle('on',!DM.bg&&DM.courtTemplate==='half');
  document.getElementById('tpl-full').classList.toggle('on',!DM.bg&&DM.courtTemplate==='full');
 }
@@ -3323,7 +3321,7 @@ function newDrawing(){
 }
 function openDrawMdl(drillId,drawingIdx){
  DM.editId=drillId;DM.drawingIdx=(drawingIdx===undefined)?-1:drawingIdx;
- const selBtn=document.querySelector('.dtool[data-tool="select"]');
+ const selBtn=document.querySelector('.dt[data-tool="select"]');
  setTool(selBtn,'select');
  document.getElementById('draw-text-inp').classList.add('hidden');
  openM('m-draw');
