@@ -67,6 +67,8 @@ hr{border:none;border-top:1px solid var(--brd);margin:12px 0;}
 .fg{margin-bottom:12px;}
 label{display:block;font-size:10px;font-weight:700;color:var(--mut);margin-bottom:5px;text-transform:uppercase;letter-spacing:.12em;}
 select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235C5C72' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px !important;}
+input[type=date]{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;display:block;background:#fff;}
+input[type=date]::-webkit-date-and-time-value{text-align:left;}
 input[type=text],input[type=date],input[type=number],select,textarea{width:100%;padding:9px 11px;border:1px solid var(--brd);border-radius:3px;font-family:inherit;font-size:14px;min-height:40px;color:var(--txt);background:#fff;}
 input:focus,select:focus,textarea:focus{outline:none;border-color:#1769AA;box-shadow:0 0 0 2px rgba(23,105,170,.15);}
 input:invalid{box-shadow:none;border-color:var(--brd);}
@@ -147,6 +149,65 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .wbar{height:34px;border-radius:2px;cursor:pointer;display:flex;align-items:center;padding:0 10px;font-size:12px;gap:5px;border:1px solid transparent;}
 .wbar:hover{filter:brightness(.94);}
 .wnote{opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* ── Saisonplanung ── */
+.sp-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.sp-ctrl{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.sp-ctrl select{width:auto;min-width:130px;font-size:13px;}
+.sp-btns{display:flex;gap:6px;}
+.season-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px;align-items:start;}
+.sp-card{margin-bottom:12px;}
+.sp-tl-wrap{padding:18px 2px 4px;}
+.sp-tl{position:relative;height:14px;border-radius:7px;background:#EEF0F3;}
+.sp-seg{position:absolute;top:0;bottom:0;border-radius:7px;cursor:pointer;opacity:.9;}
+.sp-seg:hover{opacity:1;}
+.sp-now{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--txt);transform:translateX(-1px);}
+.sp-now span{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:var(--txt);white-space:nowrap;padding-bottom:1px;}
+.sp-ticks{position:relative;height:16px;margin-top:4px;}
+.sp-tick{position:absolute;font-size:10px;color:var(--mut);transform:translateX(-1px);border-left:1px solid var(--brd);padding-left:3px;line-height:14px;white-space:nowrap;}
+.sp-plist{display:flex;flex-direction:column;gap:6px;margin-top:12px;}
+.sp-ph{display:flex;align-items:center;gap:10px;padding:8px 6px 8px 12px;border:1px solid var(--brd);border-radius:6px;background:#fff;cursor:pointer;}
+.sp-ph.cur{border-color:var(--sec);box-shadow:0 0 0 1px var(--sec) inset;}
+.sp-ph-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.sp-ph-main{flex:1;min-width:0;}
+.sp-ph-name{font-size:14px;font-weight:700;color:var(--fg);}
+.sp-ph-meta{font-size:12px;color:var(--mut);margin-top:1px;}
+.sp-ph .ico{color:var(--mut);opacity:.75;}
+.sp-badge{display:inline-block;white-space:nowrap;font-size:10px;font-weight:700;background:var(--pri);color:#fff;border-radius:10px;padding:1px 7px;margin-left:4px;vertical-align:1px;}
+.sp-weeks-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--brd);font-size:12px;font-weight:800;color:var(--sec);text-transform:uppercase;letter-spacing:.5px;}
+.sp-month{background:#F6F7F9;padding:6px 14px;font-size:12px;font-weight:800;color:var(--fg);border-bottom:1px solid var(--brd);}
+.sp-past{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;border:none;border-bottom:1px solid var(--brd);background:#fff;color:var(--sec);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+.sp-wk{display:flex;gap:12px;align-items:flex-start;padding:10px 12px 10px 14px;border-bottom:1px solid #EEF0F3;border-left:4px solid var(--pc);cursor:pointer;background:#fff;}
+.sp-wk:hover{background:#FAFBFC;}
+.sp-wk.past{opacity:.6;}
+.sp-wk.cur{background:#FFF6EE;box-shadow:inset 0 0 0 2px var(--pri);}
+.sp-wk-date{width:92px;flex-shrink:0;display:flex;flex-direction:column;font-size:12px;color:var(--mut);line-height:1.35;}
+.sp-wk-date .sp-badge{margin:3px 0 0;align-self:flex-start;}
+.sp-kw{font-size:13px;font-weight:800;color:var(--fg);}
+.sp-wk-body{flex:1;min-width:0;}
+.sp-wk-title{font-size:14px;font-weight:600;color:var(--txt);display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.sp-wk-ph{font-size:10px;font-weight:700;color:var(--mut);border:1px solid var(--brd);border-radius:10px;padding:0 7px;}
+.sp-wk-note{font-size:12px;color:var(--mut);margin-top:2px;}
+.sp-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+.sp-chip{display:inline-flex;align-items:center;gap:5px;max-width:100%;font-size:12px;font-weight:600;border-radius:5px;padding:4px 9px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sp-chip b{font-weight:800;opacity:.85;}
+.sp-chip i{font-style:normal;font-weight:800;}
+.sp-tr{background:#FFF0E5;color:#B84A08;border:1px solid #F5C9A8;}
+.sp-game{background:#EEF0FF;color:#3730a3;border:1px solid #C7CBF5;}
+.sp-game.win{background:#E9F8EF;color:#15803d;border-color:#B7E4C7;}
+.sp-game.loss{background:#FDECEC;color:#b91c1c;border-color:#F5C2C2;}
+.sp-wk-go{color:var(--mut);opacity:.5;flex-shrink:0;padding-top:2px;}
+.sp-wk-go svg{width:15px;height:15px;}
+@media(max-width:899px){.season-layout{grid-template-columns:minmax(0,1fr);}}
+@media(max-width:599px){
+ .sp-head{align-items:stretch;}
+ .sp-ctrl{display:grid;grid-template-columns:1fr 1fr;width:100%;}
+ .sp-ctrl select{min-width:0;width:100%;font-size:16px;}
+ .sp-btns{grid-column:1/-1;}
+ .sp-btns .btn{flex:1;}
+ .sp-wk{gap:10px;padding:10px 10px 10px 12px;}
+ .sp-wk-date{width:74px;font-size:11px;}
+ .sp-ph .ico{min-width:40px;min-height:40px;display:inline-flex;align-items:center;justify-content:center;}
+}
 .plgd{display:flex;gap:7px;flex-wrap:wrap;}
 .ppill{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:2px;font-size:11.5px;font-weight:500;background:#fff;border:1px solid var(--brd);color:var(--txt);}
 .ico svg{display:block;width:14px;height:14px;}
@@ -310,6 +371,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
   .fb#dcat-filter{display:none!important;}
   /* Datum-Input: kein Overflow */
   input[type=date]{width:100%;box-sizing:border-box;max-width:100%;}
+  .fg,.form-row>*,.form-row3>*{min-width:0;}
   /* Session-Zeilen: grosszügiger 2-Zeilen-Layout */
   .srow{flex-direction:column;align-items:stretch;gap:4px;padding:10px 12px;}
   .srow-top{display:flex;align-items:center;gap:8px;}
@@ -462,26 +524,27 @@ function checkPw(){
  <div id="team-mgr-empty" class="empty hidden">Noch keine Teams.</div>
  </div>
  </div>
- <div class="flex jb ac mb4" style="flex-wrap:wrap;gap:8px;">
+ <div class="sp-head">
  <div class="shd" id="saison-hdr">Saisonplanung</div>
- <div class="flex g2 ac season-hdr-ctrl" style="flex-wrap:wrap;gap:6px;">
- <select id="ss-team" onchange="onSsTeamChange()" style="width:auto;font-size:11px;"></select>
- <select id="ss-sel" onchange="renderSeason()" style="width:auto;font-size:11px;"></select>
- <button class="btn btn-sec btn-sm" onclick="openSeasonMdl()">+ Saison</button>
- <button class="btn btn-sec btn-sm" onclick="openPhaseMdl()">+ Phase</button>
+ <div class="sp-ctrl">
+  <select id="ss-team" onchange="onSsTeamChange()" aria-label="Team"></select>
+  <select id="ss-sel" onchange="renderSeason()" aria-label="Saison"></select>
+  <div class="sp-btns">
+   <button class="btn btn-sec btn-sm" onclick="openSeasonMdl()">+ Saison</button>
+   <button class="btn btn-sec btn-sm" onclick="openPhaseMdl()">+ Phase</button>
+  </div>
  </div>
  </div>
- <!-- Zwei-Spalten (Desktop) / Einspaltig (Mobile) -->
- <div class="season-layout" style="display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start;">
- <div>
- <div class="card">
- <div class="flex ac mb3 g2 phase-legend-wrap" style="flex-wrap:wrap;">
- <span class="phase-legend-label" style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.4px;flex-shrink:0;">Phasen:</span>
- <div class="plgd" id="phase-legend" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
- </div>
- <hr style="margin-bottom:10px;">
- <div id="season-grid"></div>
- </div>
+ <div class="season-layout">
+ <div style="min-width:0;">
+  <div class="card sp-card" id="sp-phases"></div>
+  <div class="card sp-card" style="padding:0;overflow:hidden;">
+   <div class="sp-weeks-head">
+    <span>Wochenplan</span>
+    <button class="btn btn-sec btn-xs" id="sp-today-btn" onclick="spJumpToday()" style="display:none;">Zu dieser Woche</button>
+   </div>
+   <div id="season-grid"></div>
+  </div>
  </div>
  <div class="card" id="opp-panel-card" style="position:sticky;top:10px;">
  <div class="flex jb ac mb3">
@@ -843,7 +906,7 @@ function checkPw(){
     <h2 id="dp-name" style="margin:0;font-size:22px;font-weight:900;line-height:1.2;color:var(--fg);"></h2>
     <div id="dp-meta" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:12px;color:var(--mut);"></div>
    </div>
-   <button onclick="closeM('m-drill-preview')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--mut);flex-shrink:0;line-height:1;padding:2px 4px;">&times;</button>
+   <button onclick="closeM('m-drill-preview')" title="Schliessen" aria-label="Schliessen" style="background:none;border:none;cursor:pointer;color:var(--mut);flex-shrink:0;line-height:1;padding:6px;margin:-6px;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
   </div>
  </div>
  <div style="padding:20px 26px;overflow-y:auto;max-height:calc(80vh - 120px);display:flex;flex-direction:column;gap:18px;">
@@ -865,9 +928,9 @@ function checkPw(){
   </div>
  </div>
  <div style="padding:14px 26px;border-top:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center;gap:10px;">
-  <a id="dp-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sec btn-sm" style="text-decoration:none;display:none;">▶ Video ansehen</a>
+  <a id="dp-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sec btn-sm" style="text-decoration:none;display:none;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg>Video ansehen</a>
   <div style="margin-left:auto;display:flex;gap:8px;">
-   <button id="dp-edit-btn" class="btn btn-sec btn-sm" onclick="">Bearbeiten</button>
+   <button id="dp-edit-btn" class="btn btn-sec btn-sm" onclick="" style="display:inline-flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Bearbeiten</button>
    <button class="btn btn-pri btn-sm" onclick="closeM('m-drill-preview')">Schliessen</button>
   </div>
  </div>
@@ -1108,6 +1171,11 @@ const IC={
  close:_svg('<path d="M18 6L6 18M6 6l12 12"/>'),
  up:_svg('<path d="M12 19V5M5 12l7-7 7 7"/>'),
  down:_svg('<path d="M12 5v14M19 12l-7 7-7-7"/>'),
+ clock:_svg('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',13),
+ users:_svg('<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6"/>',13),
+ tag:_svg('<path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="8" cy="8" r="1.5"/>',13),
+ grid:_svg('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/>',13),
+ user:_svg('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',13),
  chat:_svg('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/>',13),
 };
 // Aktions-Button: Icon (+ Text, der mobil ausgeblendet wird)
@@ -1499,55 +1567,82 @@ async function removePhase(id){
  s.phases=s.phases.filter(p=>p.id!==id);renderSeason();
  await sbUpsert('seasons',toDB.season(s));
 }
+let spShowPast=false;
+function spJumpToday(){const el=document.getElementById('sp-cur');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});}
+function spTogglePast(){spShowPast=!spShowPast;renderSeason();}
 function renderSeason(){
  popSsSel();
  const s=getCurSeason();
- const lgd=document.getElementById('phase-legend'),grid=document.getElementById('season-grid');
- if(!s){grid.innerHTML='<div class="empty">Team und Saison wählen oder neu erstellen.</div>';lgd.innerHTML='';return;}
- lgd.innerHTML=s.phases.length===0?'<span class="mut">Noch keine Phasen</span>'
- :s.phases.map(p=>`<div class="ppill">
- <div class="pdot" style="background:${p.color}"></div>
- <span>${p.name}</span>
- ${p.topics&&p.topics.length?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;">${p.topics.map(t=>`<span style="font-size:10px;color:var(--mut);padding:1px 5px;border:1px solid var(--brd);border-radius:2px;">${t}</span>`).join('')}</div>`:''}
- <button class="ico" onclick="openPhaseMdl('${p.id}')" title="Phase bearbeiten" aria-label="Phase bearbeiten">${IC.edit}</button>
- <button class="ico" onclick="removePhase('${p.id}')" title="Phase entfernen" aria-label="Phase entfernen">${IC.close}</button>
- </div>`).join('');
- const sd=new Date(s.start+'T00:00:00'),ed=new Date(s.end+'T00:00:00');
- const dow=sd.getDay();sd.setDate(sd.getDate()-(dow===0?6:dow-1));
- const weeks=[];let c=new Date(sd);while(c<=ed){weeks.push(new Date(c));c.setDate(c.getDate()+7);}
+ const ph=document.getElementById('sp-phases'),grid=document.getElementById('season-grid');
+ const todayBtn=document.getElementById('sp-today-btn');
+ if(!s){ph.innerHTML='<div class="empty">Team und Saison wählen oder neu erstellen.</div>';grid.innerHTML='';todayBtn.style.display='none';renderOpponentsPanel&&renderOpponentsPanel();return;}
+ const D=x=>new Date(x+'T00:00:00'),ISO=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*60000);return z.toISOString().slice(0,10);};
  const fmt=d=>d.toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit'});
- function gp(ws){const we=new Date(ws);we.setDate(we.getDate()+6);for(const p of s.phases){const ps=new Date(p.start+'T00:00:00'),pe=new Date(p.end+'T00:00:00');if(ws<=pe&&we>=ps)return p;}return null;}
- const teamSess=(db.sessions||[]).filter(sess=>sess.teamId===s.teamId);
- const todayStr=new Date().toISOString().slice(0,10);
- let currentWeekKey='';
- const rows=weeks.map(w=>{
- const key=w.toISOString().slice(0,10);const wd=(s.weeks||{})[key]||{};const phase=gp(w);
- const we=new Date(w);we.setDate(we.getDate()+6);
- const wEnd=we.toISOString().slice(0,10);
- const isCurrent=todayStr>=key&&todayStr<=wEnd;
- if(isCurrent)currentWeekKey=key;
- const bg=isCurrent?'#fff3e0':(phase?phase.color+'25':'#f0f1f3');
- const bd=isCurrent?'var(--pri)':(phase?phase.color+'60':'#ddd');
- const lbl=wd.focus?wd.focus:(phase?`<span style="opacity:.4;">${phase.name}</span>`:'');
- const wsess=teamSess.filter(sess=>sess.date&&sess.date>=key&&sess.date<=wEnd);
- const badges=wsess.map(sess=>`<span onclick="event.stopPropagation();closeM('m-week');switchTab('sessions');viewSess('${sess.id}')" style="display:inline-flex;align-items:center;gap:4px;background:#E5630F;color:#fff;border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.18);" title="${sess.title}"><span style="opacity:.8;">${sess.date?new Date(sess.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'short',day:'2-digit',month:'2-digit'}):''}</span><span style="width:1px;background:rgba(255,255,255,.4);align-self:stretch;"></span>${esc(sess.title)}</span>`).join('');
- const wEnd2=we.toISOString().slice(0,10);
- const wGames=(db.games||[]).filter(g=>g.seasonId===s.id&&g.date&&g.date>=key&&g.date<=wEnd2);
- const gameBadges=wGames.map(g=>{
- const ha=g.homeAway==='home'?'':'';
- const result=g.scoreUs!==null&&g.scoreUs!==undefined&&g.scoreThem!==null&&g.scoreThem!==undefined?` ${g.scoreUs}:${g.scoreThem}`:'';
- const win=result?(g.scoreUs>g.scoreThem?'#16a34a':g.scoreUs<g.scoreThem?'#dc2626':'#6b7280'):null;
- const bg2=win||'#4f46e5';
- return`<span onclick="event.stopPropagation();openOpponentMdl('${slugOpp(g.opponent)}')" style="display:inline-flex;align-items:center;gap:4px;background:${bg2};color:#fff;border-radius:5px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.18);" title="${g.opponent}">${ha} ${esc(g.opponent)}${result?`<span style="opacity:.85;">${result}</span>`:''}</span>`;
- }).join('');
- return`<div class="wlbl" ${isCurrent?`id="cur-week-lbl"`:''}><span style="${isCurrent?'font-weight:800;color:var(--pri)':''}">${fmt(w)}</span><span style="color:#ccc;font-size:8px;">${fmt(we)}</span>${isCurrent?'<span style="font-size:8px;color:var(--pri);font-weight:700;">Heute</span>':''}</div>
- <div class="wbar" id="${isCurrent?'cur-week-bar':''}" style="background:${bg};border-color:${bd};flex-wrap:wrap;gap:5px;min-height:34px;height:auto;padding:6px 8px;align-items:center;" onclick="openWeekMdl('${key}')">
- <span class="wnote">${lbl}</span>${badges?`<div style='display:flex;flex-wrap:wrap;gap:5px;margin-left:4px;'>${badges}</div>`:''}${gameBadges?`<div style='display:flex;flex-wrap:wrap;gap:5px;margin-left:4px;'>${gameBadges}</div>`:''}</div>`;
- }).join('');
- grid.innerHTML=`<div class="wgrid" style="row-gap:3px;">${rows}</div>`;
+ const todayStr=ISO(new Date());
+ const sStart=D(s.start),sEnd=D(s.end),total=Math.max(1,sEnd-sStart);
+ // ── Phasen: Zeitstrahl + Liste ──
+ const phases=[...s.phases].sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+ const pct=d=>Math.max(0,Math.min(100,(D(d)-sStart)/total*100));
+ const segs=phases.filter(p=>p.start&&p.end).map(p=>{const l=pct(p.start),r=pct(p.end);return`<div class="sp-seg" style="left:${l}%;width:${Math.max(1.5,r-l)}%;background:${p.color};" title="${esc(p.name)}" onclick="openPhaseMdl('${p.id}')"></div>`;}).join('');
+ const todayPct=(todayStr>=s.start&&todayStr<=s.end)?pct(todayStr):null;
+ const months=[];{const m=new Date(sStart.getFullYear(),sStart.getMonth(),1);while(m<=sEnd){if(m>=sStart||months.length===0)months.push(new Date(m));m.setMonth(m.getMonth()+1);}}
+ const ticks=months.map(m=>{const l=Math.max(0,(m-sStart)/total*100);return`<span class="sp-tick" style="left:${l}%;">${m.toLocaleDateString('de-CH',{month:'short'})}</span>`;}).join('');
+ const curPhase=phases.find(p=>p.start&&p.end&&todayStr>=p.start&&todayStr<=p.end);
+ ph.innerHTML=`<div class="sp-tl-wrap">
+  <div class="sp-tl">${segs}${todayPct!==null?`<div class="sp-now" style="left:${todayPct}%;"><span>Heute</span></div>`:''}</div>
+  <div class="sp-ticks">${ticks}</div>
+ </div>
+ ${phases.length===0?'<div class="mut" style="font-size:13px;padding:6px 0 2px;">Noch keine Phasen – mit «+ Phase» die Saison gliedern (z.B. Vorbereitung, Hinrunde).</div>':
+ `<div class="sp-plist">${phases.map(p=>{
+  const isCur=curPhase&&curPhase.id===p.id;
+  const range=p.start&&p.end?`${fmt(D(p.start))} – ${fmt(D(p.end))}`:'';
+  return`<div class="sp-ph${isCur?' cur':''}" onclick="openPhaseMdl('${p.id}')">
+   <span class="sp-ph-dot" style="background:${p.color};"></span>
+   <div class="sp-ph-main"><div class="sp-ph-name">${esc(p.name)}${isCur?' <span class="sp-badge">aktuell</span>':''}</div>
+   <div class="sp-ph-meta">${range}${p.topics&&p.topics.length?' · '+p.topics.map(esc).join(', '):''}</div></div>
+   <button class="ico" onclick="event.stopPropagation();openPhaseMdl('${p.id}')" title="Phase bearbeiten" aria-label="Phase bearbeiten">${IC.edit}</button>
+   <button class="ico" onclick="event.stopPropagation();removePhase('${p.id}')" title="Phase entfernen" aria-label="Phase entfernen">${IC.trash}</button>
+  </div>`;}).join('')}</div>`}`;
+ // ── Wochen ──
+ const sd=new Date(sStart);const dow=sd.getDay();sd.setDate(sd.getDate()-(dow===0?6:dow-1));
+ const weeks=[];let c=new Date(sd);while(c<=sEnd){weeks.push(new Date(c));c.setDate(c.getDate()+7);}
+ const phaseFor=(key,wEnd)=>{const wd=(s.weeks||{})[key]||{};if(wd.phaseId){const p=phases.find(x=>x.id===wd.phaseId);if(p)return p;}return phases.find(p=>p.start&&p.end&&key<=p.end&&wEnd>=p.start)||null;};
+ const teamSess=(db.sessions||[]).filter(x=>x.teamId===s.teamId);
+ const games=(db.games||[]).filter(g=>g.seasonId===s.id);
+ const kw=d=>{const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const n=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-n);const y=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y)/864e5+1)/7);};
+ let curIdx=weeks.findIndex(w=>{const we=new Date(w);we.setDate(we.getDate()+6);return todayStr>=ISO(w)&&todayStr<=ISO(we);});
+ const firstShown=(!spShowPast&&curIdx>2)?curIdx-2:0;
+ let html='',lastMonth='';
+ if(firstShown>0)html+=`<button class="sp-past" onclick="spTogglePast()">${IC.up} ${firstShown} vergangene Wochen anzeigen</button>`;
+ else if(spShowPast&&curIdx>2)html+=`<button class="sp-past" onclick="spTogglePast()">${IC.down} Vergangene Wochen ausblenden</button>`;
+ weeks.slice(firstShown).forEach((w,ix)=>{
+  const i=ix+firstShown,key=ISO(w);const we=new Date(w);we.setDate(we.getDate()+6);const wEnd=ISO(we);
+  const mLabel=w.toLocaleDateString('de-CH',{month:'long',year:'numeric'});
+  if(mLabel!==lastMonth){html+=`<div class="sp-month">${mLabel}</div>`;lastMonth=mLabel;}
+  const wd=(s.weeks||{})[key]||{},p=phaseFor(key,wEnd);
+  const isCur=i===curIdx,isPast=curIdx>=0?i<curIdx:wEnd<todayStr;
+  const sess=teamSess.filter(x=>x.date&&x.date>=key&&x.date<=wEnd).sort((a,b)=>a.date.localeCompare(b.date));
+  const wg=games.filter(g=>g.date&&g.date>=key&&g.date<=wEnd).sort((a,b)=>a.date.localeCompare(b.date));
+  const day=x=>D(x).toLocaleDateString('de-CH',{weekday:'short'}).replace('.','');
+  const chips=[
+   ...sess.map(x=>`<span class="sp-chip sp-tr" onclick="event.stopPropagation();switchTab('sessions');viewSess('${x.id}')"><b>${day(x.date)}</b>${esc(x.title)}</span>`),
+   ...wg.map(g=>{const hasRes=g.scoreUs!=null&&g.scoreThem!=null;const cls=hasRes?(g.scoreUs>g.scoreThem?'win':g.scoreUs<g.scoreThem?'loss':'draw'):'open';
+    return`<span class="sp-chip sp-game ${cls}" onclick="event.stopPropagation();openOpponentMdl('${slugOpp(g.opponent)}')"><b>${day(g.date)}</b>${g.homeAway==='away'?'@ ':'vs '}${esc(g.opponent)}${hasRes?` <i>${g.scoreUs}:${g.scoreThem}</i>`:''}</span>`;})
+  ].join('');
+  html+=`<div class="sp-wk${isCur?' cur':''}${isPast?' past':''}" ${isCur?'id="sp-cur"':''} style="--pc:${p?p.color:'#cbd5e1'};" onclick="openWeekMdl('${key}')">
+   <div class="sp-wk-date"><span class="sp-kw">KW ${kw(w)}</span><span>${fmt(w)}–${fmt(we)}</span>${isCur?'<span class="sp-badge">Diese Woche</span>':''}</div>
+   <div class="sp-wk-body">
+    <div class="sp-wk-title">${wd.focus?esc(wd.focus):`<span class="mut">${p?esc(p.name):'Kein Fokus'}</span>`}${wd.focus&&p?`<span class="sp-wk-ph">${esc(p.name)}</span>`:''}</div>
+    ${wd.note?`<div class="sp-wk-note">${esc(wd.note)}</div>`:''}
+    ${chips?`<div class="sp-chips">${chips}</div>`:''}
+   </div>
+   <span class="sp-wk-go">${IC.edit}</span>
+  </div>`;
+ });
+ grid.innerHTML=html;
+ todayBtn.style.display=curIdx>=0?'':'none';
  renderOpponentsPanel();
- // Zur aktuellen Woche scrollen
- if(currentWeekKey){setTimeout(()=>{const el=document.getElementById('cur-week-bar')||document.getElementById('cur-week-lbl');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},120);}
+ if(curIdx>=0&&!renderSeason._scrolled){renderSeason._scrolled=true;setTimeout(spJumpToday,150);}
 }
 
 function addTrainingToWeek(){
@@ -1559,9 +1654,9 @@ function addTrainingToWeek(){
  clearBuilder();
  // Datum und Team vorbelegen
  setTimeout(()=>{
- const teamSel=document.getElementById('b-team');
+ const teamSel=document.getElementById('s-team');
  if(teamSel&&s)teamSel.value=s.teamId;
- const dateFld=document.getElementById('b-date');
+ const dateFld=document.getElementById('s-date');
  if(dateFld)dateFld.value=weekDate;
  switchTab('builder');
  },80);
@@ -2034,12 +2129,12 @@ function openDrillPreview(id){
  document.getElementById('dp-name').textContent=d.name;
  // Meta
  const metaParts=[];
- if(!isSys&&d.dur)metaParts.push(`⏱ ${d.dur} Min.`);
- if(!isSys&&d.players)metaParts.push(`👥 min. ${d.players} Spieler`);
- if(d.ag&&d.ag.length)metaParts.push(`🏀 ${d.ag.join(', ')}`);
- if(isSys&&d.formation)metaParts.push(`📐 ${d.formation}`);
- if(d.author)metaParts.push(`✍️ ${d.author}`);else metaParts.push('✍️ Bot');
- document.getElementById('dp-meta').innerHTML=metaParts.map(p=>`<span style="background:var(--card2,#F3F4F6);border-radius:4px;padding:2px 8px;">${esc(p)}</span>`).join('');
+ if(!isSys&&d.dur)metaParts.push(['clock',`${d.dur} Min.`]);
+ if(!isSys&&d.players)metaParts.push(['users',`min. ${d.players} Spieler`]);
+ if(d.ag&&d.ag.length)metaParts.push(['tag',d.ag.join(', ')]);
+ if(isSys&&d.formation)metaParts.push(['grid',d.formation]);
+ metaParts.push(['user',d.author||'Bot']);
+ document.getElementById('dp-meta').innerHTML=metaParts.map(([ic,t])=>`<span style="display:inline-flex;align-items:center;gap:5px;background:var(--card2,#F3F4F6);border-radius:4px;padding:3px 8px;">${IC[ic]}${esc(t)}</span>`).join('');
  // Beschreibung
  const descSec=document.getElementById('dp-desc-sec');
  if(d.desc){document.getElementById('dp-desc').textContent=d.desc;descSec.style.display='';}
@@ -2070,7 +2165,7 @@ function openDrillPreview(id){
  }else{drawSec.style.display='none';}
  // Video-Link
  const linkEl=document.getElementById('dp-link');
- if(d.link){linkEl.href=d.link;linkEl.style.display='';}
+ if(d.link){linkEl.href=d.link;linkEl.style.display='inline-flex';}
  else{linkEl.style.display='none';}
  // Bearbeiten-Button
  document.getElementById('dp-edit-btn').onclick=()=>{closeM('m-drill-preview');openDrillMdl(d.id,isSys);};
