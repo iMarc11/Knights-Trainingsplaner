@@ -149,6 +149,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .wnote{opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .plgd{display:flex;gap:7px;flex-wrap:wrap;}
 .ppill{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:2px;font-size:11.5px;font-weight:500;background:#fff;border:1px solid var(--brd);color:var(--txt);}
+.ico svg{display:block;width:14px;height:14px;}
 .ppill .ico{font-size:13px;line-height:1;font-weight:400;opacity:.55;padding:2px 4px;min-height:0;color:var(--mut);}
 @media(hover:hover){.ppill .ico{opacity:0;}.ppill:hover .ico{opacity:.7;}}
 .ppill .ico:hover{opacity:1;color:var(--sec);}
@@ -257,7 +258,8 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
   .wlbl{font-size:10px;}
   .bli{flex-wrap:wrap;}
   .btt{min-width:0;}
-  .bact{margin-left:auto;}
+  .bact{width:100%;margin-left:0;}
+  .bact .btn:last-child{margin-left:auto;}
   .sdt{min-width:0;}
   .srow{flex-wrap:wrap;min-height:auto;padding:10px 12px;gap:8px;}
   .dc-drawing-sm{width:100%;height:auto;max-height:150px;}
@@ -278,13 +280,11 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
   .stit{font-size:14px;}
   input[type=text],input[type=date],input[type=number],select,textarea{min-height:40px;}
   /* Session-Liste: Icon-Buttons */
-  .srow-actions .btn-label{display:none;}
-  .srow-actions .btn-icon{display:inline-flex;}
-  .srow-actions .btn{min-width:40px;justify-content:center;}
-  .srow-actions .srow-del{margin-left:auto;}
+  .btn .btn-label{display:none;}
+  .btn .btn-icon{display:inline-flex;}
+  .btn:has(.btn-icon){min-width:40px;justify-content:center;}
+  .srow-actions .act-del,.dc-btns .act-del{margin-left:auto;}
   /* Bibliothek: Icon-Buttons + Wrapping */
-  .dc-btns .btn-label{display:none;}
-  .dc-btns .btn-icon{display:inline;}
   .dc-top{flex-wrap:wrap;gap:6px;}
   .dc-btns{order:3;width:100%;}
   /* Saisonplanung: Einspaltig */
@@ -321,11 +321,9 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
   .blk-move-btn{display:inline-flex!important;align-items:center;justify-content:center;}
 }
 @media(min-width:600px){
-  .srow-actions .btn-label{display:inline;}
-  .srow-actions .btn-icon{display:inline-flex;}
-  .srow-actions .btn{display:inline-flex;align-items:center;gap:6px;}
-  .dc-btns .btn-label{display:inline;}
-  .dc-btns .btn-icon{display:none;}
+  .btn .btn-label{display:inline;}
+  .btn .btn-icon{display:inline-flex;}
+  .btn:has(.btn-icon){display:inline-flex;align-items:center;gap:6px;}
   .dcat-mobile-sel{display:none!important;}
   .fb#dcat-filter{display:flex!important;}
   .team-mgr-desktop{display:block!important;}
@@ -1056,7 +1054,7 @@ function checkPw(){
  <button class="btn btn-dan btn-sm" onclick="delCurSess()">Löschen</button>
  <button class="btn btn-sec" onclick="dupSess()">Duplizieren</button>
  <button class="btn btn-sec" onclick="closeM('m-sdet')">Schliessen</button>
- <button class="btn btn-sec btn-sm" onclick="printSess()" style="margin-left:auto;">🖨️ Drucken</button>
+ <button class="btn btn-sec btn-sm" onclick="printSess()" style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;"><svg class="i-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>Drucken</button>
  <button class="btn btn-pri" onclick="editCurSess()">Bearbeiten</button>
  </div>
 </div></div>
@@ -1097,6 +1095,23 @@ function checkPw(){
 </div></div>
 
 <script>
+// ── Einheitliche Icons (SVG, gleiche Linienstärke überall) ──
+const _svg=(d,sz=16)=>`<svg class="i-svg" viewBox="0 0 24 24" width="${sz}" height="${sz}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const IC={
+ edit:_svg('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>'),
+ dup:_svg('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/><path d="M15 12v6M12 15h6"/>'),
+ print:_svg('<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/>'),
+ phone:_svg('<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>'),
+ trash:_svg('<path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/>'),
+ eye:_svg('<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>'),
+ play:_svg('<circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z" fill="currentColor"/>'),
+ close:_svg('<path d="M18 6L6 18M6 6l12 12"/>'),
+ up:_svg('<path d="M12 19V5M5 12l7-7 7 7"/>'),
+ down:_svg('<path d="M12 5v14M19 12l-7 7-7-7"/>'),
+ chat:_svg('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/>',13),
+};
+// Aktions-Button: Icon (+ Text, der mobil ausgeblendet wird)
+const iconBtn=(icon,label,onclick,cls='btn-sec',extra='')=>`<button class="btn ${cls} btn-xs" onclick="${onclick}" title="${label}" aria-label="${label}"${extra}><span class="btn-icon">${IC[icon]}</span><span class="btn-label">${label}</span></button>`;
 // ── SUPABASE ──────────────────────────────────────────────
 const SB_URL='https://tsagwbwjgslxzljaywcl.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzYWd3YndqZ3NseHpsamF5d2NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4OTc1NTYsImV4cCI6MjEwMjQ3MzU1Nn0.ec442Hj6rVYw4tAOll5vfFqcBA4Y364OunoBW0oWvUU';
@@ -1407,7 +1422,7 @@ function renderTeams(){
  <div style="font-size:13px;color:var(--mut);margin-top:2px;">${CE[t.cat]||t.cat} · ${t.age}${t.trainer?` · ${t.trainer}`:''}${t.coTrainer?` · ${t.coTrainer}`:''}</div>
  </div>
  <div class="flex g1" style="flex-shrink:0;">
- <button class="btn btn-sec btn-xs" onclick="event.stopPropagation();openTeamMdl('${t.id}')">Bearbeiten</button>
+ ${iconBtn('edit','Bearbeiten',`event.stopPropagation();openTeamMdl('${t.id}')`)}
  <button class="btn btn-dan btn-xs" onclick="event.stopPropagation();deleteTeam('${t.id}')">Löschen</button>
  </div></div>`).join('');
  // pnl-teams (Fallback)
@@ -1494,8 +1509,8 @@ function renderSeason(){
  <div class="pdot" style="background:${p.color}"></div>
  <span>${p.name}</span>
  ${p.topics&&p.topics.length?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;">${p.topics.map(t=>`<span style="font-size:10px;color:var(--mut);padding:1px 5px;border:1px solid var(--brd);border-radius:2px;">${t}</span>`).join('')}</div>`:''}
- <button class="ico" onclick="openPhaseMdl('${p.id}')" title="Phase bearbeiten" aria-label="Phase bearbeiten">✎</button>
- <button class="ico" onclick="removePhase('${p.id}')" title="Phase entfernen" aria-label="Phase entfernen">✕</button>
+ <button class="ico" onclick="openPhaseMdl('${p.id}')" title="Phase bearbeiten" aria-label="Phase bearbeiten">${IC.edit}</button>
+ <button class="ico" onclick="removePhase('${p.id}')" title="Phase entfernen" aria-label="Phase entfernen">${IC.close}</button>
  </div>`).join('');
  const sd=new Date(s.start+'T00:00:00'),ed=new Date(s.end+'T00:00:00');
  const dow=sd.getDay();sd.setDate(sd.getDate()-(dow===0?6:dow-1));
@@ -1632,7 +1647,7 @@ function renderScoutPlayers(players){
  <input type="text" placeholder="#" value="${esc(p.nr||'')}" style="width:45px;font-size:12px;" oninput="updateScoutPlayer(${i},'nr',this.value)">
  <input type="text" placeholder="Name" value="${esc(p.name||'')}" style="flex:1;font-size:12px;" oninput="updateScoutPlayer(${i},'name',this.value)">
  <input type="text" placeholder="Stärken / Rolle" value="${esc(p.notes||'')}" style="flex:2;font-size:12px;" oninput="updateScoutPlayer(${i},'notes',this.value)">
- <button class="btn btn-dan btn-xs" onclick="removeScoutPlayer(${i})">Entfernen</button>
+ ${iconBtn('trash','Entfernen',`removeScoutPlayer(${i})`,'btn-dan')}
  </div>`).join('');
 }
 let _scoutPlayers=[];
@@ -1723,7 +1738,7 @@ function renderOppPlayers(){
  <input type="text" placeholder="#" value="${esc(p.nr||'')}" style="width:45px;font-size:12px;" oninput="if(_oppPlayers[${i}])_oppPlayers[${i}].nr=this.value">
  <input type="text" placeholder="Name" value="${esc(p.name||'')}" style="flex:1;font-size:12px;" oninput="if(_oppPlayers[${i}])_oppPlayers[${i}].name=this.value">
  <input type="text" placeholder="Stärken / Rolle" value="${esc(p.notes||'')}" style="flex:2;font-size:12px;" oninput="if(_oppPlayers[${i}])_oppPlayers[${i}].notes=this.value">
- <button class="btn btn-dan btn-xs" onclick="_oppPlayers.splice(${i},1);renderOppPlayers()">Entfernen</button>
+ ${iconBtn('trash','Entfernen',`_oppPlayers.splice(${i},1);renderOppPlayers()`,'btn-dan')}
  </div>`).join('');
 }
 function addOppPlayer(){_oppPlayers.push({nr:'',name:'',notes:''});renderOppPlayers();}
@@ -1744,7 +1759,7 @@ function renderOppGamesList(key,s){
  <span style="color:var(--mut);min-width:70px;">${dateStr}</span>
  ${hasResult?`<span style="font-weight:800;color:${col};">${g.scoreUs}:${g.scoreThem}</span>`:'<span style="color:var(--mut);">–:–</span>'}
  <div style="margin-left:auto;display:flex;gap:4px;">
- <button class="btn btn-sec btn-xs" onclick="showOppGameForm('${esc(g.id)}')">Bearbeiten</button>
+ ${iconBtn('edit','Bearbeiten',`showOppGameForm('${esc(g.id)}')`)}
  <button class="btn btn-dan btn-xs" onclick="deleteOppGame('${esc(g.id)}')">Löschen</button>
  </div>
  </div>`;
@@ -1927,18 +1942,18 @@ function dcHTML(d){
  const isCustom=!!d.custom;
  const drawings=db.drillDrawings[d.id]||[];
  const cmts=(db.drillComments[d.id]||[]);
- const cmtBtn=`<button onclick="openCommentsMdl('${d.id}')" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--mut);padding:1px 5px;border-radius:10px;border:1px solid var(--brd);line-height:1.4;margin-left:6px;" title="Kommentare">${cmts.length?`💬 ${cmts.length}`:'💬'}</button>`;
+ const cmtBtn=`<button onclick="openCommentsMdl('${d.id}')" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--mut);padding:1px 5px;border-radius:10px;border:1px solid var(--brd);line-height:1.4;margin-left:6px;" title="Kommentare">${cmts.length?`<span style="display:inline-flex;align-items:center;gap:3px;">${IC.chat}${cmts.length}</span>`:IC.chat}</button>`;
  const drawThumb=drawings.length>0?`<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-left:8px;">${drawings.map((url,idx)=>`<img src="${url}" style="width:100px;height:68px;object-fit:contain;border-radius:4px;border:1px solid var(--brd);cursor:pointer;display:block;" onclick="openDrawMdl('${d.id}',${idx})" title="Zeichnung ${idx+1}">`).join('')}<button class="btn btn-sec btn-xs" onclick="openDrawMdl('${d.id}',-1)" style="margin-top:2px;">+ Zeichnung</button></div>`:`<button class="btn btn-sec btn-xs" onclick="openDrawMdl('${d.id}',-1)" style="flex-shrink:0;margin-left:8px;align-self:flex-start;margin-top:2px;">+ Zeichnen</button>`;
  return`<div class="dc">
  <div class="dc-top">
  <span class="cat cat-${d.cat}">${CL[d.cat]}</span>
  <div class="dc-name" style="margin-left:6px;">${esc(d.name)}${isSys&&d.systemType?` <span class="sysb">${esc(d.systemType)}</span>`:''}</div>
  <div class="dc-btns" style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
- ${d.link?`<a href="${esc(d.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-sec btn-xs" style="text-decoration:none;"><span class="btn-icon">▶</span><span class="btn-label"> Video-Link</span></a>`:''}
- <button class="btn btn-sec btn-xs" onclick="openDrillPreview('${esc(d.id)}')"><span class="btn-icon">🔍</span><span class="btn-label">Vorschau</span></button>
- <button class="btn btn-sec btn-xs" onclick="dupDrill('${esc(d.id)}')"><span class="btn-icon">📋</span><span class="btn-label">Kopieren</span></button>
- <button class="btn btn-sec btn-xs" onclick="openDrillMdl('${esc(d.id)}',${isSys})"><span class="btn-icon">✏️</span><span class="btn-label">Bearbeiten</span></button>
- <button class="btn btn-dan btn-xs" onclick="deleteDrill('${esc(d.id)}')"><span class="btn-icon">🗑️</span><span class="btn-label">Löschen</span></button>
+ ${d.link?`<a href="${esc(d.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-sec btn-xs" style="text-decoration:none;" title="Video ansehen" aria-label="Video ansehen"><span class="btn-icon">${IC.play}</span><span class="btn-label">Video</span></a>`:''}
+ ${iconBtn('eye','Vorschau',`openDrillPreview('${esc(d.id)}')`)}
+ ${iconBtn('dup','Duplizieren',`dupDrill('${esc(d.id)}')`)}
+ ${iconBtn('edit','Bearbeiten',`openDrillMdl('${esc(d.id)}',${isSys})`)}
+ ${iconBtn('trash','Löschen',`deleteDrill('${esc(d.id)}')`,'btn-dan act-del')}
  </div>
  </div>
  <div class="mut" style="font-size:10px;margin-bottom:3px;display:flex;align-items:center;flex-wrap:wrap;">${isSys?'':` min. ${esc(d.players)} · `}${(d.ag||[]).map(esc).join(', ')}${isSys&&d.formation?` · ${esc(d.formation)}`:''}${d.author?` · <span style="color:var(--mut);">von ${esc(d.author)}</span>`:` · <span style="color:var(--mut);">Bot</span>`}${cmtBtn}</div>
@@ -2458,10 +2473,10 @@ function renderBlocks(){
  ${b.dur?`<span class="bdur">${b.dur}min</span>`:''}
  <div style="flex:1;"><div class="bname" style="color:#374151;">${b.name}</div>${b.text?`<div class="bdesc" style="white-space:pre-line;">${b.text.length>100?b.text.slice(0,100)+'…':b.text}</div>`:''}</div>
  <div class="bact">
- <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''}>↑</button>
- <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''}>↓</button>
- <button class="btn btn-sec btn-xs" onclick="openTextBlockMdl(${i})">Bearbeiten</button>
- <button class="btn btn-dan btn-xs" onclick="delBlock(${i})">Entfernen</button>
+ <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''} title="Nach oben" aria-label="Nach oben">${IC.up}</button>
+ <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''} title="Nach unten" aria-label="Nach unten">${IC.down}</button>
+ ${iconBtn('edit','Bearbeiten',`openTextBlockMdl(${i})`)}
+ ${iconBtn('trash','Entfernen',`delBlock(${i})`,'btn-dan')}
  </div></div>`;
  }
  if(b.type==='game'){
@@ -2471,10 +2486,10 @@ function renderBlocks(){
  <span class="bdur">${b.dur}min</span>
  <div style="flex:1;"><div class="bname" style="color:#166534;">${esc(b.name||'Spielblock')}${b.format?` <span style="font-weight:400;color:#4ade80;">· ${esc(b.format)}</span>`:''}</div>${b.notes?`<div class="bdesc">${esc(b.notes.length>80?b.notes.slice(0,80)+'…':b.notes)}</div>`:''}</div>
  <div class="bact">
- <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''}>↑</button>
- <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''}>↓</button>
- <button class="btn btn-sec btn-xs" onclick="openGameBlockMdl(${i})">Bearbeiten</button>
- <button class="btn btn-dan btn-xs" onclick="delBlock(${i})">Entfernen</button>
+ <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''} title="Nach oben" aria-label="Nach oben">${IC.up}</button>
+ <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''} title="Nach unten" aria-label="Nach unten">${IC.down}</button>
+ ${iconBtn('edit','Bearbeiten',`openGameBlockMdl(${i})`)}
+ ${iconBtn('trash','Entfernen',`delBlock(${i})`,'btn-dan')}
  </div></div>`;
  }
  if(b.type==='section'){
@@ -2483,9 +2498,9 @@ function renderBlocks(){
  <div style="display:flex;align-items:center;gap:6px;"><span class="blk-drag-handle" style="cursor:grab;color:rgba(255,255,255,.4);font-size:16px;user-select:none;">⠿</span><span>— ${b.name} —</span></div>
  <div class="flex g1" style="align-items:center;">
  ${secMin>0?`<span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.75);background:rgba(0,0,0,.2);border-radius:4px;padding:2px 8px;">${secMin} Min.</span>`:''}
- <button class="blk-move-btn btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''}>↑</button>
- <button class="blk-move-btn btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''}>↓</button>
- <button class="btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="delBlock(${i})">Entfernen</button>
+ <button class="blk-move-btn btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''} title="Nach oben" aria-label="Nach oben">${IC.up}</button>
+ <button class="blk-move-btn btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''} title="Nach unten" aria-label="Nach unten">${IC.down}</button>
+ <button class="btn btn-xs" style="background:rgba(255,255,255,.15);color:#fff;border:none;cursor:pointer;" onclick="delBlock(${i})" title="Entfernen" aria-label="Entfernen">${IC.trash}</button>
  </div></div>`;
  }
  return`<div class="bli bblk-dnd" draggable="true" ondragstart="_dndStart(event,${i})" ondragover="_dndOver(event,${i})" ondragleave="_dndLeave(event)" ondrop="_dndDrop(event,${i})" ondragend="_dndEnd(event)">
@@ -2494,10 +2509,10 @@ function renderBlocks(){
  <span class="bdur">${b.dur}min</span>
  <div style="flex:1;min-width:0;"><div class="bname">${b.name}</div>${b.desc?`<div class="bdesc">${b.desc.length>80?b.desc.slice(0,80)+'…':b.desc}</div>`:''}${blockPreviews(b)}</div>
  <div class="bact">
- <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''}>↑</button>
- <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''}>↓</button>
- <button class="btn btn-sec btn-xs" onclick="openDrillForBlock(${i})">Bearbeiten</button>
- <button class="btn btn-dan btn-xs" onclick="delBlock(${i})">Entfernen</button>
+ <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''} title="Nach oben" aria-label="Nach oben">${IC.up}</button>
+ <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''} title="Nach unten" aria-label="Nach unten">${IC.down}</button>
+ ${iconBtn('edit','Bearbeiten',`openDrillForBlock(${i})`)}
+ ${iconBtn('trash','Entfernen',`delBlock(${i})`,'btn-dan')}
  </div></div>`;
  }).join('');
 }
@@ -2600,11 +2615,11 @@ function renderSessions(){
  <div class="dpill" style="flex-shrink:0;">${esc(s.totalDur)} Min.</div>
  </div>
  <div class="srow-actions" style="display:flex;gap:4px;flex-shrink:0;" onclick="event.stopPropagation()">
- <button class="btn btn-sec btn-xs" onclick="editSessDirect('${esc(s.id)}')" title="Bearbeiten"><span class="btn-icon"><svg class="i-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span><span class="btn-label">Bearbeiten</span></button>
- <button class="btn btn-sec btn-xs" onclick="dupSessFromList('${esc(s.id)}')" title="Duplizieren"><span class="btn-icon"><svg class="i-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/><path d="M15 12v6M12 15h6"/></svg></span><span class="btn-label">Duplizieren</span></button>
- <button class="btn btn-sec btn-xs" onclick="printSess('${esc(s.id)}')" title="Drucken"><span class="btn-icon"><svg class="i-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/><circle cx="17.5" cy="11.5" r=".6" fill="currentColor"/></svg></span><span class="btn-label">Drucken</span></button>
- <button class="btn btn-sec btn-xs" onclick="mobileExport('${esc(s.id)}')" title="Mobile-Ansicht"><span class="btn-icon"><svg class="i-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span><span class="btn-label">Mobil</span></button>
- <button class="btn btn-dan btn-xs srow-del" onclick="deleteSessDirect('${esc(s.id)}')" title="Löschen"><span class="btn-icon"><svg class="i-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></span><span class="btn-label">Löschen</span></button>
+ ${iconBtn('edit','Bearbeiten',`editSessDirect('${esc(s.id)}')`)}
+ ${iconBtn('dup','Duplizieren',`dupSessFromList('${esc(s.id)}')`)}
+ ${iconBtn('print','Drucken',`printSess('${esc(s.id)}')`)}
+ ${iconBtn('phone','Mobil',`mobileExport('${esc(s.id)}')`)}
+ ${iconBtn('trash','Löschen',`deleteSessDirect('${esc(s.id)}')`,'btn-dan act-del')}
  </div>
  </div>`;
  }).join('');
