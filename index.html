@@ -2762,10 +2762,7 @@ function _mobileVideo(b){
  const d=allDrills().find(dr=>b.drillId?dr.id===b.drillId:dr.name===b.name);
  const link=d&&d.link;
  if(!link||!/^https?:\/\//i.test(link))return'';
- const yt=_ytId(link);
- const btn=`<a href="${esc(link)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:11px 14px;min-height:44px;border-radius:8px;background:#E5630F;color:#fff;font-size:15px;font-weight:700;text-decoration:none;">▶ Video ansehen</a>`;
- if(!yt)return btn;
- return`<a href="${esc(link)}" target="_blank" rel="noopener noreferrer" style="position:relative;display:block;margin-top:10px;border-radius:8px;overflow:hidden;border:1px solid #ddd;"><img src="https://img.youtube.com/vi/${yt}/mqdefault.jpg" alt="" style="display:block;width:100%;height:auto;"><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><span style="width:56px;height:56px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;padding-left:4px;">▶</span></span></a>${btn}`;
+ return`<a href="${esc(link)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:11px 14px;min-height:44px;border-radius:8px;background:#E5630F;color:#fff;font-size:15px;font-weight:700;text-decoration:none;">▶ Video ansehen</a>`;
 }
 function mobileExport(id){
  const s=db.sessions.find(s=>s.id===(id||viewSessId));if(!s)return;
