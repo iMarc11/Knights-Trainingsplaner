@@ -664,11 +664,14 @@ function checkPw(){
  <div class="flex g1">
  <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
  <div class="bld-pill" style="display:flex;gap:4px;flex-wrap:wrap;background:#f0f1f3;border-radius:8px;padding:4px 6px;">
- <span style="font-size:10px;font-weight:800;color:var(--mut);align-self:center;text-transform:uppercase;letter-spacing:.5px;margin-right:2px;">Hinzufügen:</span>
- <button class="btn btn-pri btn-sm" onclick="openPicker()">Bibliothek</button>
- <button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,false,true)">+ Drill</button>
- <button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,true,true)">+ System</button>
- <button class="btn btn-sec btn-sm" onclick="openGameBlockMdl(-1)">+ Spielblock</button>
+ <span style="font-size:10px;font-weight:800;color:var(--mut);align-self:center;text-transform:uppercase;letter-spacing:.5px;margin-right:2px;">Aus Bibliothek:</span>
+ <button class="btn btn-pri btn-sm" onclick="openPicker()" title="Bestehenden Drill oder bestehendes System aus der Bibliothek ins Training holen">Drill / System wählen</button>
+ </div>
+ <div class="bld-pill" style="display:flex;gap:4px;flex-wrap:wrap;background:#f0f1f3;border-radius:8px;padding:4px 6px;">
+ <span style="font-size:10px;font-weight:800;color:var(--mut);align-self:center;text-transform:uppercase;letter-spacing:.5px;margin-right:2px;">Neu erstellen:</span>
+ <button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,false,true)" title="Einen neuen Drill von Grund auf erfassen">Neuer Drill</button>
+ <button class="btn btn-sec btn-sm" onclick="openDrillMdl(null,true,true)" title="Ein neues System von Grund auf erfassen">Neues System</button>
+ <button class="btn btn-sec btn-sm" onclick="openGameBlockMdl(-1)">Spielblock</button>
  </div>
  <div class="bld-pill" style="display:flex;gap:4px;flex-wrap:wrap;background:#f0f1f3;border-radius:8px;padding:4px 6px;">
  <span style="font-size:10px;font-weight:800;color:var(--mut);align-self:center;text-transform:uppercase;letter-spacing:.5px;margin-right:2px;">Struktur:</span>
@@ -1146,7 +1149,7 @@ function checkPw(){
  <div id="crop-hint" style="display:none;font-size:11px;color:var(--mut);margin-top:4px;">Ziehe zum Auswählen des Ausschnitts · Klick ohne Ziehen = ganzes Bild</div>
  <div id="crop-actions" style="display:none;margin-top:8px;" class="flex g2">
  <button class="btn btn-sec btn-sm" onclick="resetCrop()">Anderes Bild</button>
- <button class="btn btn-pri btn-sm" onclick="confirmCrop()">Übernehmen</button>
+ <button class="btn btn-pri btn-sm" onclick="confirmCrop()">Bild übernehmen</button>
  </div>
  </div>
  <div id="draw-section">
@@ -3730,7 +3733,7 @@ function resetCrop(){
  CS.img=null;
 }
 function confirmCrop(){
- if(!CS.img)return;
+ if(!CS.img)return Promise.resolve();
  const {img,scale,ox,oy}=CS;
  const x1=Math.min(CS.sx,CS.ex),y1=Math.min(CS.sy,CS.ey);
  const x2=Math.max(CS.sx,CS.ex),y2=Math.max(CS.sy,CS.ey);
@@ -3743,9 +3746,10 @@ function confirmCrop(){
  const tx=tc.getContext('2d');tx.fillStyle='#fff';tx.fillRect(0,0,tc.width,tc.height);
  tx.drawImage(img,srcX,srcY,srcW,srcH,0,0,tc.width,tc.height);
  DM.bg=tc.toDataURL('image/jpeg',0.85);
- loadBg(DM.bg,()=>{_tplButtons();pushHist();drawRender();});
+ const p=new Promise(res=>loadBg(DM.bg,()=>{_tplButtons();pushHist();drawRender();res();}));
  resetCrop();
  setDrawMode('draw');
+ return p;
 }
 function updateDrawTitle(){
  const drs=db.drillDrawings[DM.editId]||[];
@@ -3804,6 +3808,8 @@ function openDrawMdl(drillId,drawingIdx){
  },80);
 }
 async function saveDrawing(){
+ // Bild hochgeladen, aber "Bild übernehmen" nicht gedrückt → automatisch übernehmen, statt es zu verlieren
+ if(CS.img)await confirmCrop();
  closeTextEditor(false);DM.sel=-1;drawRender(false);
  const scene={v:1,tpl:DM.courtTemplate,h:DM.canvas.height,bg:DM.bg,orig:DM.orig||null,objs:DM.objs};
  const dataURL=pngWithScene(DM.canvas.toDataURL('image/png'),JSON.stringify(scene));
