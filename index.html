@@ -291,6 +291,10 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .net-banner button{background:#fff;color:#111;border:none;border-radius:6px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer;}
 .app-toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:10001;max-width:min(92vw,520px);background:#B91C1C;color:#fff;padding:12px 16px;border-radius:8px;font-size:14px;line-height:1.45;box-shadow:0 6px 20px rgba(0,0,0,.25);}
 .app-toast.ok{background:#15803D;}
+.dthumb{position:relative;display:inline-block;max-width:100%;}
+.dthumb-del{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(17,24,39,.75);color:#fff;font-size:17px;line-height:26px;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#dp-drawings .dthumb{width:100%;max-width:320px;}
+.dthumb-del:hover{background:#B91C1C;}
 .sdet-draw{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
 .sdet-draw img{max-width:320px;width:100%;height:auto;border-radius:6px;border:1px solid var(--brd);background:#fff;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
@@ -934,7 +938,7 @@ function checkPw(){
    <div id="dp-coach" style="background:#FFFBEA;border:1px solid #F5E27B;border-radius:6px;padding:12px 14px;font-size:13px;line-height:1.7;color:#5A4A00;white-space:pre-wrap;"></div>
   </div>
   <div id="dp-drawings-sec" style="display:none;">
-   <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:8px;">Zeichnungen</div>
+   <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:8px;">Zeichnungen &amp; Fotos</div>
    <div id="dp-drawings" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
   </div>
  </div>
@@ -1142,7 +1146,7 @@ function checkPw(){
  <div id="upload-section" style="display:none;">
  <div class="flex g2 mb2" style="flex-wrap:wrap;">
  <button class="btn btn-sec btn-sm" onclick="resetCrop();setDrawMode('draw')">← Zurück zum Feld</button>
- <label class="btn btn-sec btn-sm" style="cursor:pointer;">Datei wählen<input type="file" id="img-upload" accept="image/*" onchange="loadImageForCrop(event)" style="display:none;"></label>
+ <label class="btn btn-sec btn-sm" style="cursor:pointer;">Foto(s) wählen<input type="file" id="img-upload" accept="image/*" multiple onchange="loadImageForCrop(event)" style="display:none;"></label>
  <label class="btn btn-sec btn-sm" style="cursor:pointer;">Kamera<input type="file" id="img-camera" accept="image/*" capture="environment" onchange="loadImageForCrop(event)" style="display:none;"></label>
  </div>
  <canvas id="crop-canvas" width="660" height="430" style="max-width:100%;display:none;border:1px solid var(--brd);border-radius:4px;cursor:crosshair;"></canvas>
@@ -1158,7 +1162,7 @@ function checkPw(){
  <div id="dtext-fmt" style="display:none;"><div class="dseg"><button class="dsz dtf" id="dtf-b" onmousedown="toggleTextFmt('b',event)" ontouchstart="toggleTextFmt('b',event)" title="Fett"><b>B</b></button><button class="dsz dtf" id="dtf-i" onmousedown="toggleTextFmt('i',event)" ontouchstart="toggleTextFmt('i',event)" title="Kursiv"><i style="font-family:Georgia,serif;">I</i></button><button class="dsz dtf" id="dtf-u" onmousedown="toggleTextFmt('u',event)" ontouchstart="toggleTextFmt('u',event)" title="Unterstrichen"><u>U</u></button><button class="dsz dtf" onmousedown="event.preventDefault();openTextEditor(DM.sel)" ontouchend="event.preventDefault();openTextEditor(DM.sel)" title="Text bearbeiten">✎</button></div></div>
  <textarea id="draw-text-ed" rows="1" spellcheck="false" placeholder="Text…"></textarea>
  </div>
- <div class="dfoot"><div class="dopt"><span class="dopt-l">Vorlage</span><div class="dseg"><button class="dsz on" id="tpl-half" onclick="setCourtTemplate('half')">Halbfeld</button><button class="dsz" id="tpl-full" onclick="setCourtTemplate('full')">Vollfeld</button><button class="dsz" id="tpl-photo" onclick="setDrawMode('upload')">Foto</button></div></div><div class="dopt" style="gap:6px;"><button class="dact" id="dconv-btn" style="display:none;border-color:#E5630F;color:#C4470A;font-weight:600;" onclick="convertLegacy()" title="Alte Zeichnung in einzelne, verschiebbare Elemente umwandeln">✨ In Elemente umwandeln</button><button class="dact" id="dorig-btn" style="display:none;" onclick="restoreOriginal()" title="Ursprüngliche Zeichnung zurückholen">↺ Original wiederherstellen</button></div><div id="dconv-msg" style="display:none;flex-basis:100%;font-size:12px;background:#FFF4EC;border:1px solid #F5C9A8;color:#7a3a10;border-radius:4px;padding:6px 9px;"></div><div class="draw-hint">Element antippen = auswählen &amp; verschieben (mit jedem Werkzeug) · Bei Linien den <b style="color:#E5630F;">orangen Mittelpunkt</b> ziehen für einen Bogen · Entf löscht die Auswahl</div></div>
+ <div class="dfoot"><div class="dopt"><span class="dopt-l">Vorlage</span><div class="dseg"><button class="dsz on" id="tpl-half" onclick="setCourtTemplate('half')">Halbfeld</button><button class="dsz" id="tpl-full" onclick="setCourtTemplate('full')">Vollfeld</button><button class="dsz" id="tpl-photo" onclick="setDrawMode('upload')">Foto(s)</button></div></div><div class="dopt" style="gap:6px;"><button class="dact" id="dconv-btn" style="display:none;border-color:#E5630F;color:#C4470A;font-weight:600;" onclick="convertLegacy()" title="Alte Zeichnung in einzelne, verschiebbare Elemente umwandeln">✨ In Elemente umwandeln</button><button class="dact" id="dorig-btn" style="display:none;" onclick="restoreOriginal()" title="Ursprüngliche Zeichnung zurückholen">↺ Original wiederherstellen</button></div><div id="dconv-msg" style="display:none;flex-basis:100%;font-size:12px;background:#FFF4EC;border:1px solid #F5C9A8;color:#7a3a10;border-radius:4px;padding:6px 9px;"></div><div class="draw-hint">Element antippen = auswählen &amp; verschieben (mit jedem Werkzeug) · Bei Linien den <b style="color:#E5630F;">orangen Mittelpunkt</b> ziehen für einen Bogen · Entf löscht die Auswahl</div></div>
  </div><!-- /draw-section -->
  <div class="mft">
  <button class="btn btn-dan btn-sm" onclick="deleteDrawing()">Zeichnung löschen</button>
@@ -2121,7 +2125,7 @@ function dcHTML(d){
  const drawings=db.drillDrawings[d.id]||[];
  const cmts=(db.drillComments[d.id]||[]);
  const cmtBtn=`<button onclick="openCommentsMdl('${d.id}')" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--mut);padding:1px 5px;border-radius:10px;border:1px solid var(--brd);line-height:1.4;margin-left:6px;" title="Kommentare">${cmts.length?`<span style="display:inline-flex;align-items:center;gap:3px;">${IC.chat}${cmts.length}</span>`:IC.chat}</button>`;
- const drawThumb=drawings.length>0?`<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-left:8px;">${drawings.map((url,idx)=>`<img src="${url}" style="width:100px;height:68px;object-fit:contain;border-radius:4px;border:1px solid var(--brd);cursor:pointer;display:block;" onclick="openDrawMdl('${d.id}',${idx})" title="Zeichnung ${idx+1}">`).join('')}<button class="btn btn-sec btn-xs" onclick="openDrawMdl('${d.id}',-1)" style="margin-top:2px;">+ Zeichnung</button></div>`:`<button class="btn btn-sec btn-xs" onclick="openDrawMdl('${d.id}',-1)" style="flex-shrink:0;margin-left:8px;align-self:flex-start;margin-top:2px;">+ Zeichnen</button>`;
+ const drawThumb=`<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;margin-left:8px;width:100px;">${drawings.map((url,idx)=>drawThumbHTML(d.id,url,idx,'width:100px;height:68px;object-fit:contain;background:#fff;border-radius:4px;border:1px solid var(--brd);cursor:pointer;display:block;',`openDrawMdl('${d.id}',${idx})`)).join('')}<button class="btn btn-sec btn-xs" onclick="openDrawMdl('${d.id}',-1)" style="margin-top:2px;">+ Zeichnung</button>${photoPickerHTML(d.id)}</div>`;
  return`<div class="dc">
  <div class="dc-top">
  <span class="cat cat-${d.cat}">${CL[d.cat]}</span>
@@ -2242,10 +2246,13 @@ function openDrillPreview(id){
  const drawSec=document.getElementById('dp-drawings-sec');
  if(drawings.length){
   document.getElementById('dp-drawings').innerHTML=drawings.map((url,idx)=>
-   `<img src="${url}" style="max-width:320px;width:100%;height:auto;border-radius:6px;border:1px solid var(--brd);cursor:pointer;" onclick="closeM('m-drill-preview');openDrawMdl('${d.id}',${idx})" title="Zeichnung ${idx+1}">`
-  ).join('');
+   drawThumbHTML(d.id,url,idx,'width:100%;height:auto;max-height:420px;object-fit:contain;background:#fff;border-radius:6px;border:1px solid var(--brd);cursor:pointer;display:block;',`closeM('m-drill-preview');openDrawMdl('${d.id}',${idx})`)
+  ).join('')+`<div style="flex-basis:100%;">${photoPickerHTML(d.id,'+ Fotos hinzufügen')}</div>`;
   drawSec.style.display='';
- }else{drawSec.style.display='none';}
+ }else{
+  document.getElementById('dp-drawings').innerHTML=photoPickerHTML(d.id,'+ Fotos hinzufügen');
+  drawSec.style.display='';
+ }
  // Video-Link
  const linkEl=document.getElementById('dp-link');
  if(d.link){linkEl.href=d.link;linkEl.style.display='inline-flex';}
@@ -3679,7 +3686,15 @@ function setDrawMode(m){
  document.getElementById('upload-section').style.display=isDraw?'none':'';
 }
 function loadImageForCrop(ev){
- const file=ev.target.files[0];if(!file)return;
+ const files=ev.target.files;
+ if(files&&files.length>1){
+  // Mehrere Fotos: jedes wird ein eigenes Bild beim Drill
+  const list=[...files];ev.target.value='';
+  const emptyNew=DM.drawingIdx<0&&!DM.objs.length&&!DM.bg;
+  addPhotosToDrill(DM.editId,list).then(n=>{if(!n)return;if(emptyNew)closeM('m-draw');else{setDrawMode('draw');updateDrawTitle();}});
+  return;
+ }
+ const file=files[0];if(!file)return;
  const reader=new FileReader();
  reader.onload=e=>{
  const img=new Image();
@@ -3732,20 +3747,75 @@ function resetCrop(){
  document.getElementById('crop-actions').style.display='none';
  CS.img=null;
 }
+// ── FOTOS ──
+const PHOTO_MAX=1400; // längste Seite in Pixel
+function photoToJpeg(file){
+ return new Promise((res,rej)=>{
+  const r=new FileReader();
+  r.onload=e=>{const img=new Image();
+   img.onload=()=>{const f=Math.min(1,PHOTO_MAX/Math.max(img.width,img.height));
+    const c=document.createElement('canvas');c.width=Math.round(img.width*f);c.height=Math.round(img.height*f);
+    const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);
+    res(c.toDataURL('image/jpeg',0.82));};
+   img.onerror=rej;img.src=e.target.result;};
+  r.onerror=rej;r.readAsDataURL(file);
+ });
+}
+async function _saveDrillDrawings(drillId){
+ const drs=db.drillDrawings[drillId]||[];
+ if(!drs.length){delete db.drillDrawings[drillId];return sbDelete('drill_drawings','drill_id',drillId);}
+ return sbUpsert('drill_drawings',{drill_id:drillId,data_url:JSON.stringify(drs),updated_at:new Date().toISOString()});
+}
+async function addPhotosToDrill(drillId,fileList){
+ const files=[...(fileList||[])].filter(f=>!f.type||f.type.startsWith('image/'));
+ if(!files.length)return 0;
+ const urls=[];
+ for(const f of files){try{urls.push(await photoToJpeg(f));}catch(e){showToast('Bild konnte nicht gelesen werden: '+f.name);}}
+ if(!urls.length)return 0;
+ if(!db.drillDrawings[drillId])db.drillDrawings[drillId]=[];
+ db.drillDrawings[drillId].push(...urls);
+ refreshDrawingViews();
+ if(document.getElementById('m-drill-preview').classList.contains('open'))openDrillPreview(drillId);
+ const r=await _saveDrillDrawings(drillId);
+ if(r==='ok')showToast(urls.length===1?'Foto hinzugefügt':urls.length+' Fotos hinzugefügt','ok');
+ return urls.length;
+}
+async function deleteDrawingAt(drillId,idx,ev){
+ if(ev)ev.stopPropagation();
+ const drs=db.drillDrawings[drillId]||[];
+ if(idx<0||idx>=drs.length)return;
+ if(!confirm('Dieses Bild löschen? Das lässt sich nicht rückgängig machen.'))return;
+ drs.splice(idx,1);
+ if(!drs.length)delete db.drillDrawings[drillId];
+ refreshDrawingViews();
+ if(document.getElementById('m-drill-preview').classList.contains('open'))openDrillPreview(drillId);
+ await _saveDrillDrawings(drillId);
+}
+// Vorschaubild mit Lösch-Knopf
+function drawThumbHTML(drillId,url,idx,imgStyle,onclick){
+ return`<span class="dthumb"><img src="${url}" style="${imgStyle}" onclick="${onclick}" title="Bild ${idx+1} öffnen"><button class="dthumb-del" onclick="deleteDrawingAt('${drillId}',${idx},event)" title="Bild löschen" aria-label="Bild löschen">×</button></span>`;
+}
+function photoPickerHTML(drillId,label){
+ return`<label class="btn btn-sec btn-xs" style="cursor:pointer;margin-top:2px;text-transform:none;letter-spacing:normal;font-weight:600;text-align:center;" title="Ein oder mehrere Fotos hochladen">${label||'+ Fotos'}<input type="file" accept="image/*" multiple style="display:none;" onchange="addPhotosToDrill('${drillId}',this.files);this.value=''"></label>`;
+}
 function confirmCrop(){
  if(!CS.img)return Promise.resolve();
  const {img,scale,ox,oy}=CS;
  const x1=Math.min(CS.sx,CS.ex),y1=Math.min(CS.sy,CS.ey);
  const x2=Math.max(CS.sx,CS.ex),y2=Math.max(CS.sy,CS.ey);
  const useFullImage=(x2-x1)<5||(y2-y1)<5;
- const srcX=useFullImage?0:(x1-ox)/scale;
- const srcY=useFullImage?0:(y1-oy)/scale;
- const srcW=useFullImage?img.width:(x2-x1)/scale;
- const srcH=useFullImage?img.height:(y2-y1)/scale;
- const tc=document.createElement('canvas');tc.width=DM.canvas.width;tc.height=DM.canvas.height;
+ // Ausschnitt auf das Bild begrenzen, Seitenverhältnis beibehalten (keine Verzerrung)
+ let srcX=useFullImage?0:(x1-ox)/scale,srcY=useFullImage?0:(y1-oy)/scale;
+ let srcX2=useFullImage?img.width:(x2-ox)/scale,srcY2=useFullImage?img.height:(y2-oy)/scale;
+ srcX=Math.max(0,srcX);srcY=Math.max(0,srcY);srcX2=Math.min(img.width,srcX2);srcY2=Math.min(img.height,srcY2);
+ if(srcX2-srcX<5||srcY2-srcY<5){srcX=0;srcY=0;srcX2=img.width;srcY2=img.height;}
+ const srcW=srcX2-srcX,srcH=srcY2-srcY;
+ const f=Math.min(1,PHOTO_MAX/Math.max(srcW,srcH));
+ const tc=document.createElement('canvas');tc.width=Math.round(srcW*f);tc.height=Math.round(srcH*f);
  const tx=tc.getContext('2d');tx.fillStyle='#fff';tx.fillRect(0,0,tc.width,tc.height);
  tx.drawImage(img,srcX,srcY,srcW,srcH,0,0,tc.width,tc.height);
  DM.bg=tc.toDataURL('image/jpeg',0.85);
+ DM.canvas.height=Math.round(DM.canvas.width*tc.height/tc.width);
  const p=new Promise(res=>loadBg(DM.bg,()=>{_tplButtons();pushHist();drawRender();res();}));
  resetCrop();
  setDrawMode('draw');
@@ -3797,7 +3867,7 @@ function openDrawMdl(drillId,drawingIdx){
     ensureImgs(DM.objs,()=>{if(sc.bg){DM.bg=sc.bg;loadBg(sc.bg,finish);}else finish();});
    }else{
     // ältere Zeichnung (nur Bild): als Hintergrund übernehmen, neue Elemente darüber
-    DM.bg=existing;DM.orig=existing;
+    DM.bg=existing;DM.orig=existing.startsWith('data:image/png')?existing:null;
     loadBg(existing,img=>{DM.canvas.height=Math.round(DM.canvas.width*img.naturalHeight/img.naturalWidth)||430;finish();});
    }
   }else finish();
@@ -3812,7 +3882,8 @@ async function saveDrawing(){
  if(CS.img)await confirmCrop();
  closeTextEditor(false);DM.sel=-1;drawRender(false);
  const scene={v:1,tpl:DM.courtTemplate,h:DM.canvas.height,bg:DM.bg,orig:DM.orig||null,objs:DM.objs};
- const dataURL=pngWithScene(DM.canvas.toDataURL('image/png'),JSON.stringify(scene));
+ const photoOnly=!DM.objs.length&&DM.bg&&DM.bg.startsWith('data:image/jpeg');
+ const dataURL=photoOnly?DM.bg:pngWithScene(DM.canvas.toDataURL('image/png'),JSON.stringify(scene));
  if(!db.drillDrawings[DM.editId])db.drillDrawings[DM.editId]=[];
  const drs=db.drillDrawings[DM.editId];
  if(DM.drawingIdx>=0&&DM.drawingIdx<drs.length)drs[DM.drawingIdx]=dataURL;else drs.push(dataURL);
