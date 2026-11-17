@@ -285,6 +285,14 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .s-ok{background:#2E9B58;}
 .s-save{background:#F5A800;animation:blink 1s infinite;}
 .s-err{background:#D93025;}
+.net-banner{position:fixed;left:0;right:0;bottom:0;z-index:10000;background:#B91C1C;color:#fff;padding:12px 16px calc(12px + env(safe-area-inset-bottom));font-size:14px;line-height:1.45;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 -4px 16px rgba(0,0,0,.25);}
+.net-banner.net-warn{background:#B45309;}
+.net-banner span{flex:1;min-width:200px;}
+.net-banner button{background:#fff;color:#111;border:none;border-radius:6px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer;}
+.app-toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:10001;max-width:min(92vw,520px);background:#B91C1C;color:#fff;padding:12px 16px;border-radius:8px;font-size:14px;line-height:1.45;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+.app-toast.ok{background:#15803D;}
+.sdet-draw{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.sdet-draw img{max-width:320px;width:100%;height:auto;border-radius:6px;border:1px solid var(--brd);background:#fff;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
 .loading-ov{position:fixed;inset:0;background:rgba(0,47,95,.94);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;gap:16px;font-size:15px;}
 .spinner{width:38px;height:38px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;}
@@ -1190,18 +1198,92 @@ function setSyncing(){document.getElementById('sync-dot').className='sync-dot s-
 function setSyncOk(){document.getElementById('sync-dot').className='sync-dot s-ok';}
 function setSyncErr(){document.getElementById('sync-dot').className='sync-dot s-err';}
 
-async function sbUpsert(table,data){
- setSyncing();
- const{error}=await SB.from(table).upsert(data);
- if(error){setSyncErr();console.error('upsert',table,error);}
- else setSyncOk();
+// ── VERBINDUNG / OFFLINE ─────────────────────────────────
+// Schreibvorgänge, die wegen fehlender Verbindung nicht ankamen, werden hier
+// gesammelt und automatisch nachgeschickt, sobald die Verbindung zurück ist.
+const PENDING_KEY='knights-pending-writes';
+let _pendingWrites=[],_flushing=false,_loadFailed=false;
+try{_pendingWrites=JSON.parse(localStorage.getItem(PENDING_KEY)||'[]')||[];}catch(e){_pendingWrites=[];}
+function _persistPending(){try{localStorage.setItem(PENDING_KEY,JSON.stringify(_pendingWrites));}catch(e){}}
+function _isNetErr(err){
+ if(!navigator.onLine)return true;
+ const m=String((err&&(err.message||err.details))||err||'');
+ return/fetch|network|load failed|timeout|offline|ECONN/i.test(m)||(err&&err.status===0);
 }
-async function sbDelete(table,col,val){
- setSyncing();
- const{error}=await SB.from(table).delete().eq(col,val);
- if(error){setSyncErr();console.error('delete',table,error);}
- else setSyncOk();
+function showToast(msg,kind,ms){
+ const t=document.createElement('div');t.className='app-toast'+(kind==='ok'?' ok':'');t.textContent=msg;
+ document.body.appendChild(t);setTimeout(()=>t.remove(),ms||(kind==='ok'?3000:6000));
 }
+function updateNetBanner(){
+ const n=_pendingWrites.length,off=!navigator.onLine;
+ let el=document.getElementById('net-banner');
+ if(!off&&!n&&!_loadFailed){if(el)el.remove();return;}
+ if(!el){el=document.createElement('div');el.id='net-banner';document.body.appendChild(el);}
+ const nTxt=n?` ${n} Änderung${n===1?'':'en'} noch nicht gespeichert.`:'';
+ if(_loadFailed){
+  el.className='net-banner';
+  el.innerHTML=`<span><strong>Daten konnten nicht geladen werden.</strong> ${off?'Keine Internetverbindung. ':''}Bitte nichts bearbeiten, bis die Daten geladen sind.</span><button onclick="reloadAll()">Neu laden</button>`;
+ }else if(off){
+  el.className='net-banner';
+  el.innerHTML=`<span><strong>Keine Internetverbindung.</strong>${nTxt||' Änderungen können gerade nicht gespeichert werden.'} Sie werden automatisch gespeichert, sobald die Verbindung zurück ist – App bis dahin nicht schliessen.</span>`;
+ }else{
+  el.className='net-banner net-warn';
+  el.innerHTML=`<span><strong>Speichern fehlgeschlagen.</strong>${nTxt} Neuer Versuch läuft automatisch.</span><button onclick="flushPending(true)">Jetzt erneut versuchen</button>`;
+ }
+}
+function _opKey(op){
+ if(op.k==='del')return op.table+'|'+op.col+'='+op.val;
+ const d=op.data||{};
+ return op.table+'|'+(d.id!==undefined?'id='+d.id:d.drill_id!==undefined?'drill_id='+d.drill_id:JSON.stringify(d));
+}
+async function _sbRun(op){
+ try{
+  const{error}=op.k==='up'?await SB.from(op.table).upsert(op.data):await SB.from(op.table).delete().eq(op.col,op.val);
+  return error?{ok:false,error,net:_isNetErr(error)}:{ok:true};
+ }catch(e){return{ok:false,error:e,net:true};}
+}
+function _queue(op){
+ const key=_opKey(op);
+ _pendingWrites=_pendingWrites.filter(p=>p.key!==key);
+ _pendingWrites.push({...op,key});
+ _persistPending();setSyncErr();updateNetBanner();
+}
+// Rückgabe: 'ok' | 'queued' | 'error'
+async function _sbWrite(op){
+ if(_loadFailed){showToast('Nicht gespeichert: Die Daten sind nicht geladen. Bitte zuerst neu laden.');return'error';}
+ setSyncing();
+ // Offline oder es warten noch ältere Änderungen → hinten anstellen (Reihenfolge bleibt erhalten)
+ if(!navigator.onLine||_pendingWrites.length){_queue(op);flushPending();return'queued';}
+ const r=await _sbRun(op);
+ if(r.ok){setSyncOk();return'ok';}
+ console.error(op.k,op.table,r.error);
+ if(r.net){_queue(op);return'queued';}
+ setSyncErr();showToast('Speichern fehlgeschlagen: '+((r.error&&r.error.message)||r.error));
+ return'error';
+}
+async function flushPending(manual){
+ if(_flushing||!_pendingWrites.length)return;
+ if(!navigator.onLine){updateNetBanner();return;}
+ _flushing=true;setSyncing();
+ let done=0;
+ while(_pendingWrites.length){
+  const op=_pendingWrites[0];
+  const r=await _sbRun(op);
+  if(!r.ok&&r.net)break;
+  _pendingWrites=_pendingWrites.filter(p=>p!==op);_persistPending();
+  if(r.ok)done++;else{console.error('flush',op.table,r.error);showToast('Eine Änderung konnte nicht gespeichert werden: '+((r.error&&r.error.message)||r.error));}
+ }
+ _flushing=false;
+ if(_pendingWrites.length){setSyncErr();if(manual)showToast('Immer noch keine Verbindung zur Datenbank.');}
+ else{setSyncOk();if(done)showToast('Verbindung wieder da – alle Änderungen gespeichert.','ok');}
+ updateNetBanner();
+}
+async function sbUpsert(table,data){return _sbWrite({k:'up',table,data});}
+async function sbDelete(table,col,val){return _sbWrite({k:'del',table,col,val});}
+window.addEventListener('online',()=>{updateNetBanner();if(_loadFailed)reloadAll();else flushPending();});
+window.addEventListener('offline',()=>{setSyncErr();updateNetBanner();});
+setInterval(()=>{if(_pendingWrites.length)flushPending();},15000);
+window.addEventListener('beforeunload',e=>{if(_pendingWrites.length){e.preventDefault();e.returnValue='';}});
 
 // ── MAPPERS ──────────────────────────────────────────────
 const fromDB={
@@ -1305,6 +1387,9 @@ async function loadAll(){
  safeQ(()=>SB.from('games').select('*').order('date',{ascending:true})),
  safeQ(()=>SB.from('scouting').select('*')),
  ]);
+ const _coreErr=[teams,seasons,drills,sessions,drawings].find(r=>r&&r.error);
+ if(_coreErr)throw _coreErr.error;
+ _loadFailed=false;
  db.teams=(teams.data||[]).map(fromDB.team);
  db.seasons=(seasons.data||[]).map(fromDB.season);
  // coaches config laden
@@ -1338,8 +1423,9 @@ async function loadAll(){
  db.drillDrawings[r.drill_id]=urls.filter(Boolean);
  });
 
- setSyncOk();
- }catch(e){setSyncErr();console.error('loadAll',e);}
+ if(_pendingWrites.length)flushPending();else setSyncOk();
+ updateNetBanner();
+ }catch(e){_loadFailed=true;setSyncErr();console.error('loadAll',e);updateNetBanner();}
 }
 async function reloadAll(){
  document.getElementById('loading-ov').style.display='flex';
@@ -1767,10 +1853,7 @@ async function saveScouting(){
  const sc={opponent:opp,offense:document.getElementById('scout-offense').value.trim(),defense:document.getElementById('scout-defense').value.trim(),keyPlayers:[..._scoutPlayers]};
  db.scouting[key]=sc;
  closeM('m-scouting');renderOpponentsPanel();
- setSyncing();
- const{error}=await SB.from('scouting').upsert({id:key,opponent:opp,offense:sc.offense||null,defense:sc.defense||null,key_players:sc.keyPlayers},{onConflict:'id'});
- if(error){setSyncErr();alert('Scouting konnte nicht gespeichert werden: '+error.message);}
- else setSyncOk();
+ await sbUpsert('scouting',{id:key,opponent:opp,offense:sc.offense||null,defense:sc.defense||null,key_players:sc.keyPlayers});
 }
 // ── OPPONENTS PANEL ───────────────────────────────────────
 let _oppPlayers=[];
@@ -1884,10 +1967,7 @@ async function _persistOpponent(){
  const sc={opponent:name,offense:document.getElementById('opp-offense').value.trim(),defense:document.getElementById('opp-defense').value.trim(),keyPlayers:[..._oppPlayers]};
  db.scouting[newKey]=sc;
  await sbUpsert('seasons',toDB.season(s));
- setSyncing();
- const{error:scErr}=await SB.from('scouting').upsert({id:newKey,opponent:name,offense:sc.offense||null,defense:sc.defense||null,key_players:sc.keyPlayers},{onConflict:'id'});
- if(scErr){setSyncErr();alert('Gegner konnte nicht gespeichert werden: '+scErr.message);}
- else setSyncOk();
+ await sbUpsert('scouting',{id:newKey,opponent:name,offense:sc.offense||null,defense:sc.defense||null,key_players:sc.keyPlayers});
  return newKey;
 }
 async function saveOpponent(){
@@ -2236,7 +2316,7 @@ async function saveDrill(){
  }
  closeM('m-drill');
  if(bidx>=0&&bidx<currentBlocks.length){
- currentBlocks[bidx]={...currentBlocks[bidx],cat:drill.cat,dur:drill.dur,name:drill.name,desc:drill.desc,drillId:toLib?drill.id:undefined};
+ currentBlocks[bidx]={...currentBlocks[bidx],cat:drill.cat,dur:drill.dur,name:drill.name,desc:drill.desc,drillId:toLib?drill.id:currentBlocks[bidx].drillId};
  renderBlocks();
  } else if(ats){
  currentBlocks.push({cat:drill.cat,dur:drill.dur,name:drill.name,desc:drill.desc,drillId:toLib?drill.id:undefined});
@@ -2536,6 +2616,13 @@ function _ytId(url){
  const m=String(url||'').match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/);
  return m?m[1]:null;
 }
+// Zeichnungen zu einem Trainingsblock (über Drill-ID, sonst über Namen)
+function blockDrawings(b){
+ if(!b||b.type)return[];
+ if(b.drillId&&(db.drillDrawings[b.drillId]||[]).length)return db.drillDrawings[b.drillId];
+ const d=allDrills().find(dr=>b.drillId?dr.id===b.drillId:dr.name===b.name);
+ return d?(db.drillDrawings[d.id]||[]):[];
+}
 function blockPreviews(b){
  // Drill über ID finden, sonst über Namen (ältere Blöcke ohne drillId)
  const d=allDrills().find(dr=>b.drillId?dr.id===b.drillId:dr.name===b.name);
@@ -2553,13 +2640,13 @@ function blockPreviews(b){
  }
  return`<div class="bprev">${thumbs}${vid}</div>`;
 }
-function renderBlocks(){
+function renderBlocks(skipAutoSave){
  const total=currentBlocks.reduce((s,b)=>b.type==='section'?s:s+b.dur,0);
  document.getElementById('total-t').textContent=total+' Min.';
  const el=document.getElementById('block-list');
  if(currentBlocks.length===0){el.innerHTML='<div class="empty">Noch keine Blöcke.</div>';return;}
  const secTotals=calcSecTotals(currentBlocks);
- scheduleAutoSave();
+ if(!skipAutoSave)scheduleAutoSave();
  el.innerHTML=currentBlocks.map((b,i)=>{
  if(b.type==='text'){
  return`<div class="bli bblk-dnd" style="border-left:3px solid #9ca3af;background:#F8F9FA;" draggable="true" ondragstart="_dndStart(event,${i})" ondragover="_dndOver(event,${i})" ondragleave="_dndLeave(event)" ondrop="_dndDrop(event,${i})" ondragend="_dndEnd(event)">
@@ -2643,11 +2730,10 @@ function scheduleAutoSave(){
  if(idx>=0)db.sessions[idx]=sess;else db.sessions.unshift(sess);
  }
  _setAutoStatus('Speichern…','var(--mut)');
- try{
- await sbUpsert('sessions',toDB.session(sess));
- _setAutoStatus(' Automatisch gespeichert','#16a34a');
- setTimeout(()=>_setAutoStatus(''),3000);
- }catch(e){_setAutoStatus('Fehler beim Auto-Speichern','#ef4444');}
+ const res=await sbUpsert('sessions',toDB.session(sess));
+ if(res==='ok'){_setAutoStatus(' Automatisch gespeichert','#16a34a');setTimeout(()=>_setAutoStatus(''),3000);}
+ else if(res==='queued')_setAutoStatus('Offline – wird gespeichert, sobald Verbindung da ist','#ef4444');
+ else _setAutoStatus('Fehler beim Auto-Speichern','#ef4444');
  },2000); // 2s Debounce
 }
 async function saveSession(){
@@ -2731,7 +2817,7 @@ function printSess(id){
  <span style="font-size:11px;color:#666;white-space:nowrap;margin-left:8px;">${b.dur} Min. · ${CL[b.cat]||b.cat}</span>
  </div>
  ${b.desc?`<div style="font-size:12px;color:#444;white-space:pre-line;">${b.desc}</div>`:''}
- ${b.drillId&&db.drillDrawings[b.drillId]&&db.drillDrawings[b.drillId].length?`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">${db.drillDrawings[b.drillId].map(url=>`<img src="${url}" style="max-width:260px;max-height:190px;object-fit:contain;border-radius:6px;border:1px solid #ddd;">`).join('')}</div>`:''}</div>`).join('');
+ ${blockDrawings(b).length?`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">${blockDrawings(b).map(url=>`<img src="${url}" style="max-width:260px;max-height:190px;object-fit:contain;border-radius:6px;border:1px solid #ddd;">`).join('')}</div>`:''}</div>`).join('');
  const html=`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>${s.title}</title>
  <style>
  *{box-sizing:border-box;margin:0;padding:0;}
@@ -2779,7 +2865,7 @@ function mobileExport(id){
  <span style="font-size:13px;color:#666;">${b.dur} Min. · ${CL[b.cat]||b.cat}</span>
  </div>
  ${b.desc?`<div style="font-size:14px;color:#444;line-height:1.5;white-space:pre-line;">${b.desc}</div>`:''}
- ${b.drillId&&db.drillDrawings[b.drillId]&&db.drillDrawings[b.drillId].length?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">${db.drillDrawings[b.drillId].map(url=>`<img src="${url}" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #ddd;">`).join('')}</div>`:''}
+ ${blockDrawings(b).length?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">${blockDrawings(b).map(url=>`<img src="${url}" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #ddd;">`).join('')}</div>`:''}
  ${_mobileVideo(b)}</div>`
  ).join('');
  const html=`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
@@ -2844,7 +2930,7 @@ function viewSess(id){
  <div class="mut" style="font-size:14px;line-height:1.7;">${[t?`${esc(t.name)}`:'',esc(d),`<strong style="color:var(--txt);">${esc(s.totalDur)} Min.</strong>`].filter(Boolean).join(' · ')}</div>
  ${s.goal?`<div style="margin-top:14px;font-size:14px;line-height:1.65;"><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:4px;">Trainingsziel</span>${esc(s.goal)}</div>`:''}
  </div>
- ${(()=>{const st=calcSecTotals(s.blocks);return s.blocks.map((b,i)=>b.type==='section'?`<div class="sdet-sec"${i===0?' style="margin-top:0;border-top:none;padding-top:0;"':''}><span>${esc(b.name)}</span>${st[i]?`<span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:13px;color:var(--mut);">${st[i]} Min.</span>`:''}</div>`:b.type==='game'?`<div class="bli" style="border-left:3px solid #16a34a;background:#f0fdf4;"><span class="btt" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;">🏟️ Spiel</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;"><div class="bname" style="color:#166534;">${esc(b.name||'Spielblock')}${b.format?` · <span style="font-weight:400;">${esc(b.format)}</span>`:''}</div>${b.notes?`<div class="bdesc">${esc(b.notes)}</div>`:''}</div></div>`:`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||esc(b.cat)}</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;"><div class="bname">${esc(b.name)}</div>${b.desc?`<div class="bdesc">${esc(b.desc)}</div>`:''}</div></div>`).join('');})()}
+ ${(()=>{const st=calcSecTotals(s.blocks);return s.blocks.map((b,i)=>b.type==='section'?`<div class="sdet-sec"${i===0?' style="margin-top:0;border-top:none;padding-top:0;"':''}><span>${esc(b.name)}</span>${st[i]?`<span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:13px;color:var(--mut);">${st[i]} Min.</span>`:''}</div>`:b.type==='game'?`<div class="bli" style="border-left:3px solid #16a34a;background:#f0fdf4;"><span class="btt" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;">🏟️ Spiel</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;"><div class="bname" style="color:#166534;">${esc(b.name||'Spielblock')}${b.format?` · <span style="font-weight:400;">${esc(b.format)}</span>`:''}</div>${b.notes?`<div class="bdesc">${esc(b.notes)}</div>`:''}</div></div>`:`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||esc(b.cat)}</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;min-width:0;"><div class="bname">${esc(b.name)}</div>${b.desc?`<div class="bdesc">${esc(b.desc)}</div>`:''}${blockDrawings(b).length?`<div class="sdet-draw">${blockDrawings(b).map((url,k)=>`<img src="${url}" alt="Zeichnung ${k+1}">`).join('')}</div>`:''}</div></div>`).join('');})()}
  ${s.notes?`<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--brd);font-size:14px;line-height:1.65;color:var(--mut);"><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;">Notizen</span>${esc(s.notes)}</div>`:''}`;
  openM('m-sdet');
 }
@@ -3678,6 +3764,11 @@ function _resetScene(){
  DM.editIdx=-1;const _ed=document.getElementById('draw-text-ed');if(_ed)_ed.style.display='none';
  DM.courtTemplate='half';if(DM.canvas)DM.canvas.height=430;
 }
+function refreshDrawingViews(){
+ renderDrills();
+ if(currentBlocks.length)renderBlocks(true);
+ if(viewSessId&&document.getElementById('m-sdet').classList.contains('open'))viewSess(viewSessId);
+}
 function newDrawing(){
  DM.drawingIdx=-1;_resetScene();_tplButtons();pushHist();drawRender();updateDrawTitle();
 }
@@ -3720,7 +3811,7 @@ async function saveDrawing(){
  const drs=db.drillDrawings[DM.editId];
  if(DM.drawingIdx>=0&&DM.drawingIdx<drs.length)drs[DM.drawingIdx]=dataURL;else drs.push(dataURL);
  closeM('m-draw');
- if(document.getElementById('pnl-drills').classList.contains('active'))renderDrills();
+ refreshDrawingViews();
  await sbUpsert('drill_drawings',{drill_id:DM.editId,data_url:JSON.stringify(drs),updated_at:new Date().toISOString()});
 }
 async function deleteDrawing(){
@@ -3728,7 +3819,8 @@ async function deleteDrawing(){
  const drs=db.drillDrawings[DM.editId]||[];
  if(DM.drawingIdx>=0&&DM.drawingIdx<drs.length)drs.splice(DM.drawingIdx,1);
  closeM('m-draw');
- if(document.getElementById('pnl-drills').classList.contains('active'))renderDrills();
+ if(drs.length===0)delete db.drillDrawings[DM.editId];
+ refreshDrawingViews();
  if(drs.length===0){delete db.drillDrawings[DM.editId];await sbDelete('drill_drawings','drill_id',DM.editId);}
  else{db.drillDrawings[DM.editId]=drs;await sbUpsert('drill_drawings',{drill_id:DM.editId,data_url:JSON.stringify(drs),updated_at:new Date().toISOString()});}
 }
