@@ -315,7 +315,11 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .fmt-bar .fmt-sep{width:1px;background:var(--brd);margin:3px 4px;}
 .hm-hero{background:var(--sec);color:#fff;border-radius:8px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;background-image:radial-gradient(circle at 92% 20%,rgba(229,99,15,.35),transparent 45%);}
 .hm-kicker{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.65);font-weight:700;}
-.hm-title{font-size:26px;font-weight:900;letter-spacing:-.3px;margin:2px 0 10px;}
+.hm-title{font-size:26px;font-weight:900;letter-spacing:-.3px;margin:0 0 10px;}
+.hm-info{flex-basis:100%;border-top:1px solid rgba(255,255,255,.15);padding-top:12px;font-size:13px;line-height:1.55;color:rgba(255,255,255,.78);display:flex;flex-direction:column;gap:3px;}
+.hm-info strong{color:#F6A469;}
+.hm-info b{color:#fff;font-weight:700;}
+.hm-info a{color:#F6A469;font-weight:700;cursor:pointer;text-decoration:underline;}
 .hm-stats{display:flex;gap:8px;flex-wrap:wrap;}
 .hm-stat{background:rgba(255,255,255,.1);border-radius:6px;padding:6px 12px;font-size:13px;color:rgba(255,255,255,.8);cursor:pointer;}
 .hm-stat:hover{background:rgba(255,255,255,.18);}
@@ -683,11 +687,14 @@ function checkPw(){
 <div class="pnl active" id="pnl-home">
  <div class="hm-hero">
   <div class="hm-hero-txt">
-   <div class="hm-kicker" id="hm-date"></div>
    <div class="hm-title">Trainingsplaner</div>
    <div class="hm-stats" id="hm-stats"></div>
   </div>
   <button class="hm-cta" onclick="switchTab('builder');clearBuilder();">+ Neues Training</button>
+  <div class="hm-info">
+   <div><strong>Für alle Knights Coaches:</strong> Alle haben die gleichen Rechte – <b>bitte nur eigene Mannschaften bearbeiten.</b> Inspiriert euch gegenseitig.</div>
+   <div>Unterwegs: Mobile-Ansicht pro Training, Bearbeiten am besten am Desktop. Ideen zur Weiterentwicklung → <a onclick="switchTab('wishlist')">Wishlist</a></div>
+  </div>
  </div>
  <div class="hm-grid">
   <div class="hm-main">
@@ -702,18 +709,8 @@ function checkPw(){
   </div>
   <div class="hm-side">
    <section class="hm-card">
-    <div class="hm-h">Schnellzugriff</div>
-    <div class="hm-links" id="hm-links"></div>
-   </section>
-   <section class="hm-card">
     <div class="hm-h"><span>Teams</span><a class="hm-more" onclick="switchTab('season')">Verwalten →</a></div>
     <div id="hm-teams"></div>
-   </section>
-   <section class="hm-card hm-note">
-    <div class="hm-note-t">Für alle Knights Coaches</div>
-    <div>Alle haben die gleichen Rechte – <strong>bitte nur eigene Mannschaften bearbeiten.</strong> Inspiriert euch gegenseitig.</div>
-    <div>Unterwegs: Mobile-Ansicht pro Training. Bearbeiten geht am besten am Desktop.</div>
-    <div>Ideen zur Weiterentwicklung → <a onclick="switchTab('wishlist')">Wishlist</a></div>
    </section>
   </div>
  </div>
@@ -1712,13 +1709,8 @@ function _hmSessRow(s,isNext){
 }
 function renderHome(){
  const today=new Date();const iso=today.toISOString().slice(0,10);
- const dEl=document.getElementById('hm-date');
- if(dEl)dEl.textContent=today.toLocaleDateString('de-CH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
  const st=document.getElementById('hm-stats');
  if(st)st.innerHTML=`<span class="hm-stat" onclick="switchTab('sessions')"><b>${db.sessions.length}</b>Trainings</span><span class="hm-stat" onclick="switchTab('drills')"><b>${allDrills().length}</b>Drills &amp; Systeme</span><span class="hm-stat" onclick="switchTab('season')"><b>${db.teams.length}</b>Teams</span>`;
- const lk=document.getElementById('hm-links');
- if(lk)lk.innerHTML=[['sessions','Trainings',IC.eye],['drills','Bibliothek',_svg('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5V21h16"/>')],['season','Saisonplanung',_svg('<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>')],['wishlist','Wishlist',_svg('<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>')]]
-  .map(([tab,label,ic])=>`<div class="hm-link" onclick="switchTab('${tab}')">${ic}<span>${label}</span></div>`).join('');
  const next=db.sessions.filter(s=>s.date&&s.date>=iso).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);
  const nEl=document.getElementById('home-next');
  if(nEl)nEl.innerHTML=next.length?next.map((s,k)=>_hmSessRow(s,k===0)).join(''):`<div class="hm-empty">Noch kein Training geplant. <a class="hm-more" onclick="switchTab('builder');clearBuilder();">Jetzt planen →</a></div>`;
