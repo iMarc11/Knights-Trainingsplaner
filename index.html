@@ -306,6 +306,57 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .fmt-bar button{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:26px;padding:0 7px;border:1px solid var(--brd);background:#fff;border-radius:4px;cursor:pointer;font-size:12px;color:var(--fg);line-height:1;font-family:inherit;}
 .fmt-bar button:hover{background:#f0f1f3;}
 .fmt-bar .fmt-sep{width:1px;background:var(--brd);margin:3px 4px;}
+.hm-hero{background:var(--sec);color:#fff;border-radius:8px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;background-image:radial-gradient(circle at 92% 20%,rgba(229,99,15,.35),transparent 45%);}
+.hm-kicker{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.65);font-weight:700;}
+.hm-title{font-size:26px;font-weight:900;letter-spacing:-.3px;margin:2px 0 10px;}
+.hm-stats{display:flex;gap:8px;flex-wrap:wrap;}
+.hm-stat{background:rgba(255,255,255,.1);border-radius:6px;padding:6px 12px;font-size:13px;color:rgba(255,255,255,.8);cursor:pointer;}
+.hm-stat:hover{background:rgba(255,255,255,.18);}
+.hm-stat b{font-size:18px;color:#fff;margin-right:5px;}
+.hm-cta{background:var(--pri);color:#fff;border:none;border-radius:6px;padding:13px 22px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(229,99,15,.4);}
+.hm-cta:hover{background:var(--prid);}
+.hm-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px;align-items:start;}
+.hm-main,.hm-side{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.hm-card{background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:16px 18px;}
+.hm-h{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.hm-more{font-size:12px;font-weight:700;text-transform:none;letter-spacing:0;color:var(--pri);cursor:pointer;}
+.hm-sess{display:flex;align-items:center;gap:12px;padding:9px 6px;border-radius:6px;cursor:pointer;border-top:1px solid #EEF0F3;}
+.hm-sess:first-child{border-top:none;}
+.hm-sess:hover{background:#F6F7F9;}
+.hm-day{min-width:44px;text-align:center;border-radius:6px;padding:4px 0;background:#F2F4F6;}
+.hm-day b{display:block;font-size:18px;font-weight:900;color:var(--sec);line-height:1.1;}
+.hm-day span{font-size:10px;text-transform:uppercase;color:var(--mut);letter-spacing:.05em;}
+.hm-sess.next .hm-day{background:var(--pri);}
+.hm-sess.next .hm-day b,.hm-sess.next .hm-day span{color:#fff;}
+.hm-sess-t{font-size:14px;font-weight:700;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hm-sess-m{font-size:12px;color:var(--mut);}
+.hm-pill{font-size:11px;font-weight:700;background:#EEF2F7;color:var(--sec);border-radius:10px;padding:2px 8px;white-space:nowrap;}
+.hm-empty{font-size:13px;color:var(--mut);padding:6px 0;}
+.hm-links{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.hm-link{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--brd);border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;color:var(--fg);}
+.hm-link:hover{border-color:var(--sec);background:#F6F7F9;}
+.hm-link .i-svg{color:var(--pri);flex-shrink:0;}
+.hm-team{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;cursor:pointer;border-top:1px solid #EEF0F3;}
+.hm-team:first-child{border-top:none;}
+.hm-team:hover .hm-team-n{color:var(--pri);}
+.hm-team-n{font-weight:700;color:var(--fg);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hm-team-c{font-size:12px;color:var(--mut);white-space:nowrap;}
+.hm-note{background:#FFF7F0;border-color:#F6D5BC;font-size:12.5px;line-height:1.6;color:var(--fg);display:flex;flex-direction:column;gap:4px;}
+.hm-note-t{font-weight:800;color:var(--pri);font-size:13px;}
+.hm-note a{color:var(--pri);font-weight:700;cursor:pointer;}
+@media(max-width:860px){.hm-grid{grid-template-columns:1fr;}.hm-hero{padding:18px;}.hm-title{font-size:22px;}.hm-cta{width:100%;}}
+.tm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;}
+.tm-card{position:relative;background:var(--card);border:1px solid var(--brd);border-radius:6px;padding:10px 12px;cursor:pointer;transition:border-color .15s,background .15s;min-width:0;}
+.tm-card:hover{border-color:var(--sec);}
+.tm-name{font-size:15px;font-weight:800;color:var(--sec);padding-right:56px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tm-meta{font-size:12px;color:var(--mut);margin-top:1px;}
+.tm-coach{font-size:12px;color:var(--fg);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tm-act{position:absolute;top:6px;right:6px;display:flex;gap:2px;opacity:.35;transition:opacity .15s;}
+.tm-card:hover .tm-act{opacity:1;}
+@media(hover:none){.tm-act{opacity:1;}}
+.tm-act button{width:26px;height:26px;border:none;background:transparent;border-radius:4px;cursor:pointer;color:var(--mut);display:inline-flex;align-items:center;justify-content:center;}
+.tm-act button:hover{background:#EEF0F3;color:var(--sec);}
+.tm-act button.del:hover{background:#FEE2E2;color:#B91C1C;}
 .sdet-draw{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
 .sdet-draw img{max-width:320px;width:100%;height:auto;border-radius:6px;border:1px solid var(--brd);background:#fff;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
@@ -560,40 +611,42 @@ function checkPw(){
 
 <!-- HOME / DASHBOARD -->
 <div class="pnl active" id="pnl-home">
- <!-- Info-Box -->
- <div style="background:#fff;border:1px solid var(--brd);border-radius:4px;padding:14px 18px;margin-bottom:18px;display:flex;gap:14px;align-items:flex-start;">
-    
- <div>
- <div style="font-size:13px;font-weight:900;color:var(--pri);margin-bottom:4px;letter-spacing:-.2px;">Für alle Knights Coaches</div>
- <div style="font-size:12px;color:var(--fg);line-height:1.7;">Alle Coaches teilen die gleichen Rechte — <strong>bitte nur eigene Mannschaften bearbeiten.</strong>Inspiriert euch gegenseitig und teilt eure Ideen. <br>Für unterwegs: Mobile-Ansicht pro Training verfügbar, Bearbeiten besser am Desktop.<br>Wünsche &amp; Ideen zur Weiterentwicklung → <strong style="cursor:pointer;color:var(--pri);" onclick="switchTab('wishlist')">Wishlist</strong></div>
+ <div class="hm-hero">
+  <div class="hm-hero-txt">
+   <div class="hm-kicker" id="hm-date"></div>
+   <div class="hm-title">Trainingsplaner</div>
+   <div class="hm-stats" id="hm-stats"></div>
+  </div>
+  <button class="hm-cta" onclick="switchTab('builder');clearBuilder();">+ Neues Training</button>
  </div>
+ <div class="hm-grid">
+  <div class="hm-main">
+   <section class="hm-card">
+    <div class="hm-h">Als Nächstes</div>
+    <div id="home-next"></div>
+   </section>
+   <section class="hm-card">
+    <div class="hm-h"><span>Letzte Trainings</span><a class="hm-more" onclick="switchTab('sessions')">Alle Trainings →</a></div>
+    <div id="home-recent"></div>
+   </section>
+  </div>
+  <div class="hm-side">
+   <section class="hm-card">
+    <div class="hm-h">Schnellzugriff</div>
+    <div class="hm-links" id="hm-links"></div>
+   </section>
+   <section class="hm-card">
+    <div class="hm-h"><span>Teams</span><a class="hm-more" onclick="switchTab('season')">Verwalten →</a></div>
+    <div id="hm-teams"></div>
+   </section>
+   <section class="hm-card hm-note">
+    <div class="hm-note-t">Für alle Knights Coaches</div>
+    <div>Alle haben die gleichen Rechte – <strong>bitte nur eigene Mannschaften bearbeiten.</strong> Inspiriert euch gegenseitig.</div>
+    <div>Unterwegs: Mobile-Ansicht pro Training. Bearbeiten geht am besten am Desktop.</div>
+    <div>Ideen zur Weiterentwicklung → <a onclick="switchTab('wishlist')">Wishlist</a></div>
+   </section>
+  </div>
  </div>
- <!-- Navigation Cards: 4 in einer Reihe -->
- <div class="home-nav-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
- <div onclick="switchTab('builder');clearBuilder();" style="background:var(--sec);border-radius:4px;padding:18px 16px;cursor:pointer;transition:opacity .15s;" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">
-      
- <div style="font-size:13px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:3px;">Neues Training</div>
- <div style="font-size:11px;color:rgba(255,255,255,.75);">Aufbauen & planen</div>
- </div>
- <div onclick="switchTab('sessions');" style="background:var(--card);border:1px solid var(--brd);border-radius:4px;padding:18px 16px;cursor:pointer;transition:background .15s;" onmouseenter="this.style.background='#F8F9FA'" onmouseleave="this.style.background='var(--card)'">
-      
- <div style="font-size:13px;font-weight:900;color:var(--fg);line-height:1.2;margin-bottom:3px;">Trainings</div>
- <div style="font-size:11px;color:var(--mut);">Alle Einheiten</div>
- </div>
- <div onclick="switchTab('drills');" style="background:var(--card);border:1px solid var(--brd);border-radius:4px;padding:18px 16px;cursor:pointer;transition:background .15s;" onmouseenter="this.style.background='#F8F9FA'" onmouseleave="this.style.background='var(--card)'">
-      
- <div style="font-size:13px;font-weight:900;color:var(--fg);line-height:1.2;margin-bottom:3px;">Drills &amp; Systeme</div>
- <div style="font-size:11px;color:var(--mut);">Bibliothek</div>
- </div>
- <div onclick="switchTab('season');" style="background:var(--card);border:1px solid var(--brd);border-radius:4px;padding:18px 16px;cursor:pointer;transition:background .15s;" onmouseenter="this.style.background='#F8F9FA'" onmouseleave="this.style.background='var(--card)'">
-      
- <div style="font-size:13px;font-weight:900;color:var(--fg);line-height:1.2;margin-bottom:3px;">Saisonplanung</div>
- <div style="font-size:11px;color:var(--mut);">Phasen & Wochen</div>
- </div>
- </div>
- <!-- Letzte Trainings -->
- <div style="font-size:12px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Letzte Trainings</div>
- <div id="home-recent"></div>
 </div>
 
 <!-- TEAMS -->
@@ -1577,21 +1630,33 @@ function switchTab(t,fromHistory){
   else{history.replaceState({tab:t},'','#'+t);}
  }
 }
-function renderHome(){
- // Letzte Trainings
- const el=document.getElementById('home-recent');
- const recent=[...db.sessions].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,4);
- if(recent.length===0){el.innerHTML='<div class="empty" style="margin:0;">Noch keine Trainings.</div>';return;}
- el.innerHTML=recent.map(s=>{
+function _hmSessRow(s,isNext){
  const t=getTeam(s.teamId);
- const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'}):'–';
- return`<div onclick="switchTab('sessions');viewSess('${esc(s.id)}')" style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:12px;margin-bottom:6px;cursor:pointer;" onmouseenter="this.style.borderColor='var(--pri)'" onmouseleave="this.style.borderColor='var(--brd)'">
- <div style="text-align:center;min-width:36px;"><div style="font-size:18px;font-weight:900;color:var(--pri);line-height:1;">${s.date?new Date(s.date+'T00:00:00').getDate():'–'}</div><div style="font-size:9px;text-transform:uppercase;color:var(--mut);letter-spacing:.3px;">${s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{month:'short'}):''}</div></div>
- <div style="width:1px;background:var(--brd);align-self:stretch;"></div>
- <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(s.title)}</div><div style="font-size:11px;color:var(--mut);">${t?`${esc(t.name)}`:''} · ${esc(s.totalDur)} Min.</div></div>
- <div style="font-size:11px;color:var(--mut);white-space:nowrap;">${esc(d)}</div>
+ const dt=s.date?new Date(s.date+'T00:00:00'):null;
+ const wd=dt?dt.toLocaleDateString('de-CH',{weekday:'short'}).replace('.',''):'';
+ return`<div class="hm-sess${isNext?' next':''}" onclick="switchTab('sessions');viewSess('${esc(s.id)}')">
+ <div class="hm-day"><b>${dt?dt.getDate():'–'}</b><span>${dt?dt.toLocaleDateString('de-CH',{month:'short'}).replace('.',''):''}</span></div>
+ <div style="flex:1;min-width:0;"><div class="hm-sess-t">${esc(s.title||'Ohne Titel')}</div><div class="hm-sess-m">${wd?esc(wd)+' · ':''}${esc(s.totalDur||0)} Min.</div></div>
+ ${t?`<span class="hm-pill">${esc(t.name)}</span>`:''}
  </div>`;
- }).join('');
+}
+function renderHome(){
+ const today=new Date();const iso=today.toISOString().slice(0,10);
+ const dEl=document.getElementById('hm-date');
+ if(dEl)dEl.textContent=today.toLocaleDateString('de-CH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ const st=document.getElementById('hm-stats');
+ if(st)st.innerHTML=`<span class="hm-stat" onclick="switchTab('sessions')"><b>${db.sessions.length}</b>Trainings</span><span class="hm-stat" onclick="switchTab('drills')"><b>${allDrills().length}</b>Drills &amp; Systeme</span><span class="hm-stat" onclick="switchTab('season')"><b>${db.teams.length}</b>Teams</span>`;
+ const lk=document.getElementById('hm-links');
+ if(lk)lk.innerHTML=[['sessions','Trainings',IC.eye],['drills','Bibliothek',_svg('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5V21h16"/>')],['season','Saisonplanung',_svg('<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>')],['wishlist','Wishlist',_svg('<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>')]]
+  .map(([tab,label,ic])=>`<div class="hm-link" onclick="switchTab('${tab}')">${ic}<span>${label}</span></div>`).join('');
+ const next=db.sessions.filter(s=>s.date&&s.date>=iso).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);
+ const nEl=document.getElementById('home-next');
+ if(nEl)nEl.innerHTML=next.length?next.map((s,k)=>_hmSessRow(s,k===0)).join(''):`<div class="hm-empty">Noch kein Training geplant. <a class="hm-more" onclick="switchTab('builder');clearBuilder();">Jetzt planen →</a></div>`;
+ const el=document.getElementById('home-recent');
+ const recent=db.sessions.filter(s=>!s.date||s.date<iso).sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);
+ el.innerHTML=recent.length?recent.map(s=>_hmSessRow(s,false)).join(''):'<div class="hm-empty">Noch keine Trainings.</div>';
+ const tm=document.getElementById('hm-teams');
+ if(tm)tm.innerHTML=db.teams.length?db.teams.map(t=>{const n=db.sessions.filter(s=>s.teamId===t.id).length;return`<div class="hm-team" onclick="switchTab('season');selectTeamForSeason('${t.id}')"><span>${t.emoji||'🏀'}</span><span class="hm-team-n">${esc(t.name)}</span><span class="hm-team-c">${n} Training${n===1?'':'s'}</span></div>`;}).join(''):'<div class="hm-empty">Noch keine Teams.</div>';
 }
 function openM(id){document.getElementById(id).classList.add('open');}
 function closeM(id){document.getElementById(id).classList.remove('open');}
@@ -1634,16 +1699,12 @@ async function deleteTeam(id){
  await sbDelete('teams','id',id);
 }
 function renderTeams(){
- const teamHTML=db.teams.length===0?'':db.teams.map(t=>`<div data-team-card="${t.id}" onclick="selectTeamForSeason('${t.id}')" style="background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:7px;cursor:pointer;transition:border-color .15s,background .15s;">
- <div style="font-size:22px;flex-shrink:0;">${t.emoji}</div>
- <div style="flex:1;min-width:0;">
- <div style="font-size:15px;font-weight:600;color:var(--sec);">${t.name}</div>
- <div style="font-size:13px;color:var(--mut);margin-top:2px;">${CE[t.cat]||t.cat} · ${t.age}${t.trainer?` · ${t.trainer}`:''}${t.coTrainer?` · ${t.coTrainer}`:''}</div>
- </div>
- <div class="flex g1" style="flex-shrink:0;">
- ${iconBtn('edit','Bearbeiten',`event.stopPropagation();openTeamMdl('${t.id}')`)}
- <button class="btn btn-dan btn-xs" onclick="event.stopPropagation();deleteTeam('${t.id}')">Löschen</button>
- </div></div>`).join('');
+ const teamHTML=db.teams.length===0?'':`<div class="tm-grid">${db.teams.map(t=>`<div class="tm-card" data-team-card="${t.id}" onclick="selectTeamForSeason('${t.id}')">
+ <div class="tm-name">${t.emoji?t.emoji+' ':''}${esc(t.name)}</div>
+ <div class="tm-meta">${CE[t.cat]||t.cat} · ${esc(t.age)}</div>
+ ${t.trainer||t.coTrainer?`<div class="tm-coach" title="${esc([t.trainer,t.coTrainer].filter(Boolean).join(', '))}">${esc([t.trainer,t.coTrainer].filter(Boolean).join(' · '))}</div>`:''}
+ <div class="tm-act"><button onclick="event.stopPropagation();openTeamMdl('${t.id}')" title="Bearbeiten" aria-label="Bearbeiten">${IC.edit}</button><button class="del" onclick="event.stopPropagation();deleteTeam('${t.id}')" title="Löschen" aria-label="Löschen">${IC.trash}</button></div>
+ </div>`).join('')}</div>`;
  // pnl-teams (Fallback)
  const g1=document.getElementById('team-grid'),e1=document.getElementById('team-empty');
  if(g1){g1.innerHTML=teamHTML;}
