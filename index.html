@@ -302,6 +302,10 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .dstrip-more{width:44px;height:44px;border-radius:4px;border:1px solid var(--brd);background:#f0f1f3;font-size:12px;font-weight:700;color:var(--mut);cursor:pointer;}
 .dstrip>.btn{display:inline-flex!important;align-items:center;justify-content:center;box-sizing:border-box;height:30px;margin:0!important;line-height:1;vertical-align:middle;}
 .dthumb-del:hover{background:#B91C1C;}
+.fmt-bar{display:flex;gap:2px;margin:0 0 3px;flex-wrap:wrap;}
+.fmt-bar button{min-width:28px;height:26px;padding:0 7px;border:1px solid var(--brd);background:#fff;border-radius:4px;cursor:pointer;font-size:12px;color:var(--fg);line-height:1;font-family:inherit;}
+.fmt-bar button:hover{background:#f0f1f3;}
+.fmt-bar .fmt-sep{width:1px;background:var(--brd);margin:3px 4px;}
 .sdet-draw{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
 .sdet-draw img{max-width:320px;width:100%;height:auto;border-radius:6px;border:1px solid var(--brd);background:#fff;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
@@ -433,6 +437,78 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 <script>
 // ── Security helper: HTML-escape user-generated content before innerHTML ──
 function esc(s){const d=document.createElement('div');d.appendChild(document.createTextNode(String(s??'')));return d.innerHTML;}
+// ── TEXT-FORMATIERUNG ── **fett**, *kursiv*, ==markiert==, "- " Aufzählung, "1. " Nummerierung
+function fmtInline(h){
+ return h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+  .replace(/==(.+?)==/g,'<mark style="background:#FEF08A;color:inherit;padding:0 2px;border-radius:2px;">$1</mark>')
+  .replace(/\*([^*\s][^*]*?)\*/g,'<em>$1</em>');
+}
+function fmt(t){
+ if(!t)return'';
+ const lines=esc(String(t)).split(/\r?\n/);
+ let out='',list=null;
+ const close=()=>{if(list){out+=`</${list}>`;list=null;}};
+ const LS='margin:4px 0 4px 1.4em;padding:0;';
+ for(const ln of lines){
+  let m;
+  if((m=ln.match(/^\s*[-•*]\s+(.*)$/))){if(list!=='ul'){close();out+=`<ul style="${LS}list-style:disc;">`;list='ul';}out+=`<li>${fmtInline(m[1])}</li>`;}
+  else if((m=ln.match(/^\s*(\d+)[.)]\s+(.*)$/))){if(list!=='ol'){close();out+=`<ol start="${m[1]}" style="${LS}list-style:decimal;">`;list='ol';}out+=`<li>${fmtInline(m[2])}</li>`;}
+  else{close();out+=fmtInline(ln)+'<br>';}
+ }
+ close();
+ return out.replace(/(<br>)+$/,'');
+}
+// Kurzfassung ohne Formatierungszeichen (für Vorschauen)
+const FMT_FIELDS=['s-goal','s-notes','t-desc','wk-no','gm-notes','scout-offense','scout-defense','opp-offense','opp-defense','d-steps','d-desc','d-coach','gb-notes','tb-text','b-desc'];
+function fmtApply(id,kind){
+ const ta=document.getElementById(id);if(!ta)return;
+ const v=ta.value,a=ta.selectionStart,b=ta.selectionEnd;
+ let nv,na,nb;
+ if(kind==='ul'||kind==='ol'){
+  const ls=v.lastIndexOf('\n',a-1)+1;let le=v.indexOf('\n',Math.max(b-(b>a&&v[b-1]==='\n'?1:0),a));if(le<0)le=v.length;
+  const lines=v.slice(ls,le).split('\n');
+  const re=kind==='ul'?/^\s*[-•*]\s+/:/^\s*\d+[.)]\s+/;
+  const all=lines.every(l=>re.test(l)||!l.trim());
+  let k=0;
+  const out=lines.map(l=>{
+   const clean=l.replace(/^\s*([-•*]|\d+[.)])\s+/,'');
+   if(all)return clean;
+   if(!l.trim()&&lines.length>1)return l;
+   k++;return(kind==='ul'?'- ':k+'. ')+clean;
+  }).join('\n');
+  nv=v.slice(0,ls)+out+v.slice(le);na=ls;nb=ls+out.length;
+ }else{
+  const mk=kind==='b'?'**':kind==='i'?'*':'==';
+  const sel=v.slice(a,b);
+  if(sel.startsWith(mk)&&sel.endsWith(mk)&&sel.length>=2*mk.length){const inner=sel.slice(mk.length,sel.length-mk.length);nv=v.slice(0,a)+inner+v.slice(b);na=a;nb=a+inner.length;}
+  else if(v.slice(a-mk.length,a)===mk&&v.slice(b,b+mk.length)===mk){nv=v.slice(0,a-mk.length)+sel+v.slice(b+mk.length);na=a-mk.length;nb=na+sel.length;}
+  else{const t=sel||(kind==='b'?'fett':kind==='i'?'kursiv':'markiert');nv=v.slice(0,a)+mk+t+mk+v.slice(b);na=a+mk.length;nb=na+t.length;}
+ }
+ ta.value=nv;ta.focus();ta.setSelectionRange(na,nb);
+ ta.dispatchEvent(new Event('input',{bubbles:true}));
+}
+function initFmtBars(){
+ FMT_FIELDS.forEach(id=>{
+  const ta=document.getElementById(id);
+  if(!ta||ta.previousElementSibling&&ta.previousElementSibling.classList.contains('fmt-bar'))return;
+  const bar=document.createElement('div');bar.className='fmt-bar';
+  const B=(k,html,title)=>`<button type="button" title="${title}" onmousedown="event.preventDefault()" onclick="fmtApply('${id}','${k}')">${html}</button>`;
+  bar.innerHTML=B('b','<strong>F</strong>','Fett (Strg/Cmd+B)')+B('i','<em>K</em>','Kursiv (Strg/Cmd+I)')+B('m','<mark style="background:#FEF08A;padding:0 3px;">M</mark>','Markieren')+'<span class="fmt-sep"></span>'+B('ul','• Liste','Aufzählung')+B('ol','1. Liste','Nummerierte Liste');
+  ta.parentNode.insertBefore(bar,ta);
+  ta.addEventListener('keydown',e=>{
+   if(!(e.metaKey||e.ctrlKey))return;
+   const k=e.key.toLowerCase();
+   if(k==='b'||k==='i'){e.preventDefault();fmtApply(id,k);}
+  });
+ });
+}
+document.addEventListener('DOMContentLoaded',initFmtBars);
+if(document.readyState!=='loading')setTimeout(initFmtBars,0);
+function fmtPlain(t,n){
+ let p=String(t||'').replace(/\*\*|==/g,'').replace(/\*([^*\s][^*]*?)\*/g,'$1').replace(/^\s*[-•*]\s+/gm,'• ');
+ if(n&&p.length>n)p=p.slice(0,n)+'…';
+ return esc(p);
+}
 
 // Access check — client-side only; not a substitute for server auth
 const _k=atob('MTk5Mg==');
@@ -1708,7 +1784,7 @@ function renderSeason(){
    <div class="sp-wk-date"><span class="sp-kw">KW ${kw(w)}</span><span>${fmt(w)}–${fmt(we)}</span>${isCur?'<span class="sp-badge">Diese Woche</span>':''}</div>
    <div class="sp-wk-body">
     <div class="sp-wk-title">${wd.focus?esc(wd.focus):`<span class="mut">${p?esc(p.name):'Kein Fokus'}</span>`}${wd.focus&&p?`<span class="sp-wk-ph">${esc(p.name)}</span>`:''}</div>
-    ${wd.note?`<div class="sp-wk-note">${esc(wd.note)}</div>`:''}
+    ${wd.note?`<div class="sp-wk-note">${fmt(wd.note)}</div>`:''}
     ${chips?`<div class="sp-chips">${chips}</div>`:''}
    </div>
    <span class="sp-wk-go">${IC.edit}</span>
@@ -2121,9 +2197,9 @@ function dcHTML(d){
  </div>
  <div style="display:flex;align-items:flex-start;">
  <div style="flex:1;min-width:0;">
- ${d.desc?`<div class="dc-desc">${esc(d.desc)}</div>`:''}
- ${isSys&&d.steps?`<div class="dc-steps">${esc(d.steps)}</div>`:''}
- ${d.coaching?`<div class="dc-tip"> ${esc(d.coaching)}</div>`:''}
+ ${d.desc?`<div class="dc-desc">${fmt(d.desc)}</div>`:''}
+ ${isSys&&d.steps?`<div class="dc-steps">${fmt(d.steps)}</div>`:''}
+ ${d.coaching?`<div class="dc-tip"> ${fmt(d.coaching)}</div>`:''}
  </div>
  </div>
  ${drawThumb}
@@ -2151,7 +2227,7 @@ function openDrillPreview(id){
  document.getElementById('dp-meta').innerHTML=metaParts.map(([ic,t])=>`<span style="display:inline-flex;align-items:center;gap:5px;background:var(--card2,#F3F4F6);border-radius:4px;padding:3px 8px;">${IC[ic]}${esc(t)}</span>`).join('');
  // Beschreibung
  const descSec=document.getElementById('dp-desc-sec');
- if(d.desc){document.getElementById('dp-desc').textContent=d.desc;descSec.style.display='';}
+ if(d.desc){document.getElementById('dp-desc').innerHTML=fmt(d.desc);descSec.style.display='';}
  else{descSec.style.display='none';}
  // Schritte
  const stepsSec=document.getElementById('dp-steps-sec');
@@ -2160,13 +2236,13 @@ function openDrillPreview(id){
   const lines=d.steps.split('\n').map(l=>l.trim()).filter(l=>l);
   stepsList.innerHTML=lines.map(l=>{
    const clean=l.replace(/^\d+[\.\)]\s*/,'');
-   return`<li style="font-size:14px;line-height:1.65;color:var(--fg);">${esc(clean)}</li>`;
+   return`<li style="font-size:14px;line-height:1.65;color:var(--fg);">${fmtInline(esc(clean.replace(/^[-•*]\s+/,'')))}</li>`;
   }).join('');
   stepsSec.style.display='';
  }else{stepsSec.style.display='none';}
  // Coaching
  const coachSec=document.getElementById('dp-coach-sec');
- if(d.coaching){document.getElementById('dp-coach').textContent=d.coaching;coachSec.style.display='';}
+ if(d.coaching){document.getElementById('dp-coach').innerHTML=fmt(d.coaching);coachSec.style.display='';}
  else{coachSec.style.display='none';}
  // Zeichnungen
  const drawings=db.drillDrawings[d.id]||[];
@@ -2590,7 +2666,7 @@ function renderBlocks(skipAutoSave){
  <span class="blk-drag-handle" style="cursor:grab;color:#ccc;font-size:16px;flex-shrink:0;padding:0 2px;user-select:none;">⠿</span>
  <span class="btt" style="background:#f3f4f6;color:#6b7280;border:1px solid #e2e4e8;">Notiz</span>
  ${b.dur?`<span class="bdur">${b.dur}min</span>`:''}
- <div style="flex:1;"><div class="bname" style="color:#374151;">${b.name}</div>${b.text?`<div class="bdesc" style="white-space:pre-line;">${b.text.length>100?b.text.slice(0,100)+'…':b.text}</div>`:''}</div>
+ <div style="flex:1;"><div class="bname" style="color:#374151;">${b.name}</div>${b.text?`<div class="bdesc" style="white-space:pre-line;">${fmtPlain(b.text,100)}</div>`:''}</div>
  <div class="bact">
  <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''} title="Nach oben" aria-label="Nach oben">${IC.up}</button>
  <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''} title="Nach unten" aria-label="Nach unten">${IC.down}</button>
@@ -2603,7 +2679,7 @@ function renderBlocks(skipAutoSave){
  <span class="blk-drag-handle" style="cursor:grab;color:#86efac;font-size:16px;flex-shrink:0;padding:0 2px;user-select:none;">⠿</span>
  <span class="btt" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;">🏟️ Spielblock</span>
  <span class="bdur">${b.dur}min</span>
- <div style="flex:1;"><div class="bname" style="color:#166534;">${esc(b.name||'Spielblock')}${b.format?` <span style="font-weight:400;color:#4ade80;">· ${esc(b.format)}</span>`:''}</div>${b.notes?`<div class="bdesc">${esc(b.notes.length>80?b.notes.slice(0,80)+'…':b.notes)}</div>`:''}</div>
+ <div style="flex:1;"><div class="bname" style="color:#166534;">${esc(b.name||'Spielblock')}${b.format?` <span style="font-weight:400;color:#4ade80;">· ${esc(b.format)}</span>`:''}</div>${b.notes?`<div class="bdesc">${fmtPlain(b.notes,80)}</div>`:''}</div>
  <div class="bact">
  <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''} title="Nach oben" aria-label="Nach oben">${IC.up}</button>
  <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''} title="Nach unten" aria-label="Nach unten">${IC.down}</button>
@@ -2626,7 +2702,7 @@ function renderBlocks(skipAutoSave){
  <span class="blk-drag-handle" style="cursor:grab;color:#ccc;font-size:16px;flex-shrink:0;padding:0 2px;user-select:none;">⠿</span>
  <span class="btt type-${b.cat}">${CL[b.cat]||b.cat}</span>
  <span class="bdur">${b.dur}min</span>
- <div style="flex:1;min-width:0;"><div class="bname">${b.name}</div>${b.desc?`<div class="bdesc">${b.desc.length>80?b.desc.slice(0,80)+'…':b.desc}</div>`:''}${blockPreviews(b)}</div>
+ <div style="flex:1;min-width:0;"><div class="bname">${b.name}</div>${b.desc?`<div class="bdesc">${fmtPlain(b.desc,80)}</div>`:''}${blockPreviews(b)}</div>
  <div class="bact">
  <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},-1)" ${i===0?'disabled':''} title="Nach oben" aria-label="Nach oben">${IC.up}</button>
  <button class="blk-move-btn btn btn-sec btn-xs" onclick="moveBlock(${i},1)" ${i===currentBlocks.length-1?'disabled':''} title="Nach unten" aria-label="Nach unten">${IC.down}</button>
@@ -2748,12 +2824,12 @@ function printSess(id){
  const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'';
  const cc={aufwaermen:'#f97316',ballhandling:'#f59e0b',passspiel:'#10b981',technik:'#06b6d4',verteidigung:'#3b82f6',angriff:'#ef4444',kondition:'#8b5cf6',spielform:'#ec4899',systeme:'#6b7280'};
  const _pst=calcSecTotals(s.blocks);
- const blocksHtml=s.blocks.map((b,i)=>b.type==='text'?`<div style="background:#F8F9FA;border:1px solid #e2e4e8;border-radius:6px;padding:9px 13px;margin-bottom:8px;"><strong style="font-size:12px;color:#374151;">${b.name}</strong>${b.dur?`<span style="float:right;font-size:11px;color:#888;">${b.dur} Min.</span>`:''}${b.text?`<div style='font-size:12px;color:#555;margin-top:3px;white-space:pre-line;clear:both;'>${b.text}</div>`:''}</div>`:b.type==='section'?`<div style="background:#002F5F;color:#fff;padding:7px 13px;border-radius:5px;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin:14px 0 7px;display:flex;justify-content:space-between;align-items:center;">— ${b.name} —${_pst[i]?`<span style="font-size:10px;font-weight:700;opacity:.8;background:rgba(255,255,255,.15);border-radius:4px;padding:2px 7px;">${_pst[i]} Min.</span>`:''}</div>`:b.type==='game'?`<div style="border-left:4px solid #16a34a;padding:9px 13px;margin-bottom:8px;background:#f0fdf4;border-radius:0 6px 6px 0;page-break-inside:avoid;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><strong style="font-size:13px;color:#166534;">🏟️ ${b.name||'Spielblock'}${b.format?' · '+b.format:''}</strong><span style="font-size:11px;color:#666;white-space:nowrap;margin-left:8px;">${b.dur} Min.</span></div>${b.notes?`<div style="font-size:12px;color:#444;white-space:pre-line;">${b.notes}</div>`:''}</div>`:`<div style="border-left:4px solid ${cc[b.cat]||'#888'};padding:9px 13px;margin-bottom:8px;background:#F8F9FA;border-radius:0 6px 6px 0;page-break-inside:avoid;">
+ const blocksHtml=s.blocks.map((b,i)=>b.type==='text'?`<div style="background:#F8F9FA;border:1px solid #e2e4e8;border-radius:6px;padding:9px 13px;margin-bottom:8px;"><strong style="font-size:12px;color:#374151;">${b.name}</strong>${b.dur?`<span style="float:right;font-size:11px;color:#888;">${b.dur} Min.</span>`:''}${b.text?`<div style='font-size:12px;color:#555;margin-top:3px;white-space:normal;clear:both;'>${fmt(b.text)}</div>`:''}</div>`:b.type==='section'?`<div style="background:#002F5F;color:#fff;padding:7px 13px;border-radius:5px;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin:14px 0 7px;display:flex;justify-content:space-between;align-items:center;">— ${b.name} —${_pst[i]?`<span style="font-size:10px;font-weight:700;opacity:.8;background:rgba(255,255,255,.15);border-radius:4px;padding:2px 7px;">${_pst[i]} Min.</span>`:''}</div>`:b.type==='game'?`<div style="border-left:4px solid #16a34a;padding:9px 13px;margin-bottom:8px;background:#f0fdf4;border-radius:0 6px 6px 0;page-break-inside:avoid;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><strong style="font-size:13px;color:#166534;">🏟️ ${b.name||'Spielblock'}${b.format?' · '+b.format:''}</strong><span style="font-size:11px;color:#666;white-space:nowrap;margin-left:8px;">${b.dur} Min.</span></div>${b.notes?`<div style="font-size:12px;color:#444;white-space:normal;">${fmt(b.notes)}</div>`:''}</div>`:`<div style="border-left:4px solid ${cc[b.cat]||'#888'};padding:9px 13px;margin-bottom:8px;background:#F8F9FA;border-radius:0 6px 6px 0;page-break-inside:avoid;">
  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;">
  <strong style="font-size:13px;">${b.name}</strong>
  <span style="font-size:11px;color:#666;white-space:nowrap;margin-left:8px;">${b.dur} Min. · ${CL[b.cat]||b.cat}</span>
  </div>
- ${b.desc?`<div style="font-size:12px;color:#444;white-space:pre-line;">${b.desc}</div>`:''}
+ ${b.desc?`<div style="font-size:12px;color:#444;white-space:normal;">${fmt(b.desc)}</div>`:''}
  ${blockDrawings(b).length?`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">${blockDrawings(b).map(url=>`<img src="${url}" style="max-width:260px;max-height:190px;object-fit:contain;border-radius:6px;border:1px solid #ddd;">`).join('')}</div>`:''}</div>`).join('');
  const html=`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>${s.title}</title>
  <style>
@@ -2772,10 +2848,10 @@ function printSess(id){
  <div class="logo">Knights Basketball</div>
  </div>
  <div class="meta">${[t?`${t.name}`:'',d].filter(Boolean).join(' &nbsp;·&nbsp; ')}</div>
- ${s.goal?`<div class="goal"><strong>Trainingsziel:</strong> ${s.goal}</div>`:''}
+ ${s.goal?`<div class="goal"><strong>Trainingsziel:</strong> ${fmt(s.goal)}</div>`:''}
  <div class="total">Gesamtdauer: ${s.totalDur} Min.</div>
  ${blocksHtml}
- ${s.notes?`<div class="notes"><strong>Notizen:</strong> ${s.notes}</div>`:''}
+ ${s.notes?`<div class="notes"><strong>Notizen:</strong> ${fmt(s.notes)}</div>`:''}
  </body></html>`;
  const w=window.open('','_blank');w.document.write(html);w.document.close();w.focus();setTimeout(()=>{w.print();},350);
 }
@@ -2793,15 +2869,15 @@ function mobileExport(id){
  const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'';
  const cc={aufwaermen:'#f97316',ballhandling:'#f59e0b',passspiel:'#10b981',technik:'#06b6d4',verteidigung:'#3b82f6',angriff:'#ef4444',kondition:'#8b5cf6',spielform:'#ec4899',systeme:'#6b7280'};
  const _mst=calcSecTotals(s.blocks);
- const blocksHtml=s.blocks.map((b,i)=>b.type==='text'?`<div style="background:#F8F9FA;border:1px solid #e8e8e8;border-radius:8px;padding:12px 15px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:baseline;"><strong style='font-size:14px;color:#374151;'>${b.name}</strong>${b.dur?`<span style="font-size:13px;color:#888;">${b.dur} Min.</span>`:''}</div>${b.text?`<div style='font-size:14px;color:#555;margin-top:5px;line-height:1.5;white-space:pre-line;'>${b.text}</div>`:''}</div>`:b.type==='section'
+ const blocksHtml=s.blocks.map((b,i)=>b.type==='text'?`<div style="background:#F8F9FA;border:1px solid #e8e8e8;border-radius:8px;padding:12px 15px;margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:baseline;"><strong style='font-size:14px;color:#374151;'>${b.name}</strong>${b.dur?`<span style="font-size:13px;color:#888;">${b.dur} Min.</span>`:''}</div>${b.text?`<div style='font-size:14px;color:#555;margin-top:5px;line-height:1.5;white-space:normal;'>${fmt(b.text)}</div>`:''}</div>`:b.type==='section'
  ?`<div style="background:#002F5F;color:#fff;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin:18px 0 10px;display:flex;justify-content:space-between;align-items:center;">— ${b.name} —${_mst[i]?`<span style="font-size:12px;font-weight:700;opacity:.8;background:rgba(255,255,255,.15);border-radius:5px;padding:3px 9px;">${_mst[i]} Min.</span>`:''}</div>`
- :b.type==='game'?`<div style="border-left:5px solid #16a34a;padding:12px 15px;margin-bottom:10px;background:#f0fdf4;border-radius:0 8px 8px 0;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;flex-wrap:wrap;gap:4px;"><strong style="font-size:16px;color:#166534;">🏟️ ${b.name||'Spielblock'}${b.format?' · '+b.format:''}</strong><span style="font-size:13px;color:#15803d;">${b.dur} Min.</span></div>${b.notes?`<div style="font-size:14px;color:#444;line-height:1.5;white-space:pre-line;">${b.notes}</div>`:''}</div>`
+ :b.type==='game'?`<div style="border-left:5px solid #16a34a;padding:12px 15px;margin-bottom:10px;background:#f0fdf4;border-radius:0 8px 8px 0;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;flex-wrap:wrap;gap:4px;"><strong style="font-size:16px;color:#166534;">🏟️ ${b.name||'Spielblock'}${b.format?' · '+b.format:''}</strong><span style="font-size:13px;color:#15803d;">${b.dur} Min.</span></div>${b.notes?`<div style="font-size:14px;color:#444;line-height:1.5;white-space:normal;">${fmt(b.notes)}</div>`:''}</div>`
  :`<div style="border-left:5px solid ${cc[b.cat]||'#888'};padding:12px 15px;margin-bottom:10px;background:#F8F9FA;border-radius:0 8px 8px 0;">
  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;flex-wrap:wrap;gap:4px;">
  <strong style="font-size:16px;">${b.name}</strong>
  <span style="font-size:13px;color:#666;">${b.dur} Min. · ${CL[b.cat]||b.cat}</span>
  </div>
- ${b.desc?`<div style="font-size:14px;color:#444;line-height:1.5;white-space:pre-line;">${b.desc}</div>`:''}
+ ${b.desc?`<div style="font-size:14px;color:#444;line-height:1.5;white-space:normal;">${fmt(b.desc)}</div>`:''}
  ${blockDrawings(b).length?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">${blockDrawings(b).map(url=>`<img src="${url}" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #ddd;">`).join('')}</div>`:''}
  ${_mobileVideo(b)}</div>`
  ).join('');
@@ -2828,10 +2904,10 @@ function mobileExport(id){
  <div class="meta">${[t?`${t.name}`:'',d].filter(Boolean).join(' · ')}</div>
  </div>
  <div class="content">
- ${s.goal?`<div class="goal"><strong>Trainingsziel:</strong><br>${s.goal}</div>`:''}
+ ${s.goal?`<div class="goal"><strong>Trainingsziel:</strong><br>${fmt(s.goal)}</div>`:''}
  <div class="total">Gesamtdauer: ${s.totalDur} Min.</div>
  ${blocksHtml}
- ${s.notes?`<div class="notes"><strong>Notizen:</strong><br>${s.notes}</div>`:''}
+ ${s.notes?`<div class="notes"><strong>Notizen:</strong><br>${fmt(s.notes)}</div>`:''}
  </div>
  <div class="brand">Knights Basketball Trainingsplaner</div>
  </body></html>`;
@@ -2865,10 +2941,10 @@ function viewSess(id){
  <div style="padding-bottom:18px;margin-bottom:20px;border-bottom:1px solid var(--brd);">
  <h3 style="margin-bottom:7px;">${esc(s.title)}</h3>
  <div class="mut" style="font-size:14px;line-height:1.7;">${[t?`${esc(t.name)}`:'',esc(d),`<strong style="color:var(--txt);">${esc(s.totalDur)} Min.</strong>`].filter(Boolean).join(' · ')}</div>
- ${s.goal?`<div style="margin-top:14px;font-size:14px;line-height:1.65;"><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:4px;">Trainingsziel</span>${esc(s.goal)}</div>`:''}
+ ${s.goal?`<div style="margin-top:14px;font-size:14px;line-height:1.65;"><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:4px;">Trainingsziel</span>${fmt(s.goal)}</div>`:''}
  </div>
- ${(()=>{const st=calcSecTotals(s.blocks);return s.blocks.map((b,i)=>b.type==='section'?`<div class="sdet-sec"${i===0?' style="margin-top:0;border-top:none;padding-top:0;"':''}><span>${esc(b.name)}</span>${st[i]?`<span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:13px;color:var(--mut);">${st[i]} Min.</span>`:''}</div>`:b.type==='game'?`<div class="bli" style="border-left:3px solid #16a34a;background:#f0fdf4;"><span class="btt" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;">🏟️ Spiel</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;"><div class="bname" style="color:#166534;">${esc(b.name||'Spielblock')}${b.format?` · <span style="font-weight:400;">${esc(b.format)}</span>`:''}</div>${b.notes?`<div class="bdesc">${esc(b.notes)}</div>`:''}</div></div>`:`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||esc(b.cat)}</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;min-width:0;"><div class="bname">${esc(b.name)}</div>${b.desc?`<div class="bdesc">${esc(b.desc)}</div>`:''}${blockDrawings(b).length?`<div class="sdet-draw">${blockDrawings(b).map((url,k)=>`<img src="${url}" alt="Zeichnung ${k+1}">`).join('')}</div>`:''}</div></div>`).join('');})()}
- ${s.notes?`<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--brd);font-size:14px;line-height:1.65;color:var(--mut);"><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;">Notizen</span>${esc(s.notes)}</div>`:''}`;
+ ${(()=>{const st=calcSecTotals(s.blocks);return s.blocks.map((b,i)=>b.type==='section'?`<div class="sdet-sec"${i===0?' style="margin-top:0;border-top:none;padding-top:0;"':''}><span>${esc(b.name)}</span>${st[i]?`<span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:13px;color:var(--mut);">${st[i]} Min.</span>`:''}</div>`:b.type==='game'?`<div class="bli" style="border-left:3px solid #16a34a;background:#f0fdf4;"><span class="btt" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;">🏟️ Spiel</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;"><div class="bname" style="color:#166534;">${esc(b.name||'Spielblock')}${b.format?` · <span style="font-weight:400;">${esc(b.format)}</span>`:''}</div>${b.notes?`<div class="bdesc">${fmt(b.notes)}</div>`:''}</div></div>`:`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||esc(b.cat)}</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;min-width:0;"><div class="bname">${esc(b.name)}</div>${b.desc?`<div class="bdesc">${fmt(b.desc)}</div>`:''}${blockDrawings(b).length?`<div class="sdet-draw">${blockDrawings(b).map((url,k)=>`<img src="${url}" alt="Zeichnung ${k+1}">`).join('')}</div>`:''}</div></div>`).join('');})()}
+ ${s.notes?`<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--brd);font-size:14px;line-height:1.65;color:var(--mut);"><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;">Notizen</span>${fmt(s.notes)}</div>`:''}`;
  openM('m-sdet');
 }
 async function delCurSess(){
