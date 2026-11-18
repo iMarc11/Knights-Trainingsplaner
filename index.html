@@ -292,6 +292,20 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .app-toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:10001;max-width:min(92vw,520px);background:#B91C1C;color:#fff;padding:12px 16px;border-radius:8px;font-size:14px;line-height:1.45;box-shadow:0 6px 20px rgba(0,0,0,.25);}
 .app-toast.ok{background:#15803D;}
 .dthumb{position:relative;display:inline-block;max-width:100%;}
+/* Animation / Phasen */
+.dphase{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:6px 10px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:6px;margin-bottom:6px;}
+.dphase .dph-l{font-size:9px;font-weight:800;color:#C4470A;text-transform:uppercase;letter-spacing:.6px;}
+.dph-dots{display:flex;gap:4px;align-items:center;}
+.dph-dot{min-width:26px;height:26px;border-radius:13px;border:1px solid var(--brd);background:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:0 6px;color:var(--txt);}
+.dph-dot.on{background:#E5630F;border-color:#E5630F;color:#fff;}
+.dph-hint{font-size:11px;color:var(--mut);flex-basis:100%;}
+.dact.dact-play{border-color:#E5630F;color:#C4470A;font-weight:700;}
+.anim-badge{position:absolute;left:6px;bottom:6px;display:inline-flex;align-items:center;gap:4px;padding:3px 8px 3px 6px;border:none;border-radius:12px;background:rgba(229,99,15,.92);color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;line-height:1.2;}
+.anim-badge:hover{background:#C4470A;}
+.dstrip .anim-badge{left:3px;bottom:3px;padding:2px 5px;font-size:9px;}
+.sdet-draw .dthumb img{display:block;}
+#anim-canvas{display:block;max-width:100%;border:1px solid var(--brd);border-radius:4px;margin:0 auto;background:#fff;}
+.anim-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;}
 .dthumb-del{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(17,24,39,.75);color:#fff;font-size:17px;line-height:26px;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 #dp-drawings .dthumb{width:100%;max-width:320px;}
 .dstrip{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px;}
@@ -1317,6 +1331,20 @@ function checkPw(){
  </div>
 </div></div>
 
+<!-- ANIMATION PLAYER -->
+<div class="mbk" id="m-anim"><div class="mdl draw-mdl">
+ <h3 id="anim-title">Spielzug</h3>
+ <canvas id="anim-canvas" width="660" height="430"></canvas>
+ <div class="anim-ctl">
+  <button class="btn btn-pri btn-sm" id="anim-pp" onclick="animPlayPause()">▶ Abspielen</button>
+  <button class="btn btn-sec btn-sm" onclick="animStep(-1)" title="Vorherige Phase">◀</button>
+  <span id="anim-ph" style="font-size:13px;font-weight:700;min-width:80px;text-align:center;"></span>
+  <button class="btn btn-sec btn-sm" onclick="animStep(1)" title="Nächste Phase">▶</button>
+  <div class="dseg" style="margin-left:auto;"><button class="dsz" data-sp="0.5" onclick="animSpeed(this,0.5)">0.5×</button><button class="dsz on" data-sp="1" onclick="animSpeed(this,1)">1×</button><button class="dsz" data-sp="1.5" onclick="animSpeed(this,1.5)">1.5×</button></div>
+  <button class="btn btn-sec" onclick="closeAnimPlayer()">Schliessen</button>
+ </div>
+</div></div>
+
 <!-- DRAW MODAL -->
 <div class="mbk" id="m-draw"><div class="mdl draw-mdl">
  <h3>Zeichnung bearbeiten</h3>
@@ -1337,6 +1365,7 @@ function checkPw(){
  </div>
  </div>
  <div id="draw-section">
+ <div class="dphase" id="dphase"><span class="dph-l">Ablauf</span><div class="dph-dots" id="dph-dots"></div><button class="dact" onclick="addPhase()" title="Nächste Phase: Spieler laufen ans Ende ihrer Pfeile, Ball folgt dem Pass">+ Phase</button><button class="dact" id="dph-del" onclick="deletePhase()" title="Aktuelle Phase löschen">Phase löschen</button><button class="dact dact-play" id="dph-play" onclick="toggleDrawAnim()">▶ Abspielen</button><span class="dph-hint" id="dph-hint">Spielzug animieren: Pfeile (Laufweg), Pass-Linien und Screens direkt beim Spieler bzw. Ball beginnen → «Abspielen». Für weitere Schritte «+ Phase»: Spieler stehen dann am Ziel, nächste Bewegungen zeichnen.</span></div>
  <div id="draw-wrap" style="position:relative;max-width:100%;width:max-content;">
  <canvas id="draw-canvas" width="660" height="430"></canvas>
  <div id="dtext-fmt" style="display:none;"><div class="dseg"><button class="dsz dtf" id="dtf-b" onmousedown="toggleTextFmt('b',event)" ontouchstart="toggleTextFmt('b',event)" title="Fett"><b>B</b></button><button class="dsz dtf" id="dtf-i" onmousedown="toggleTextFmt('i',event)" ontouchstart="toggleTextFmt('i',event)" title="Kursiv"><i style="font-family:Georgia,serif;">I</i></button><button class="dsz dtf" id="dtf-u" onmousedown="toggleTextFmt('u',event)" ontouchstart="toggleTextFmt('u',event)" title="Unterstrichen"><u>U</u></button><button class="dsz dtf" onmousedown="event.preventDefault();openTextEditor(DM.sel)" ontouchend="event.preventDefault();openTextEditor(DM.sel)" title="Text bearbeiten">✎</button></div></div>
@@ -1721,7 +1750,7 @@ function renderHome(){
  if(tm)tm.innerHTML=db.teams.length?db.teams.map(t=>{const n=db.sessions.filter(s=>s.teamId===t.id).length;return`<div class="hm-team" onclick="switchTab('season');selectTeamForSeason('${t.id}')"><span>${t.emoji||'🏀'}</span><span class="hm-team-n">${esc(t.name)}</span><span class="hm-team-c">${n} Training${n===1?'':'s'}</span></div>`;}).join(''):'<div class="hm-empty">Noch keine Teams.</div>';
 }
 function openM(id){document.getElementById(id).classList.add('open');}
-function closeM(id){document.getElementById(id).classList.remove('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');if(id==='m-draw'&&typeof stopDrawAnim==='function')stopDrawAnim();}
 document.querySelectorAll('.mbk').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
 
 // ── TEAMS ─────────────────────────────────────────────────
@@ -3066,7 +3095,7 @@ function viewSess(id){
  <div class="mut" style="font-size:14px;line-height:1.7;">${[t?`${esc(t.name)}`:'',esc(d),`<strong style="color:var(--txt);">${esc(s.totalDur)} Min.</strong>`].filter(Boolean).join(' · ')}</div>
  ${s.goal?`<div style="margin-top:14px;font-size:14px;line-height:1.65;"><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:4px;">Trainingsziel</span>${fmt(s.goal)}</div>`:''}
  </div>
- ${(()=>{const st=calcSecTotals(s.blocks);return s.blocks.map((b,i)=>b.type==='section'?`<div class="sdet-sec"${i===0?' style="margin-top:0;border-top:none;padding-top:0;"':''}><span>${esc(b.name)}</span>${st[i]?`<span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:13px;color:var(--mut);">${st[i]} Min.</span>`:''}</div>`:b.type==='game'?`<div class="bli" style="border-left:3px solid #16a34a;background:#f0fdf4;"><span class="btt" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;">🏟️ Spiel</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;"><div class="bname" style="color:#166534;">${esc(b.name||'Spielblock')}${b.format?` · <span style="font-weight:400;">${esc(b.format)}</span>`:''}</div>${b.notes?`<div class="bdesc">${fmt(b.notes)}</div>`:''}</div></div>`:`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||esc(b.cat)}</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;min-width:0;"><div class="bname">${esc(b.name)}</div>${b.desc?`<div class="bdesc">${fmt(b.desc)}</div>`:''}${blockDrawings(b).length?`<div class="sdet-draw">${blockDrawings(b).map((url,k)=>`<img src="${url}" alt="Zeichnung ${k+1}">`).join('')}</div>`:''}</div></div>`).join('');})()}
+ ${(()=>{const st=calcSecTotals(s.blocks);return s.blocks.map((b,i)=>b.type==='section'?`<div class="sdet-sec"${i===0?' style="margin-top:0;border-top:none;padding-top:0;"':''}><span>${esc(b.name)}</span>${st[i]?`<span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:13px;color:var(--mut);">${st[i]} Min.</span>`:''}</div>`:b.type==='game'?`<div class="bli" style="border-left:3px solid #16a34a;background:#f0fdf4;"><span class="btt" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;">🏟️ Spiel</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;"><div class="bname" style="color:#166534;">${esc(b.name||'Spielblock')}${b.format?` · <span style="font-weight:400;">${esc(b.format)}</span>`:''}</div>${b.notes?`<div class="bdesc">${fmt(b.notes)}</div>`:''}</div></div>`:`<div class="bli"><span class="btt type-${b.cat}">${CL[b.cat]||esc(b.cat)}</span><span class="bdur">${esc(b.dur)}min</span><div style="flex:1;min-width:0;"><div class="bname">${esc(b.name)}</div>${b.desc?`<div class="bdesc">${fmt(b.desc)}</div>`:''}${blockDrawings(b).length?`<div class="sdet-draw">${blockDrawings(b).map((url,k)=>`<span class="dthumb"><img src="${url}" alt="Zeichnung ${k+1}">${animBadgeHTML(url)}</span>`).join('')}</div>`:''}</div></div>`).join('');})()}
  ${s.notes?`<div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--brd);font-size:14px;line-height:1.65;color:var(--mut);"><span style="display:block;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;">Notizen</span>${fmt(s.notes)}</div>`:''}`;
  openM('m-sdet');
 }
@@ -3184,7 +3213,9 @@ async function toggleWlDone(id,done){
 // ── DRAW ──────────────────────────────────────────────────
 // ── ZEICHNEN: objektbasiert (Elemente nachträglich auswählen, verschieben, löschen) ──
 const DM={canvas:null,ctx:null,tool:'select',color:'#F5A800',size:2,editId:null,courtTemplate:'half',drawingIdx:-1,
- objs:[],bg:null,bgImg:null,sel:-1,drag:null,draft:null,history:[],editIdx:-1};
+ frames:[[]],fi:0,play:null,bg:null,bgImg:null,sel:-1,drag:null,draft:null,history:[],editIdx:-1};
+// DM.objs = Elemente der aktuell angezeigten Phase
+Object.defineProperty(DM,'objs',{get(){return DM.frames[DM.fi];},set(v){DM.frames[DM.fi]=v;}});
 const DRAW_COLORS=['#F5A800','#002F5F','#2563eb','#16a34a','#dc2626'];
 const LINE_T=['arrow','dash','line','screen'];
 
@@ -3244,8 +3275,8 @@ function setCourtTemplate(t){
  DM.bg=null;DM.bgImg=null;
  pushHist();drawRender();
 }
-function drawCourtTemplate(ctx,W,H){
- if(DM.courtTemplate==='full')drawFullCourt(ctx,W,H);
+function drawCourtTemplate(ctx,W,H,tpl){
+ if((tpl||DM.courtTemplate)==='full')drawFullCourt(ctx,W,H);
  else drawCourt(ctx,W,H);
 }
 function drawFullCourt(ctx,W,H){
@@ -3300,21 +3331,22 @@ function getPos(e){
 
 // ── Verlauf (Undo) ──
 function pushHist(){
- DM.history.push({o:JSON.stringify(DM.objs),bg:DM.bg,tpl:DM.courtTemplate,h:DM.canvas?DM.canvas.height:430});
+ DM.history.push({o:JSON.stringify(DM.frames),fi:DM.fi,bg:DM.bg,tpl:DM.courtTemplate,h:DM.canvas?DM.canvas.height:430});
  if(DM.history.length>40)DM.history.shift();
+ if(typeof updatePhaseUI==='function'&&DM.canvas)updatePhaseUI();
 }
 function undoDraw(){
  if(DM.editIdx>=0)closeTextEditor(false);
  if(DM.history.length<=1)return;
  DM.history.pop();
  const s=DM.history[DM.history.length-1];
- DM.objs=JSON.parse(s.o);DM.sel=-1;DM.courtTemplate=s.tpl;DM.canvas.height=s.h;
+ stopDrawAnim();DM.frames=JSON.parse(s.o);DM.fi=Math.min(s.fi||0,DM.frames.length-1);DM.sel=-1;DM.courtTemplate=s.tpl;DM.canvas.height=s.h;updatePhaseUI();
  if(s.bg!==DM.bg){DM.bg=s.bg;if(s.bg)loadBg(s.bg,drawRender);else{DM.bgImg=null;drawRender();}}
  else drawRender();
 }
 function clearDraw(){
- if(!confirm('Zeichnung löschen?'))return;
- DM.objs=[];DM.sel=-1;DM.bg=null;DM.bgImg=null;
+ if(!confirm(DM.frames.length>1?'Ganze Zeichnung inkl. aller Phasen löschen?':'Zeichnung löschen?'))return;
+ stopDrawAnim();DM.frames=[[]];DM.fi=0;DM.sel=-1;DM.bg=null;DM.bgImg=null;updatePhaseUI();
  DM.canvas.height=DM.courtTemplate==='full'?820:430;
  pushHist();drawRender();
 }
@@ -3464,8 +3496,10 @@ function drawRender(withSel=true){
  if(!DM.canvas)return;
  const c=DM.canvas,ctx=DM.ctx,W=c.width,H=c.height;
  ctx.clearRect(0,0,W,H);
+ if(DM.play){renderAnimAt(ctx,W,H,DM.courtTemplate,DM.bgImg,DM.play.fr,DM.play.trans,DM.play.pos.i,DM.play.pos.t);return;}
  if(DM.bgImg){ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.drawImage(DM.bgImg,0,0,W,H);}
  else drawCourtTemplate(ctx,W,H);
+ if(DM.fi>0)drawGhosts(ctx,DM.frames[DM.fi-1],DM.objs);
  DM.objs.forEach(o=>drawObj(ctx,o));
  if(DM.draft)drawObj(ctx,DM.draft);
  if(withSel&&DM.sel>=0&&DM.objs[DM.sel])drawSelection(ctx,DM.objs[DM.sel]);
@@ -3475,8 +3509,9 @@ function drawRender(withSel=true){
 }
 
 // ── Eingabe (Maus + Touch über Pointer Events) ──
-function addObj(o){DM.objs.push(o);pushHist();drawRender();}
+function addObj(o){if(TOKEN_T.includes(o.t)&&!o.id)o.id=_uid();DM.objs.push(o);pushHist();drawRender();}
 function onDrawStart(e){
+ if(DM.play){stopDrawAnim();return;}
  e.preventDefault();
  const p=getPos(e),tol=e.pointerType==='touch'?14:6;
  if(DM.editIdx>=0){closeTextEditor(false);if(DM.tool==='text')return;} // Tippen ausserhalb beendet die Texteingabe
@@ -3760,11 +3795,220 @@ function convertLegacy(){
  // 4) Ergebnis übernehmen – Original bleibt in DM.orig
  const imgs=objs.filter(o=>o.t==='img'),rest=objs.filter(o=>o.t!=='img');
  DM.objs=[...imgs,...rest]; // Spieler/Ball oben
+ ensureIds([DM.objs]);
  DM.bg=null;DM.bgImg=null;DM.courtTemplate=tpl;DM.sel=-1;
  ensureImgs(DM.objs,()=>{pushHist();_tplButtons();drawRender();
   updateConvertUI(`Umgewandelt: ${counts.players} Spieler/Coaches, ${counts.balls} ${counts.balls===1?"Ball":"Bälle"}, ${counts.pieces} Striche/Texte. Bitte prüfen – gespeichert wird erst mit «Speichern». Das Original bleibt erhalten.`);});
 }
 
+// ── ANIMATION: Spielzüge in Phasen ─────────────────────────
+// Jede Phase ist eine eigene Liste von Elementen. Spieler/Ball/Hütchen tragen eine id, damit sie
+// über die Phasen hinweg wiedererkannt werden. Beim Abspielen laufen Spieler entlang des Pfeils
+// (Bewegung/Screen/Linie/Stift), der bei ihnen beginnt; der Ball folgt einer Pass-Linie oder seinem Spieler.
+const TOKEN_T=['off','def','coach','ball','cone'];
+const MOVE_LT=['arrow','screen','line','pen'],PASS_LT=['dash'];
+const ANIM_HOLD=650,ANIM_MOVE=1300,ANIM_SNAP=34;
+function _uid(){return Math.random().toString(36).slice(2,10);}
+function isTok(o){return TOKEN_T.includes(o.t);}
+function ensureIds(frames){frames.forEach(f=>f.forEach(o=>{if(isTok(o)&&!o.id)o.id=_uid();}));}
+function isLineObj(o){return o.t==='pen'||LINE_T.includes(o.t);}
+function lineStart(L){return L.t==='pen'?L.pts[0]:[L.x1,L.y1];}
+function linePathFn(L){
+ if(L.t==='pen'){
+  const P=L.pts,cum=[0];
+  for(let i=1;i<P.length;i++)cum.push(cum[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]));
+  const tot=cum[cum.length-1]||1;
+  return t=>{const d=t*tot;let i=1;while(i<P.length-1&&cum[i]<d)i++;
+   if(P.length<2)return P[0];const seg=(cum[i]-cum[i-1])||1,k=Math.max(0,Math.min(1,(d-cum[i-1])/seg));
+   return[P[i-1][0]+(P[i][0]-P[i-1][0])*k,P[i-1][1]+(P[i][1]-P[i-1][1])*k];};
+ }
+ const c=ctrlPt(L);
+ return t=>{const u=1-t;return[u*u*L.x1+2*u*t*c.x+t*t*L.x2,u*u*L.y1+2*u*t*c.y+t*t*L.y2];};
+}
+// Welche Linie gehört zu welchem Element? → Map id → Pfad-Funktion (ohne Versatz)
+function planMoves(objs){
+ const lines=objs.filter(isLineObj),used=new Set(),plan=new Map();
+ const pick=(o,types)=>{let best=-1,bd=ANIM_SNAP;
+  lines.forEach((L,i)=>{if(used.has(i)||!types.includes(L.t))return;const s=lineStart(L),d=Math.hypot(s[0]-o.x,s[1]-o.y);if(d<bd){bd=d;best=i;}});
+  if(best>=0){used.add(best);plan.set(o.id,linePathFn(lines[best]));}};
+ objs.filter(o=>isTok(o)&&o.t!=='ball'&&o.t!=='cone').forEach(o=>pick(o,MOVE_LT));
+ objs.filter(o=>o.t==='ball').forEach(o=>pick(o,PASS_LT));
+ return plan;
+}
+// Ballführer = nächster Spieler (≤ 32px)
+function ballHolder(ball,objs){
+ let best=null,bd=32;
+ objs.forEach(o=>{if(o.t!=='off'&&o.t!=='def'&&o.t!=='coach')return;const d=Math.hypot(o.x-ball.x,o.y-ball.y);if(d<bd){bd=d;best=o;}});
+ return best;
+}
+// Übergang Phase A → Phase B: Map id → t ↦ [x,y]
+function computeTrans(A,B){
+ const plan=planMoves(A),bIdx=new Map(B.filter(isTok).map(o=>[o.id,o])),fns=new Map();
+ const viaPath=(o,b,f)=>{const s=f(0),e=f(1),oS=[o.x-s[0],o.y-s[1]],oE=[b.x-e[0],b.y-e[1]];
+  if(Math.hypot(oE[0],oE[1])>90)return null;
+  return t=>{const q=f(t);return[q[0]+oS[0]*(1-t)+oE[0]*t,q[1]+oS[1]*(1-t)+oE[1]*t];};};
+ const lerp=(o,b)=>t=>[o.x+(b.x-o.x)*t,o.y+(b.y-o.y)*t];
+ A.filter(o=>isTok(o)&&o.t!=='ball').forEach(o=>{const b=bIdx.get(o.id);if(!b)return;
+  const f=plan.get(o.id);fns.set(o.id,(f&&viaPath(o,b,f))||lerp(o,b));});
+ A.filter(o=>o.t==='ball').forEach(o=>{const b=bIdx.get(o.id);if(!b)return;
+  const f=plan.get(o.id),pf=f&&viaPath(o,b,f);if(pf){fns.set(o.id,pf);return;}
+  const h=ballHolder(o,A),hb=h&&bIdx.get(h.id),hf=h&&fns.get(h.id);
+  if(hf&&hb){const oA=[o.x-h.x,o.y-h.y],oB=[b.x-hb.x,b.y-hb.y];
+   fns.set(o.id,t=>{const q=hf(t);return[q[0]+oA[0]*(1-t)+oB[0]*t,q[1]+oA[1]*(1-t)+oB[1]*t];});return;}
+  fns.set(o.id,lerp(o,b));});
+ return{fns,bIdx};
+}
+// Positionen am Ende der gezeichneten Bewegungen (für «+ Phase»)
+function nextPositions(A){
+ const plan=planMoves(A),pos=new Map();
+ A.filter(o=>isTok(o)&&o.t!=='ball').forEach(o=>{const f=plan.get(o.id);pos.set(o.id,f?f(1):[o.x,o.y]);});
+ A.filter(o=>o.t==='ball').forEach(o=>{const f=plan.get(o.id);
+  if(f){const e=f(1),r=ballHolder({x:e[0],y:e[1]},A.map(p=>pos.has(p.id)?{...p,x:pos.get(p.id)[0],y:pos.get(p.id)[1]}:p));
+   pos.set(o.id,r?[r.x+16,r.y-16]:e);return;}
+  const h=ballHolder(o,A);
+  if(h&&pos.has(h.id)){const q=pos.get(h.id);pos.set(o.id,[q[0]+o.x-h.x,q[1]+o.y-h.y]);}else pos.set(o.id,[o.x,o.y]);});
+ return pos;
+}
+// Abspiel-Phasen: gezeichnete Bewegungen der letzten Phase laufen automatisch noch aus
+function withTail(frames){
+ const fr=frames.map(f=>f);const last=fr[fr.length-1],pos=nextPositions(last);
+ const moved=last.some(o=>isTok(o)&&pos.has(o.id)&&Math.hypot(pos.get(o.id)[0]-o.x,pos.get(o.id)[1]-o.y)>3);
+ if(moved)fr.push(last.filter(isTok).map(o=>{const q=pos.get(o.id);return q?{...o,x:q[0],y:q[1]}:{...o};}));
+ return fr;
+}
+const _ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+// Zeitpunkt (ms) → {i: Phase, t: Fortschritt 0..1 zur nächsten Phase}
+function animPosAt(ms,n){
+ for(let i=0;i<n;i++){
+  if(ms<ANIM_HOLD||i===n-1)return{i,t:0};ms-=ANIM_HOLD;
+  if(ms<ANIM_MOVE)return{i,t:_ease(ms/ANIM_MOVE)};ms-=ANIM_MOVE;
+ }
+ return{i:n-1,t:0};
+}
+function animTotal(n){return n*ANIM_HOLD+(n-1)*ANIM_MOVE;}
+function renderAnimAt(ctx,W,H,tpl,bgImg,frames,trans,i,t){
+ ctx.clearRect(0,0,W,H);
+ if(bgImg){ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.drawImage(bgImg,0,0,W,H);}
+ else drawCourtTemplate(ctx,W,H,tpl);
+ const A=frames[i];
+ if(!t||i>=frames.length-1){A.forEach(o=>drawObj(ctx,o));return;}
+ const B=frames[i+1],{fns,bIdx}=trans[i],aIds=new Set(A.filter(isTok).map(o=>o.id));
+ // Linien der laufenden Phase blass, Texte/Bilder normal
+ A.forEach(o=>{if(isTok(o))return;ctx.save();ctx.globalAlpha=isLineObj(o)?Math.max(.18,.55-.4*t):1;drawObj(ctx,o);ctx.restore();});
+ B.forEach(o=>{if(isTok(o)&&!aIds.has(o.id)){ctx.save();ctx.globalAlpha=t;drawObj(ctx,o);ctx.restore();}});
+ const order=o=>o.t==='cone'?0:o.t==='ball'?2:1;
+ A.filter(isTok).sort((a,b)=>order(a)-order(b)).forEach(o=>{
+  const f=fns.get(o.id);
+  if(!f){ctx.save();ctx.globalAlpha=1-t;drawObj(ctx,o);ctx.restore();return;}
+  const q=f(t);drawObj(ctx,{...o,x:q[0],y:q[1],n:(bIdx.get(o.id)||o).n});
+ });
+}
+// Vorherige Phase als «Geister» + Laufweg anzeigen
+function drawGhosts(ctx,prev,cur){
+ const {fns}=computeTrans(prev,cur),ids=new Set(cur.filter(isTok).map(o=>o.id));
+ prev.filter(o=>isTok(o)&&ids.has(o.id)).forEach(o=>{
+  const f=fns.get(o.id);if(!f)return;const e=f(1);if(Math.hypot(e[0]-o.x,e[1]-o.y)<4)return;
+  ctx.save();ctx.globalAlpha=.22;drawObj(ctx,o);ctx.globalAlpha=.5;
+  ctx.strokeStyle='#6B7280';ctx.lineWidth=1.5;ctx.setLineDash([3,4]);ctx.beginPath();
+  for(let k=0;k<=20;k++){const q=f(k/20);k?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]);}
+  ctx.stroke();ctx.restore();
+ });
+}
+// ── Phasen im Editor ──
+function updatePhaseUI(){
+ const dots=document.getElementById('dph-dots');if(!dots)return;
+ const n=DM.frames.length;
+ dots.innerHTML=DM.frames.map((_,i)=>`<button class="dph-dot ${i===DM.fi?'on':''}" onclick="gotoPhase(${i})" title="Phase ${i+1}">${i+1}</button>`).join('');
+ document.getElementById('dph-del').style.display=n>1?'':'none';
+ ensureIds(DM.frames);document.getElementById('dph-play').style.display=withTail(DM.frames).length>1?'':'none';
+ document.getElementById('dph-play').textContent=DM.play?'■ Stopp':'▶ Abspielen';
+ document.getElementById('dph-hint').style.display=n>1?'none':'';
+}
+function gotoPhase(i){
+ if(i<0||i>=DM.frames.length)return;
+ closeTextEditor(false);stopDrawAnim();DM.fi=i;DM.sel=-1;DM.drag=null;DM.draft=null;
+ updatePhaseUI();drawRender();
+}
+function addPhase(){
+ closeTextEditor(false);stopDrawAnim();
+ const A=DM.objs;ensureIds([A]);
+ const pos=nextPositions(A);
+ const N=A.filter(isTok).map(o=>{const c=JSON.parse(JSON.stringify(o)),q=pos.get(o.id);if(q){c.x=q[0];c.y=q[1];}return c;});
+ DM.frames.splice(DM.fi+1,0,N);DM.fi++;DM.sel=-1;
+ pushHist();updatePhaseUI();drawRender();
+ showToast(`Phase ${DM.fi+1}: Spieler stehen am Ziel – jetzt die nächsten Bewegungen zeichnen`,'ok');
+}
+function deletePhase(){
+ if(DM.frames.length<2)return;
+ if(!confirm(`Phase ${DM.fi+1} löschen?`))return;
+ stopDrawAnim();DM.frames.splice(DM.fi,1);DM.fi=Math.min(DM.fi,DM.frames.length-1);DM.sel=-1;
+ pushHist();updatePhaseUI();drawRender();
+}
+function toggleDrawAnim(){if(DM.play)stopDrawAnim();else startDrawAnim();}
+function startDrawAnim(){
+ closeTextEditor(false);DM.sel=-1;ensureIds(DM.frames);
+ if(withTail(DM.frames).length<2){showToast('Zuerst Bewegungen zeichnen: Pfeil direkt beim Spieler beginnen');return;}
+ const fr=withTail(DM.frames),trans=fr.slice(0,-1).map((A,i)=>computeTrans(A,fr[i+1]));
+ const P=DM.play={fr,trans,start:performance.now(),pos:{i:0,t:0},raf:0,back:DM.fi};
+ const tick=now=>{if(DM.play!==P)return;const ms=now-P.start;P.pos=animPosAt(ms,fr.length);drawRender();
+  if(ms<animTotal(fr.length)+ANIM_HOLD)P.raf=requestAnimationFrame(tick);else stopDrawAnim();};
+ P.raf=requestAnimationFrame(tick);updatePhaseUI();
+}
+function stopDrawAnim(){
+ if(!DM.play)return;
+ cancelAnimationFrame(DM.play.raf);DM.play=null;
+ if(DM.canvas){updatePhaseUI();drawRender();}
+}
+// ── Abspielen in der Ansicht (Drill-Vorschau, Training) ──
+const _animCache=new Map(),_animReg=[];
+function sceneFramesOf(url){
+ if(_animCache.has(url))return _animCache.get(url);
+ const sc=sceneFromPng(url);let r=null;
+ if(sc){const fr=[sc.objs||[],...(sc.frames||[])].map(f=>JSON.parse(JSON.stringify(f)));ensureIds(fr);
+  const all=withTail(fr);if(all.length>1)r={sc,fr:all};}
+ _animCache.set(url,r);return r;
+}
+function animBadgeHTML(url){
+ const sc=sceneFramesOf(url);if(!sc)return'';
+ let k=_animReg.indexOf(url);if(k<0){_animReg.push(url);k=_animReg.length-1;}
+ return`<button class="anim-badge" onclick="event.stopPropagation();openAnimPlayer(${k})" title="Spielzug abspielen (${sc.fr.length} Phasen)">▶ Abspielen</button>`;
+}
+const AP={fr:null,trans:null,cv:null,ctx:null,bgImg:null,tpl:'half',ms:0,last:0,raf:0,playing:false,speed:1};
+function openAnimPlayer(k){
+ const A=sceneFramesOf(_animReg[k]);if(!A)return;
+ const sc=A.sc,fr=A.fr;
+ AP.fr=fr;AP.trans=fr.slice(0,-1).map((A,i)=>computeTrans(A,fr[i+1]));AP.tpl=sc.tpl||'half';AP.ms=0;AP.bgImg=null;
+ AP.cv=document.getElementById('anim-canvas');AP.ctx=AP.cv.getContext('2d');AP.cv.height=sc.h||430;
+ if(!DM.ctx)DM.ctx=AP.ctx; // für Text-Layout
+ openM('m-anim');
+ const go=()=>ensureImgs(fr.flat(),()=>{animRender();animPlay(true);});
+ if(sc.bg){const im=new Image();im.onload=()=>{AP.bgImg=im;go();};im.src=sc.bg;}else go();
+}
+function animRender(){
+ const p=animPosAt(AP.ms,AP.fr.length);
+ renderAnimAt(AP.ctx,AP.cv.width,AP.cv.height,AP.tpl,AP.bgImg,AP.fr,AP.trans,p.i,p.t);
+ document.getElementById('anim-ph').textContent=`Phase ${p.i+(p.t>.5?2:1)} / ${AP.fr.length}`;
+ document.getElementById('anim-pp').textContent=AP.playing?'❚❚ Pause':'▶ Abspielen';
+}
+function animPlay(on){
+ cancelAnimationFrame(AP.raf);AP.playing=on;
+ if(on){
+  if(AP.ms>=animTotal(AP.fr.length))AP.ms=0;
+  AP.last=performance.now();
+  const tick=now=>{if(!AP.playing)return;AP.ms+=(now-AP.last)*AP.speed;AP.last=now;
+   if(AP.ms>=animTotal(AP.fr.length)){AP.ms=animTotal(AP.fr.length);AP.playing=false;}
+   animRender();if(AP.playing)AP.raf=requestAnimationFrame(tick);};
+  AP.raf=requestAnimationFrame(tick);
+ }
+ animRender();
+}
+function animPlayPause(){animPlay(!AP.playing);}
+function animStep(d){
+ const p=animPosAt(AP.ms,AP.fr.length),cur=p.i+(p.t>.5?1:0),i=Math.max(0,Math.min(AP.fr.length-1,cur+d));
+ animPlay(false);AP.ms=i*(ANIM_HOLD+ANIM_MOVE);animRender();
+}
+function animSpeed(el,v){AP.speed=v;document.querySelectorAll('#m-anim .dsz').forEach(b=>b.classList.toggle('on',b===el));}
+function closeAnimPlayer(){animPlay(false);closeM('m-anim');}
 // ── Szene im PNG speichern (tEXt-Chunk) → bleibt ein normales Bild, ist aber wieder bearbeitbar ──
 const SCENE_KEY='knights-scene';
 const _crcT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
@@ -3919,7 +4163,7 @@ async function deleteDrawingAt(drillId,idx,ev){
 }
 // Vorschaubild mit Lösch-Knopf
 function drawThumbHTML(drillId,url,idx,imgStyle,onclick){
- return`<span class="dthumb"><img src="${url}" style="${imgStyle}" onclick="${onclick}" title="Bild ${idx+1} öffnen"><button class="dthumb-del" onclick="deleteDrawingAt('${drillId}',${idx},event)" title="Bild löschen" aria-label="Bild löschen">×</button></span>`;
+ return`<span class="dthumb"><img src="${url}" style="${imgStyle}" onclick="${onclick}" title="Bild ${idx+1} öffnen">${animBadgeHTML(url)}<button class="dthumb-del" onclick="deleteDrawingAt('${drillId}',${idx},event)" title="Bild löschen" aria-label="Bild löschen">×</button></span>`;
 }
 function photoPickerHTML(drillId,label){
  return`<label class="btn btn-sec btn-xs" style="cursor:pointer;margin-top:2px;text-transform:none;letter-spacing:normal;font-weight:600;text-align:center;" title="Ein oder mehrere Fotos hochladen">${label||'+ Fotos'}<input type="file" accept="image/*" multiple style="display:none;" onchange="addPhotosToDrill('${drillId}',this.files);this.value=''"></label>`;
@@ -3959,7 +4203,7 @@ function _tplButtons(){
  document.getElementById('tpl-full').classList.toggle('on',!DM.bg&&DM.courtTemplate==='full');
 }
 function _resetScene(){
- DM.objs=[];DM.bg=null;DM.bgImg=null;DM.sel=-1;DM.drag=null;DM.draft=null;DM.history=[];
+ stopDrawAnim();DM.frames=[[]];DM.fi=0;DM.bg=null;DM.bgImg=null;DM.sel=-1;DM.drag=null;DM.draft=null;DM.history=[];
  DM.orig=null;DM.convMsg='';
  DM.editIdx=-1;const _ed=document.getElementById('draw-text-ed');if(_ed)_ed.style.display='none';
  DM.courtTemplate='half';if(DM.canvas)DM.canvas.height=430;
@@ -3970,7 +4214,7 @@ function refreshDrawingViews(){
  if(viewSessId&&document.getElementById('m-sdet').classList.contains('open'))viewSess(viewSessId);
 }
 function newDrawing(){
- DM.drawingIdx=-1;_resetScene();_tplButtons();pushHist();drawRender();updateDrawTitle();
+ DM.drawingIdx=-1;_resetScene();_tplButtons();pushHist();drawRender();updateDrawTitle();updatePhaseUI();
 }
 function openDrawMdl(drillId,drawingIdx){
  DM.editId=drillId;DM.drawingIdx=(drawingIdx===undefined)?-1:drawingIdx;
@@ -3981,16 +4225,16 @@ function openDrawMdl(drillId,drawingIdx){
   DM.canvas=document.getElementById('draw-canvas');DM.ctx=DM.canvas.getContext('2d');
   DM.canvas.style.touchAction='none';
   _resetScene();
-  const finish=()=>{_tplButtons();pushHist();drawRender();updateDrawTitle();updateConvertUI();};
+  const finish=()=>{_tplButtons();pushHist();drawRender();updateDrawTitle();updateConvertUI();updatePhaseUI();};
   const existing=DM.drawingIdx>=0?(db.drillDrawings[drillId]||[])[DM.drawingIdx]:null;
   if(existing){
    const sc=sceneFromPng(existing);
    if(sc){
-    DM.courtTemplate=sc.tpl||'half';DM.canvas.height=sc.h||430;DM.objs=sc.objs||[];
-    DM.objs.forEach(o=>{if(o.t==='text'&&o.bw===undefined){o.y-=o.size;o.bw=0;o.b=true;}});
+    DM.courtTemplate=sc.tpl||'half';DM.canvas.height=sc.h||430;DM.frames=[sc.objs||[],...(sc.frames||[])];DM.fi=0;ensureIds(DM.frames);
+    DM.frames.forEach(f=>f.forEach(o=>{if(o.t==='text'&&o.bw===undefined){o.y-=o.size;o.bw=0;o.b=true;}}));
     // Original einer alten Zeichnung immer mitführen (PNG-Hintergrund = alte Zeichnung, JPEG = Foto)
     DM.orig=sc.orig||(sc.bg&&sc.bg.startsWith('data:image/png')?sc.bg:null);
-    ensureImgs(DM.objs,()=>{if(sc.bg){DM.bg=sc.bg;loadBg(sc.bg,finish);}else finish();});
+    ensureImgs(DM.frames.flat(),()=>{if(sc.bg){DM.bg=sc.bg;loadBg(sc.bg,finish);}else finish();});
    }else{
     // ältere Zeichnung (nur Bild): als Hintergrund übernehmen, neue Elemente darüber
     DM.bg=existing;DM.orig=existing.startsWith('data:image/png')?existing:null;
@@ -4006,9 +4250,10 @@ function openDrawMdl(drillId,drawingIdx){
 async function saveDrawing(){
  // Bild hochgeladen, aber "Bild übernehmen" nicht gedrückt → automatisch übernehmen, statt es zu verlieren
  if(CS.img)await confirmCrop();
- closeTextEditor(false);DM.sel=-1;drawRender(false);
- const scene={v:1,tpl:DM.courtTemplate,h:DM.canvas.height,bg:DM.bg,orig:DM.orig||null,objs:DM.objs};
- const photoOnly=!DM.objs.length&&DM.bg&&DM.bg.startsWith('data:image/jpeg');
+ closeTextEditor(false);stopDrawAnim();DM.fi=0;DM.sel=-1;drawRender(false);
+ const scene={v:1,tpl:DM.courtTemplate,h:DM.canvas.height,bg:DM.bg,orig:DM.orig||null,objs:DM.frames[0]};
+ if(DM.frames.length>1)scene.frames=DM.frames.slice(1);
+ const photoOnly=DM.frames.length===1&&!DM.objs.length&&DM.bg&&DM.bg.startsWith('data:image/jpeg');
  const dataURL=photoOnly?DM.bg:pngWithScene(DM.canvas.toDataURL('image/png'),JSON.stringify(scene));
  if(!db.drillDrawings[DM.editId])db.drillDrawings[DM.editId]=[];
  const drs=db.drillDrawings[DM.editId];
