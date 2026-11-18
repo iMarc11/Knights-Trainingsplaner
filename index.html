@@ -302,6 +302,13 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .dstrip-more{width:44px;height:44px;border-radius:4px;border:1px solid var(--brd);background:#f0f1f3;font-size:12px;font-weight:700;color:var(--mut);cursor:pointer;}
 .dstrip>.btn{display:inline-flex!important;align-items:center;justify-content:center;box-sizing:border-box;height:30px;margin:0!important;line-height:1;vertical-align:middle;}
 .dthumb-del:hover{background:#B91C1C;}
+.fmt-ed{width:100%;padding:9px 11px;border:1px solid var(--brd);border-radius:3px;font-family:inherit;font-size:14px;line-height:1.65;color:var(--txt);background:#fff;overflow:auto;max-height:420px;resize:vertical;white-space:pre-wrap;word-break:break-word;cursor:text;}
+.fmt-ed:focus{outline:none;border-color:#1769AA;box-shadow:0 0 0 2px rgba(23,105,170,.15);}
+.fmt-ed:empty:before{content:attr(data-ph);color:#9CA3AF;pointer-events:none;}
+.fmt-ed ul,.fmt-ed ol{margin:2px 0 2px 1.4em!important;padding:0!important;}
+.fmt-ed ul{list-style:disc!important;}.fmt-ed ol{list-style:decimal!important;}
+.fmt-ed mark{background:#FEF08A;color:inherit;}
+@media(max-width:600px){.fmt-ed{font-size:16px;}}
 .fmt-bar{display:flex;gap:2px;margin:0 0 3px;flex-wrap:wrap;}
 .fmt-bar button{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:26px;padding:0 7px;border:1px solid var(--brd);background:#fff;border-radius:4px;cursor:pointer;font-size:12px;color:var(--fg);line-height:1;font-family:inherit;}
 .fmt-bar button:hover{background:#f0f1f3;}
@@ -511,45 +518,108 @@ function fmt(t){
 }
 // Kurzfassung ohne Formatierungszeichen (für Vorschauen)
 const FMT_FIELDS=['s-goal','s-notes','t-desc','wk-no','gm-notes','scout-offense','scout-defense','opp-offense','opp-defense','d-steps','d-desc','d-coach','gb-notes','tb-text','b-desc'];
-function fmtApply(id,kind){
- const ta=document.getElementById(id);if(!ta)return;
- const v=ta.value,a=ta.selectionStart,b=ta.selectionEnd;
- let nv,na,nb;
- if(kind==='ul'||kind==='ol'){
-  const ls=v.lastIndexOf('\n',a-1)+1;let le=v.indexOf('\n',Math.max(b-(b>a&&v[b-1]==='\n'?1:0),a));if(le<0)le=v.length;
-  const lines=v.slice(ls,le).split('\n');
-  const re=kind==='ul'?/^\s*[-•*]\s+/:/^\s*\d+[.)]\s+/;
-  const all=lines.every(l=>re.test(l)||!l.trim());
-  let k=0;
-  const out=lines.map(l=>{
-   const clean=l.replace(/^\s*([-•*]|\d+[.)])\s+/,'');
-   if(all)return clean;
-   if(!l.trim()&&lines.length>1)return l;
-   k++;return(kind==='ul'?'- ':k+'. ')+clean;
-  }).join('\n');
-  nv=v.slice(0,ls)+out+v.slice(le);na=ls;nb=ls+out.length;
- }else{
-  const mk=kind==='b'?'**':kind==='i'?'*':'==';
-  const sel=v.slice(a,b);
-  if(sel.startsWith(mk)&&sel.endsWith(mk)&&sel.length>=2*mk.length){const inner=sel.slice(mk.length,sel.length-mk.length);nv=v.slice(0,a)+inner+v.slice(b);na=a;nb=a+inner.length;}
-  else if(v.slice(a-mk.length,a)===mk&&v.slice(b,b+mk.length)===mk){nv=v.slice(0,a-mk.length)+sel+v.slice(b+mk.length);na=a-mk.length;nb=na+sel.length;}
-  else{const t=sel||(kind==='b'?'fett':kind==='i'?'kursiv':'markiert');nv=v.slice(0,a)+mk+t+mk+v.slice(b);na=a+mk.length;nb=na+t.length;}
+// WYSIWYG: das Textfeld (textarea) bleibt die Datenquelle (Text mit **fett** usw.),
+// sichtbar ist ein formatierbares Feld, das beide Richtungen synchron hält.
+const _taValue=Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value');
+const MARK_STYLE='background:#FEF08A;color:inherit;padding:0 2px;border-radius:2px;';
+function edToMd(root){
+ const lines=[];let cur='';
+ const flush=()=>{lines.push(...cur.split('\n'));cur='';};
+ const isBg=c=>c&&c!=='transparent'&&!/rgba\(\s*0,\s*0,\s*0,\s*0\s*\)/.test(c)&&!/^(rgb\(255, 255, 255\)|white|#fff(fff)?)$/i.test(c);
+ function inline(n){
+  if(n.nodeType===3)return n.nodeValue.replace(/ /g,' ').replace(/\n/g,' ');
+  if(n.nodeType!==1)return'';
+  const tag=n.tagName;
+  if(tag==='BR')return'\n';
+  if(tag==='UL'||tag==='OL'||tag==='DIV'||tag==='P')return'\n'+edToMd(n)+'\n';
+  let t=[...n.childNodes].map(inline).join('');
+  const st=n.style||{};
+  const wrap=(x,m)=>x.split('\n').map(l=>{if(!l.trim())return l;const a=l.match(/^\s*/)[0],z=l.match(/\s*$/)[0];return a+m+l.trim()+m+z;}).join('\n');
+  if(tag==='I'||tag==='EM'||st.fontStyle==='italic')t=wrap(t,'*');
+  if(tag==='B'||tag==='STRONG'||/^(bold|[6-9]00)$/.test(st.fontWeight))t=wrap(t,'**');
+  if(tag==='MARK'||isBg(st.backgroundColor))t=wrap(t,'==');
+  return t;
  }
- ta.value=nv;ta.focus();ta.setSelectionRange(na,nb);
+ for(const c of [...root.childNodes]){
+  if(c.nodeType===1&&(c.tagName==='UL'||c.tagName==='OL')){
+   if(cur!==''){cur=cur.replace(/\n$/,'');flush();}
+   let k=parseInt(c.getAttribute('start')||'1',10)||1;
+   for(const li of c.querySelectorAll(':scope>li')){
+    const t=inline(li).replace(/\n+/g,' ').trim();
+    lines.push((c.tagName==='UL'?'- ':(k++)+'. ')+t);
+   }
+  }else if(c.nodeType===1&&/^(DIV|P|H[1-6]|BLOCKQUOTE|SECTION)$/.test(c.tagName)){
+   if(cur!==''){cur=cur.replace(/\n$/,'');flush();}
+   const sub=edToMd(c);
+   lines.push(...sub.split('\n'));
+  }else cur+=inline(c);
+ }
+ if(cur!=='')flush();
+ // Chrome: abschliessendes <br> in einem Block erzeugt eine leere Zusatzzeile
+ return lines.join('\n').replace(/\*\*\*\*|====/g,'').replace(/\n+$/,'');
+}
+function _edSync(ta,ed){
+ const md=edToMd(ed);
+ if(_taValue.get.call(ta)===md)return;
+ _taValue.set.call(ta,md);
  ta.dispatchEvent(new Event('input',{bubbles:true}));
 }
+function _edRender(ta,ed){ed.innerHTML=fmt(_taValue.get.call(ta));}
+function fmtApply(id,kind){
+ const ta=document.getElementById(id),ed=ta&&ta._fmtEd;if(!ed)return;
+ ed.focus();
+ if(kind==='b')document.execCommand('bold');
+ else if(kind==='i')document.execCommand('italic');
+ else if(kind==='ul')document.execCommand('insertUnorderedList');
+ else if(kind==='ol')document.execCommand('insertOrderedList');
+ else if(kind==='m'){
+  const sel=getSelection();if(!sel.rangeCount)return;
+  const r=sel.getRangeAt(0);
+  const n=r.commonAncestorContainer;
+  const m=(n.nodeType===1?n:n.parentElement).closest('mark,span[style*="background"]');
+  if(m&&ed.contains(m)){const p=m.parentNode;while(m.firstChild)p.insertBefore(m.firstChild,m);p.removeChild(m);}
+  else if(!r.collapsed){
+   const mk=document.createElement('mark');mk.setAttribute('style',MARK_STYLE);
+   mk.appendChild(r.extractContents());r.insertNode(mk);
+   sel.removeAllRanges();const nr=document.createRange();nr.selectNodeContents(mk);sel.addRange(nr);
+  }
+ }
+ _edSync(ta,ed);
+}
 function initFmtBars(){
+ try{document.execCommand('styleWithCSS',false,false);}catch(e){}
  FMT_FIELDS.forEach(id=>{
   const ta=document.getElementById(id);
-  if(!ta||ta.previousElementSibling&&ta.previousElementSibling.classList.contains('fmt-bar'))return;
+  if(!ta||ta._fmtEd)return;
   const bar=document.createElement('div');bar.className='fmt-bar';
   const B=(k,html,title)=>`<button type="button" title="${title}" onmousedown="event.preventDefault()" onclick="fmtApply('${id}','${k}')">${html}</button>`;
   bar.innerHTML=B('b','<strong>F</strong>','Fett (Strg/Cmd+B)')+B('i','<em>K</em>','Kursiv (Strg/Cmd+I)')+B('m','<mark style="background:#FEF08A;padding:0 3px;">M</mark>','Markieren')+'<span class="fmt-sep"></span>'+B('ul','<svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true"><circle cx="3.5" cy="5" r="1.6"/><circle cx="3.5" cy="10" r="1.6"/><circle cx="3.5" cy="15" r="1.6"/><rect x="7.5" y="4" width="11" height="2" rx="1"/><rect x="7.5" y="9" width="11" height="2" rx="1"/><rect x="7.5" y="14" width="11" height="2" rx="1"/></svg>','Aufzählung')+B('ol','<svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true"><text x="0" y="7.6" font-size="7.5" font-weight="800" font-family="Arial,sans-serif">1</text><text x="0" y="12.6" font-size="7.5" font-weight="800" font-family="Arial,sans-serif">2</text><text x="0" y="17.6" font-size="7.5" font-weight="800" font-family="Arial,sans-serif">3</text><rect x="7.5" y="4" width="11" height="2" rx="1"/><rect x="7.5" y="9" width="11" height="2" rx="1"/><rect x="7.5" y="14" width="11" height="2" rx="1"/></svg>','Nummerierte Liste');
+  const ed=document.createElement('div');
+  ed.className='fmt-ed';ed.contentEditable='true';ed.setAttribute('role','textbox');ed.setAttribute('aria-multiline','true');
+  if(ta.placeholder)ed.dataset.ph=ta.placeholder;
+  const rows=parseInt(ta.getAttribute('rows')||'0',10);
+  const mh=parseInt((ta.style.minHeight||'').replace('px',''),10)||0;
+  ed.style.minHeight=Math.max(60,mh,rows?rows*22+18:0)+'px';
   ta.parentNode.insertBefore(bar,ta);
-  ta.addEventListener('keydown',e=>{
-   if(!(e.metaKey||e.ctrlKey))return;
-   const k=e.key.toLowerCase();
-   if(k==='b'||k==='i'){e.preventDefault();fmtApply(id,k);}
+  ta.parentNode.insertBefore(ed,ta);
+  ta.style.display='none';
+  ta._fmtEd=ed;
+  // Programmatisches Setzen von .value aktualisiert das sichtbare Feld
+  Object.defineProperty(ta,'value',{configurable:true,
+   get(){return _taValue.get.call(ta);},
+   set(v){_taValue.set.call(ta,v);_edRender(ta,ed);}});
+  _edRender(ta,ed);
+  ed.addEventListener('input',()=>_edSync(ta,ed));
+  ed.addEventListener('paste',e=>{
+   e.preventDefault();
+   const t=(e.clipboardData||window.clipboardData).getData('text/plain');
+   document.execCommand('insertText',false,t);
+  });
+  ed.addEventListener('keydown',e=>{
+   if((e.metaKey||e.ctrlKey)&&!e.shiftKey&&!e.altKey){
+    const k=e.key.toLowerCase();
+    if(k==='b'||k==='i'){e.preventDefault();fmtApply(id,k);}
+   }
   });
  });
 }
