@@ -305,6 +305,8 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .anim-badge:hover{background:#C4470A;}
 .dstrip .anim-badge{left:3px;bottom:3px;padding:2px 5px;font-size:9px;}
 .sdet-draw .dthumb img{display:block;}
+#m-anim{z-index:10001;}/* auch über der Mobile-Ansicht */
+@media(max-width:700px){#m-anim .mdl{padding:16px 12px 24px;display:flex;flex-direction:column;justify-content:center;}#m-anim .anim-ctl .btn-sec:last-child{width:100%;}}
 #anim-canvas{display:block;max-width:100%;border:1px solid var(--brd);border-radius:4px;margin:0 auto;background:#fff;}
 .anim-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;}
 .dthumb-del{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(17,24,39,.75);color:#fff;font-size:17px;line-height:26px;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;}
@@ -3031,7 +3033,7 @@ function mobileExport(id){
  <span style="font-size:13px;color:#666;">${b.dur} Min. · ${CL[b.cat]||b.cat}</span>
  </div>
  ${b.desc?`<div style="font-size:14px;color:#444;line-height:1.5;white-space:normal;">${fmt(b.desc)}</div>`:''}
- ${blockDrawings(b).length?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">${blockDrawings(b).map(url=>`<img src="${url}" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #ddd;">`).join('')}</div>`:''}
+ ${blockDrawings(b).length?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">${blockDrawings(b).map(url=>`<div class="dimg"><img src="${url}" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #ddd;display:block;">${animBadgeHTML(url).replace('openAnimPlayer(','parent.openAnimPlayer(')}</div>`).join('')}</div>`:''}
  ${_mobileVideo(b)}</div>`
  ).join('');
  const html=`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
@@ -3050,6 +3052,8 @@ function mobileExport(id){
  .total{background:#E5630F;color:#fff;border-radius:8px;padding:8px 14px;font-weight:700;font-size:15px;margin-bottom:14px;text-align:center;}
  .notes{margin-top:18px;background:#fff;border-radius:10px;padding:14px;font-size:14px;color:#555;}
  .brand{text-align:center;color:#999;font-size:11px;padding:20px;}
+ .dimg{position:relative;display:inline-block;max-width:100%;}
+ .anim-badge{position:absolute;left:8px;bottom:8px;display:inline-flex;align-items:center;padding:8px 14px;border:none;border-radius:20px;background:rgba(229,99,15,.95);color:#fff;font-family:inherit;font-size:14px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.25);}
  </style></head><body>
  <div class="header">
  <button class="close" onclick="parent.closeMobileView()" aria-label="Schliessen">✕</button>
