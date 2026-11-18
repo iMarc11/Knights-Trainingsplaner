@@ -958,29 +958,6 @@ function checkPw(){
  </div>
 </div></div>
 
-<div class="mbk" id="m-drill-comments"><div class="mdl" style="max-width:560px;padding:0;overflow:hidden;">
- <div style="padding:18px 22px 14px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;">
-  <div>
-   <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin-bottom:2px;">Kommentare</div>
-   <div id="cmt-drill-name" style="font-size:16px;font-weight:800;color:var(--fg);"></div>
-  </div>
-  <button onclick="closeM('m-drill-comments')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--mut);line-height:1;padding:2px 6px;">&times;</button>
- </div>
- <div id="cmt-list" style="padding:16px 22px;overflow-y:auto;max-height:320px;display:flex;flex-direction:column;gap:12px;"></div>
- <div style="padding:14px 22px;border-top:1px solid var(--brd);display:flex;flex-direction:column;gap:10px;">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--mut);">Neuer Kommentar</div>
-  <div style="display:flex;gap:8px;align-items:flex-start;">
-   <select id="cmt-author" style="width:140px;font-size:12px;flex-shrink:0;"></select>
-   <textarea id="cmt-text" rows="2" placeholder="Kommentar eingeben…" style="flex:1;font-family:inherit;font-size:13px;line-height:1.5;resize:vertical;min-height:54px;"></textarea>
-  </div>
-  <div style="display:flex;justify-content:flex-end;gap:8px;">
-   <button class="btn btn-sec btn-sm" onclick="closeM('m-drill-comments')">Schliessen</button>
-   <button class="btn btn-pri btn-sm" onclick="addDrillComment()">Kommentar speichern</button>
-  </div>
- </div>
- <input type="hidden" id="cmt-drill-id">
-</div></div>
-
 <div class="mbk" id="m-gen-training"><div class="mdl" style="max-width:460px;">
  <h3 style="display:flex;align-items:center;gap:8px;">🪄 <span>Training generieren</span></h3>
  <p style="font-size:13px;color:var(--mut);margin-top:-8px;margin-bottom:16px;">Drills aus der Bibliothek + Aufwärmen + Spielblock — alles automatisch zusammengestellt.</p>
@@ -1378,7 +1355,7 @@ const BD=[
 
 // ── STATE ─────────────────────────────────────────────────
 const DEFAULT_COACHES=['Ali','Andrea','Lori','Marc','Mone','Pino','Rehan'];
-let db={teams:[],seasons:[],drills:[],sessions:[],drillDrawings:{},coaches:[...DEFAULT_COACHES],deletedBD:[],games:[],scouting:{},drillComments:{}};
+let db={teams:[],seasons:[],drills:[],sessions:[],drillDrawings:{},coaches:[...DEFAULT_COACHES],deletedBD:[],games:[],scouting:{}};
 
 function allDrills(){
  // Custom drills newest first (id is timestamp string), then built-in drills (minus deleted)
@@ -1415,9 +1392,7 @@ async function loadAll(){
  db.coaches=[...DEFAULT_COACHES,...extra.filter(c=>!DEFAULT_COACHES.includes(c))];
  db.deletedBD=Array.isArray(raw)?[]:(raw.deletedBD||[]);
  }catch(e){db.coaches=[...DEFAULT_COACHES];db.deletedBD=[];}}
- const commentsRec=(drills.data||[]).find(r=>r.id==='__drill_comments__');
- if(commentsRec){try{db.drillComments=JSON.parse(commentsRec.description||'{}');}catch(e){db.drillComments={};}}
- db.drills=(drills.data||[]).filter(r=>r.id!=='__coaches_cfg__'&&r.id!=='__drill_comments__').map(fromDB.drill).filter(Boolean);
+ db.drills=(drills.data||[]).filter(r=>r.id!=='__coaches_cfg__'&&r.id!=='__drill_comments__'/* alte Kommentare, nicht mehr genutzt */).map(fromDB.drill).filter(Boolean);
  db.sessions=(sessions.data||[]).map(fromDB.session);
  db.games=(gamesRes.data||[]).map(r=>({id:r.id,teamId:r.team_id,seasonId:r.season_id,weekKey:r.week_key||'',date:r.date||'',homeAway:r.home_away||'home',opponent:r.opponent||'',scoreUs:r.score_us,scoreThem:r.score_them,notes:r.notes||''}));
  db.scouting={};
@@ -2130,8 +2105,6 @@ function dcHTML(d){
  const isSys=d.cat==='systeme';
  const isCustom=!!d.custom;
  const drawings=db.drillDrawings[d.id]||[];
- const cmts=(db.drillComments[d.id]||[]);
- const cmtBtn=`<button onclick="openCommentsMdl('${d.id}')" style="background:none;border:none;cursor:pointer;font-size:10px;color:var(--mut);padding:1px 5px;border-radius:10px;border:1px solid var(--brd);line-height:1.4;margin-left:6px;" title="Kommentare">${cmts.length?`<span style="display:inline-flex;align-items:center;gap:3px;">${IC.chat}${cmts.length}</span>`:IC.chat}</button>`;
  const _MAXT=5,_more=drawings.length-_MAXT;
  const drawThumb=`<div class="dstrip">${drawings.slice(0,_MAXT).map((url,idx)=>drawThumbHTML(d.id,url,idx,'',`openDrawMdl('${d.id}',${idx})`)).join('')}${_more>0?`<button class="dstrip-more" onclick="openDrillPreview('${d.id}')" title="Alle Bilder anzeigen">+${_more}</button>`:''}<button class="btn btn-sec btn-xs" onclick="openDrawMdl('${d.id}',-1)">+ Zeichnung</button>${photoPickerHTML(d.id)}</div>`;
  return`<div class="dc">
@@ -2146,7 +2119,6 @@ function dcHTML(d){
  ${iconBtn('trash','Löschen',`deleteDrill('${esc(d.id)}')`,'btn-dan act-del')}
  </div>
  </div>
- <div class="mut" style="font-size:10px;margin-bottom:3px;display:flex;align-items:center;flex-wrap:wrap;">${isSys?'':` min. ${esc(d.players)} · `}${(d.ag||[]).map(esc).join(', ')}${isSys&&d.formation?` · ${esc(d.formation)}`:''}${d.author?` · <span style="color:var(--mut);">von ${esc(d.author)}</span>`:` · <span style="color:var(--mut);">Bot</span>`}${cmtBtn}</div>
  <div style="display:flex;align-items:flex-start;">
  <div style="flex:1;min-width:0;">
  ${d.desc?`<div class="dc-desc">${esc(d.desc)}</div>`:''}
@@ -2156,59 +2128,6 @@ function dcHTML(d){
  </div>
  ${drawThumb}
  </div>`;
-}
-async function saveDrillComments(){
- await sbUpsert('custom_drills',{id:'__drill_comments__',name:'__drill_comments__',cat:'config',description:JSON.stringify(db.drillComments||{}),age_groups:[],dur:0,players:0,diff:0,coaching:''});
-}
-function renderCmtList(drillId){
- const cmts=(db.drillComments[drillId]||[]);
- const el=document.getElementById('cmt-list');
- if(!el)return;
- if(cmts.length===0){el.innerHTML='<div style="font-size:13px;color:var(--mut);text-align:center;padding:12px 0;">Noch keine Kommentare.</div>';return;}
- el.innerHTML=cmts.map((c,i)=>`
-  <div style="background:var(--card2,#F3F4F6);border-radius:6px;padding:10px 12px;position:relative;">
-   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-    <span style="font-size:12px;font-weight:700;color:var(--sec);">${esc(c.author)}</span>
-    <div style="display:flex;align-items:center;gap:8px;">
-     <span style="font-size:10px;color:var(--mut);">${esc(c.ts||'')}</span>
-     <button onclick="deleteDrillComment('${esc(drillId)}',${i})" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--mut);line-height:1;padding:0;" title="Löschen">&times;</button>
-    </div>
-   </div>
-   <div style="font-size:13px;line-height:1.6;color:var(--fg);white-space:pre-wrap;">${esc(c.text)}</div>
-  </div>`).join('');
-}
-function openCommentsMdl(drillId){
- const d=allDrills().find(dr=>dr.id===drillId);
- document.getElementById('cmt-drill-name').textContent=d?d.name:drillId;
- document.getElementById('cmt-drill-id').value=drillId;
- // Coaches-Dropdown befüllen
- const sel=document.getElementById('cmt-author');
- sel.innerHTML=db.coaches.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
- document.getElementById('cmt-text').value='';
- renderCmtList(drillId);
- openM('m-drill-comments');
-}
-async function addDrillComment(){
- const drillId=document.getElementById('cmt-drill-id').value;
- const author=document.getElementById('cmt-author').value.trim();
- const text=document.getElementById('cmt-text').value.trim();
- if(!text)return;
- if(!db.drillComments[drillId])db.drillComments[drillId]=[];
- const now=new Date();
- const ts=now.toLocaleDateString('de-CH',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+now.toLocaleTimeString('de-CH',{hour:'2-digit',minute:'2-digit'});
- db.drillComments[drillId].push({author,text,ts});
- document.getElementById('cmt-text').value='';
- renderCmtList(drillId);
- renderDrills();
- await saveDrillComments();
-}
-async function deleteDrillComment(drillId,idx){
- if(!db.drillComments[drillId])return;
- db.drillComments[drillId].splice(idx,1);
- if(db.drillComments[drillId].length===0)delete db.drillComments[drillId];
- renderCmtList(drillId);
- renderDrills();
- await saveDrillComments();
 }
 function openDrillPreview(id){
  const d=allDrills().find(dr=>dr.id===id);
