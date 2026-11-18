@@ -307,7 +307,10 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .dstrip .anim-badge{left:3px;bottom:3px;padding:2px 5px;font-size:9px;}
 .sdet-draw .dthumb img{display:block;}
 #m-anim{z-index:10001;}/* auch über der Mobile-Ansicht */
-@media(max-width:700px){#m-anim .mdl{padding:16px 12px 24px;display:flex;flex-direction:column;justify-content:center;}#m-anim .anim-ctl .btn-sec:last-child{width:100%;}}
+.anim-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+.anim-x{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px 0 10px;border:none;border-radius:19px;background:var(--sec);color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;}
+.anim-x:hover{filter:brightness(1.15);}
+@media(max-width:700px){#m-anim .mdl{padding:0 0 24px;display:flex;flex-direction:column;}#m-anim .anim-hd{position:sticky;top:0;background:var(--sec);margin:0 0 12px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px 16px;}#m-anim .anim-hd h3{color:#fff;font-size:17px;}#m-anim .anim-x{background:#fff;color:var(--sec);}#m-anim canvas,#m-anim .anim-ctl{margin-left:12px;margin-right:12px;}#anim-canvas{max-width:calc(100% - 24px);}}
 #anim-canvas{display:block;max-width:100%;border:1px solid var(--brd);border-radius:4px;margin:0 auto;background:#fff;}
 .anim-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;}
 .dthumb-del{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(17,24,39,.75);color:#fff;font-size:17px;line-height:26px;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;}
@@ -818,7 +821,7 @@ function checkPw(){
  <div class="flex jb ac mb3">
  <div class="shd">Trainingsübersicht</div>
  <div style="display:flex;gap:8px;align-items:center;">
-  <button class="btn btn-sec btn-sm" onclick="openGenMdl()" title="Training automatisch generieren" style="font-size:16px;padding:6px 10px;background:#BFC4F0;border-color:#8B92D8;color:#1E2670;">🪄</button>
+  <button class="btn btn-sec btn-sm" onclick="openGenMdl()" title="Training automatisch generieren" aria-label="Training automatisch generieren" style="background:#BFC4F0;border-color:#8B92D8;color:#1E2670;"><span class="btn-icon"><svg class="i-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2M15 10V8M11.5 6H9.5M20.5 6h-2M18 3.5l-1 1M13 8.5l-1 1M18 8.5l-1-1"/><path d="M3 21l9-9"/><path d="M12.2 11.8l1.6-1.6"/></svg></span><span class="btn-label">Auto-Training</span></button>
   <button class="btn btn-pri btn-sm" onclick="switchTab('builder');clearBuilder();">+ Neues Training</button>
  </div>
  </div>
@@ -1173,7 +1176,7 @@ function checkPw(){
 </div></div>
 
 <div class="mbk" id="m-gen-training"><div class="mdl" style="max-width:460px;">
- <h3 style="display:flex;align-items:center;gap:8px;">🪄 <span>Training generieren</span></h3>
+ <h3 style="display:flex;align-items:center;gap:8px;"><svg class="i-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2M15 10V8M11.5 6H9.5M20.5 6h-2M18 3.5l-1 1M13 8.5l-1 1M18 8.5l-1-1"/><path d="M3 21l9-9"/><path d="M12.2 11.8l1.6-1.6"/></svg><span>Training generieren</span></h3>
  <p style="font-size:13px;color:var(--mut);margin-top:-8px;margin-bottom:16px;">Drills aus der Bibliothek + Aufwärmen + Spielblock — alles automatisch zusammengestellt.</p>
  <div class="form-row">
   <div class="fg"><label>Stufe</label>
@@ -1242,7 +1245,7 @@ function checkPw(){
  <div class="mft">
   <button class="btn btn-sec" onclick="closeM('m-gen-training')">Abbrechen</button>
   <button class="btn btn-gho btn-sm" onclick="previewGen()" style="margin-right:auto;">Vorschau</button>
-  <button class="btn btn-pri" onclick="generateTraining()">✨ Generieren &amp; öffnen</button>
+  <button class="btn btn-pri" onclick="generateTraining()" style="display:inline-flex;align-items:center;gap:6px;"><svg class="i-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2M15 10V8M11.5 6H9.5M20.5 6h-2M18 3.5l-1 1M13 8.5l-1 1M18 8.5l-1-1"/><path d="M3 21l9-9"/><path d="M12.2 11.8l1.6-1.6"/></svg>Generieren &amp; öffnen</button>
  </div>
 </div></div>
 
@@ -1336,8 +1339,8 @@ function checkPw(){
 </div></div>
 
 <!-- ANIMATION PLAYER -->
-<div class="mbk" id="m-anim"><div class="mdl draw-mdl">
- <h3 id="anim-title">Spielzug</h3>
+<div class="mbk" id="m-anim" onclick="if(event.target===this)closeAnimPlayer()"><div class="mdl draw-mdl">
+ <div class="anim-hd"><h3 id="anim-title" style="margin:0;">Spielzug</h3><button class="anim-x" onclick="closeAnimPlayer()" aria-label="Schliessen" title="Schliessen"><svg class="i-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg><span>Schliessen</span></button></div>
  <canvas id="anim-canvas" width="660" height="430"></canvas>
  <div class="anim-ctl">
   <button class="btn btn-pri btn-sm" id="anim-pp" onclick="animPlayPause()"><svg class="i-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>Abspielen</button>
@@ -1345,8 +1348,7 @@ function checkPw(){
   <span id="anim-ph" style="font-size:13px;font-weight:700;min-width:80px;text-align:center;"></span>
   <button class="btn btn-sec btn-sm" onclick="animStep(1)" title="Nächste Phase" aria-label="Nächste Phase"><svg class="i-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
   <div class="dseg" style="margin-left:auto;"><button class="dsz" data-sp="0.5" onclick="animSpeed(this,0.5)">0.5×</button><button class="dsz on" data-sp="1" onclick="animSpeed(this,1)">1×</button><button class="dsz" data-sp="1.5" onclick="animSpeed(this,1.5)">1.5×</button></div>
-  <button class="btn btn-sec" onclick="closeAnimPlayer()">Schliessen</button>
- </div>
+</div>
 </div></div>
 
 <!-- DRAW MODAL -->
@@ -1375,7 +1377,7 @@ function checkPw(){
  <div id="dtext-fmt" style="display:none;"><div class="dseg"><button class="dsz dtf" id="dtf-b" onmousedown="toggleTextFmt('b',event)" ontouchstart="toggleTextFmt('b',event)" title="Fett"><b>B</b></button><button class="dsz dtf" id="dtf-i" onmousedown="toggleTextFmt('i',event)" ontouchstart="toggleTextFmt('i',event)" title="Kursiv"><i style="font-family:Georgia,serif;">I</i></button><button class="dsz dtf" id="dtf-u" onmousedown="toggleTextFmt('u',event)" ontouchstart="toggleTextFmt('u',event)" title="Unterstrichen"><u>U</u></button><button class="dsz dtf" onmousedown="event.preventDefault();openTextEditor(DM.sel)" ontouchend="event.preventDefault();openTextEditor(DM.sel)" title="Text bearbeiten">✎</button></div></div>
  <textarea id="draw-text-ed" rows="1" spellcheck="false" placeholder="Text…"></textarea>
  </div>
- <div class="dfoot"><div class="dopt"><span class="dopt-l">Vorlage</span><div class="dseg"><button class="dsz on" id="tpl-half" onclick="setCourtTemplate('half')">Halbfeld</button><button class="dsz" id="tpl-full" onclick="setCourtTemplate('full')">Vollfeld</button><button class="dsz" id="tpl-photo" onclick="setDrawMode('upload')">Foto(s)</button></div></div><div class="dopt" style="gap:6px;"><button class="dact" id="dconv-btn" style="display:none;border-color:#E5630F;color:#C4470A;font-weight:600;" onclick="convertLegacy()" title="Alte Zeichnung in einzelne, verschiebbare Elemente umwandeln">✨ In Elemente umwandeln</button><button class="dact" id="dorig-btn" style="display:none;" onclick="restoreOriginal()" title="Ursprüngliche Zeichnung zurückholen">↺ Original wiederherstellen</button></div><div id="dconv-msg" style="display:none;flex-basis:100%;font-size:12px;background:#FFF4EC;border:1px solid #F5C9A8;color:#7a3a10;border-radius:4px;padding:6px 9px;"></div><div class="draw-hint">Element antippen = auswählen &amp; verschieben (mit jedem Werkzeug) · Bei Linien den <b style="color:#E5630F;">orangen Mittelpunkt</b> ziehen für einen Bogen · Entf löscht die Auswahl</div></div>
+ <div class="dfoot"><div class="dopt"><span class="dopt-l">Vorlage</span><div class="dseg"><button class="dsz on" id="tpl-half" onclick="setCourtTemplate('half')">Halbfeld</button><button class="dsz" id="tpl-full" onclick="setCourtTemplate('full')">Vollfeld</button><button class="dsz" id="tpl-photo" onclick="setDrawMode('upload')">Foto(s)</button></div></div><div class="dopt" style="gap:6px;"><button class="dact" id="dconv-btn" style="display:none;border-color:#E5630F;color:#C4470A;font-weight:600;" onclick="convertLegacy()" title="Alte Zeichnung in einzelne, verschiebbare Elemente umwandeln"><svg class="i-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px;"><path d="M15 4V2M15 10V8M11.5 6H9.5M20.5 6h-2M18 3.5l-1 1M13 8.5l-1 1M18 8.5l-1-1"/><path d="M3 21l9-9"/><path d="M12.2 11.8l1.6-1.6"/></svg>In Elemente umwandeln</button><button class="dact" id="dorig-btn" style="display:none;" onclick="restoreOriginal()" title="Ursprüngliche Zeichnung zurückholen">↺ Original wiederherstellen</button></div><div id="dconv-msg" style="display:none;flex-basis:100%;font-size:12px;background:#FFF4EC;border:1px solid #F5C9A8;color:#7a3a10;border-radius:4px;padding:6px 9px;"></div><div class="draw-hint">Element antippen = auswählen &amp; verschieben (mit jedem Werkzeug) · Bei Linien den <b style="color:#E5630F;">orangen Mittelpunkt</b> ziehen für einen Bogen · Entf löscht die Auswahl</div></div>
  </div><!-- /draw-section -->
  <div class="mft">
  <button class="btn btn-dan btn-sm" onclick="deleteDrawing()">Zeichnung löschen</button>
@@ -1407,6 +1409,7 @@ const IC={
  pplay:_svg('<path d="M7 4.5v15l12-7.5z" fill="currentColor"/>',14),
  ppause:_svg('<rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/>',14),
  pstop:_svg('<rect x="6" y="6" width="12" height="12" rx="1.5" fill="currentColor"/>',14),
+ wand:_svg('<path d="M15 4V2M15 10V8M11.5 6H9.5M20.5 6h-2M18 3.5l-1 1M13 8.5l-1 1M18 8.5l-1-1"/><path d="M3 21l9-9"/><path d="M12.2 11.8l1.6-1.6"/>'),
  chat:_svg('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/>',13),
 };
 // Aktions-Button: Icon (+ Text, der mobil ausgeblendet wird)
@@ -3048,8 +3051,8 @@ function mobileExport(id){
  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#111;font-size:16px;padding:0;}
  .header{background:#002F5F;color:#fff;padding:16px;position:sticky;top:0;z-index:10;}
- .header h1{font-size:18px;font-weight:800;margin-bottom:4px;padding-right:48px;}
- .close{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:none;background:rgba(255,255,255,.18);color:#fff;font-size:18px;font-weight:700;cursor:pointer;}
+ .header h1{font-size:18px;font-weight:800;margin-bottom:4px;padding-right:130px;}
+ .close{position:absolute;top:12px;right:12px;display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px 0 10px;border-radius:19px;border:none;background:#fff;color:#002F5F;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.2);}
  .header .meta{font-size:13px;color:#9ca3af;}
  .content{padding:14px;}
  .goal{background:#fff8f0;border:1px solid #f0c080;border-radius:10px;padding:12px 15px;margin-bottom:14px;font-size:14px;}
@@ -3060,7 +3063,7 @@ function mobileExport(id){
  .anim-badge{position:absolute;left:8px;bottom:8px;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-radius:20px;background:rgba(229,99,15,.95);color:#fff;font-family:inherit;font-size:14px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.25);}
  </style></head><body>
  <div class="header">
- <button class="close" onclick="parent.closeMobileView()" aria-label="Schliessen">✕</button>
+ <button class="close" onclick="parent.closeMobileView()" aria-label="Schliessen"><svg class="i-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg><span>Schliessen</span></button>
  <h1>${s.title}</h1>
  <div class="meta">${[t?`${t.name}`:'',d].filter(Boolean).join(' · ')}</div>
  </div>
@@ -4025,6 +4028,7 @@ function animStep(d){
 }
 function animSpeed(el,v){AP.speed=v;document.querySelectorAll('#m-anim .dsz').forEach(b=>b.classList.toggle('on',b===el));}
 function closeAnimPlayer(){animPlay(false);closeM('m-anim');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('m-anim').classList.contains('open')){e.stopImmediatePropagation();closeAnimPlayer();}},true);
 // ── Szene im PNG speichern (tEXt-Chunk) → bleibt ein normales Bild, ist aber wieder bearbeitbar ──
 const SCENE_KEY='knights-scene';
 const _crcT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
