@@ -299,6 +299,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .dph-dot{min-width:26px;height:26px;border-radius:13px;border:1px solid var(--brd);background:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:0 6px;color:var(--txt);}
 .dph-dot.on{background:#E5630F;border-color:#E5630F;color:#fff;}
 .dph-hint{font-size:11px;color:var(--mut);flex-basis:100%;}
+.dphase.off{background:#F8F9FA;border-color:var(--brd);}.dphase.off .dph-l{color:var(--mut);}.dphase.off #dph-ctl,.dphase.off #dph-hint{display:none!important;}
 .dact.dact-play{border-color:#E5630F;color:#C4470A;font-weight:700;}
 .anim-badge{position:absolute;left:6px;bottom:6px;display:inline-flex;align-items:center;gap:4px;padding:3px 8px 3px 6px;border:none;border-radius:12px;background:rgba(229,99,15,.92);color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;line-height:1.2;}
 .anim-badge:hover{background:#C4470A;}
@@ -1365,7 +1366,7 @@ function checkPw(){
  </div>
  </div>
  <div id="draw-section">
- <div class="dphase" id="dphase"><span class="dph-l">Ablauf</span><div class="dph-dots" id="dph-dots"></div><button class="dact" onclick="addPhase()" title="Nächste Phase: Spieler laufen ans Ende ihrer Pfeile, Ball folgt dem Pass">+ Phase</button><button class="dact" id="dph-del" onclick="deletePhase()" title="Aktuelle Phase löschen">Phase löschen</button><button class="dact dact-play" id="dph-play" onclick="toggleDrawAnim()">▶ Abspielen</button><span class="dph-hint" id="dph-hint">Spielzug animieren: Pfeile (Laufweg), Pass-Linien und Screens direkt beim Spieler bzw. Ball beginnen → «Abspielen». Für weitere Schritte «+ Phase»: Spieler stehen dann am Ziel, nächste Bewegungen zeichnen.</span></div>
+ <div class="dphase" id="dphase"><label class="dph-l" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" id="dph-on" onchange="setAnimMode(this.checked)" style="margin:0;accent-color:#E5630F;">Als Animation</label><span id="dph-ctl" style="display:contents;"><div class="dph-dots" id="dph-dots"></div><button class="dact" onclick="addPhase()" title="Nächste Phase: Spieler laufen ans Ende ihrer Pfeile, Ball folgt dem Pass">+ Phase</button><button class="dact" id="dph-del" onclick="deletePhase()" title="Aktuelle Phase löschen">Phase löschen</button><button class="dact dact-play" id="dph-play" onclick="toggleDrawAnim()">▶ Abspielen</button></span><span class="dph-hint" id="dph-hint">Pfeile (Laufweg), Pass-Linien und Screens direkt beim Spieler bzw. Ball beginnen → «Abspielen». Für weitere Schritte «+ Phase»: Spieler stehen dann am Ziel, nächste Bewegungen zeichnen.</span></div>
  <div id="draw-wrap" style="position:relative;max-width:100%;width:max-content;">
  <canvas id="draw-canvas" width="660" height="430"></canvas>
  <div id="dtext-fmt" style="display:none;"><div class="dseg"><button class="dsz dtf" id="dtf-b" onmousedown="toggleTextFmt('b',event)" ontouchstart="toggleTextFmt('b',event)" title="Fett"><b>B</b></button><button class="dsz dtf" id="dtf-i" onmousedown="toggleTextFmt('i',event)" ontouchstart="toggleTextFmt('i',event)" title="Kursiv"><i style="font-family:Georgia,serif;">I</i></button><button class="dsz dtf" id="dtf-u" onmousedown="toggleTextFmt('u',event)" ontouchstart="toggleTextFmt('u',event)" title="Unterstrichen"><u>U</u></button><button class="dsz dtf" onmousedown="event.preventDefault();openTextEditor(DM.sel)" ontouchend="event.preventDefault();openTextEditor(DM.sel)" title="Text bearbeiten">✎</button></div></div>
@@ -3213,7 +3214,7 @@ async function toggleWlDone(id,done){
 // ── DRAW ──────────────────────────────────────────────────
 // ── ZEICHNEN: objektbasiert (Elemente nachträglich auswählen, verschieben, löschen) ──
 const DM={canvas:null,ctx:null,tool:'select',color:'#F5A800',size:2,editId:null,courtTemplate:'half',drawingIdx:-1,
- frames:[[]],fi:0,play:null,bg:null,bgImg:null,sel:-1,drag:null,draft:null,history:[],editIdx:-1};
+ frames:[[]],fi:0,play:null,anim:false,bg:null,bgImg:null,sel:-1,drag:null,draft:null,history:[],editIdx:-1};
 // DM.objs = Elemente der aktuell angezeigten Phase
 Object.defineProperty(DM,'objs',{get(){return DM.frames[DM.fi];},set(v){DM.frames[DM.fi]=v;}});
 const DRAW_COLORS=['#F5A800','#002F5F','#2563eb','#16a34a','#dc2626'];
@@ -3331,7 +3332,7 @@ function getPos(e){
 
 // ── Verlauf (Undo) ──
 function pushHist(){
- DM.history.push({o:JSON.stringify(DM.frames),fi:DM.fi,bg:DM.bg,tpl:DM.courtTemplate,h:DM.canvas?DM.canvas.height:430});
+ DM.history.push({o:JSON.stringify(DM.frames),fi:DM.fi,an:DM.anim,bg:DM.bg,tpl:DM.courtTemplate,h:DM.canvas?DM.canvas.height:430});
  if(DM.history.length>40)DM.history.shift();
  if(typeof updatePhaseUI==='function'&&DM.canvas)updatePhaseUI();
 }
@@ -3340,7 +3341,7 @@ function undoDraw(){
  if(DM.history.length<=1)return;
  DM.history.pop();
  const s=DM.history[DM.history.length-1];
- stopDrawAnim();DM.frames=JSON.parse(s.o);DM.fi=Math.min(s.fi||0,DM.frames.length-1);DM.sel=-1;DM.courtTemplate=s.tpl;DM.canvas.height=s.h;updatePhaseUI();
+ stopDrawAnim();DM.frames=JSON.parse(s.o);DM.fi=Math.min(s.fi||0,DM.frames.length-1);DM.anim=!!s.an;DM.sel=-1;DM.courtTemplate=s.tpl;DM.canvas.height=s.h;updatePhaseUI();
  if(s.bg!==DM.bg){DM.bg=s.bg;if(s.bg)loadBg(s.bg,drawRender);else{DM.bgImg=null;drawRender();}}
  else drawRender();
 }
@@ -3918,11 +3919,18 @@ function drawGhosts(ctx,prev,cur){
 function updatePhaseUI(){
  const dots=document.getElementById('dph-dots');if(!dots)return;
  const n=DM.frames.length;
+ document.getElementById('dphase').classList.toggle('off',!DM.anim);document.getElementById('dph-on').checked=DM.anim;
  dots.innerHTML=DM.frames.map((_,i)=>`<button class="dph-dot ${i===DM.fi?'on':''}" onclick="gotoPhase(${i})" title="Phase ${i+1}">${i+1}</button>`).join('');
  document.getElementById('dph-del').style.display=n>1?'':'none';
  ensureIds(DM.frames);document.getElementById('dph-play').style.display=withTail(DM.frames).length>1?'':'none';
  document.getElementById('dph-play').textContent=DM.play?'■ Stopp':'▶ Abspielen';
  document.getElementById('dph-hint').style.display=n>1?'none':'';
+}
+function setAnimMode(on){
+ if(!on&&DM.frames.length>1&&!confirm(`Animation ausschalten? Phase 2–${DM.frames.length} werden entfernt, Phase 1 bleibt als statische Zeichnung.`)){updatePhaseUI();return;}
+ closeTextEditor(false);stopDrawAnim();DM.anim=on;
+ if(!on){DM.frames=[DM.frames[0]];DM.fi=0;DM.sel=-1;}
+ pushHist();updatePhaseUI();drawRender();
 }
 function gotoPhase(i){
  if(i<0||i>=DM.frames.length)return;
@@ -3964,7 +3972,7 @@ const _animCache=new Map(),_animReg=[];
 function sceneFramesOf(url){
  if(_animCache.has(url))return _animCache.get(url);
  const sc=sceneFromPng(url);let r=null;
- if(sc){const fr=[sc.objs||[],...(sc.frames||[])].map(f=>JSON.parse(JSON.stringify(f)));ensureIds(fr);
+ if(sc&&(sc.anim||(sc.frames&&sc.frames.length))){const fr=[sc.objs||[],...(sc.frames||[])].map(f=>JSON.parse(JSON.stringify(f)));ensureIds(fr);
   const all=withTail(fr);if(all.length>1)r={sc,fr:all};}
  _animCache.set(url,r);return r;
 }
@@ -4203,7 +4211,7 @@ function _tplButtons(){
  document.getElementById('tpl-full').classList.toggle('on',!DM.bg&&DM.courtTemplate==='full');
 }
 function _resetScene(){
- stopDrawAnim();DM.frames=[[]];DM.fi=0;DM.bg=null;DM.bgImg=null;DM.sel=-1;DM.drag=null;DM.draft=null;DM.history=[];
+ stopDrawAnim();DM.anim=false;DM.frames=[[]];DM.fi=0;DM.bg=null;DM.bgImg=null;DM.sel=-1;DM.drag=null;DM.draft=null;DM.history=[];
  DM.orig=null;DM.convMsg='';
  DM.editIdx=-1;const _ed=document.getElementById('draw-text-ed');if(_ed)_ed.style.display='none';
  DM.courtTemplate='half';if(DM.canvas)DM.canvas.height=430;
@@ -4230,7 +4238,7 @@ function openDrawMdl(drillId,drawingIdx){
   if(existing){
    const sc=sceneFromPng(existing);
    if(sc){
-    DM.courtTemplate=sc.tpl||'half';DM.canvas.height=sc.h||430;DM.frames=[sc.objs||[],...(sc.frames||[])];DM.fi=0;ensureIds(DM.frames);
+    DM.courtTemplate=sc.tpl||'half';DM.canvas.height=sc.h||430;DM.frames=[sc.objs||[],...(sc.frames||[])];DM.fi=0;DM.anim=!!sc.anim||DM.frames.length>1;ensureIds(DM.frames);
     DM.frames.forEach(f=>f.forEach(o=>{if(o.t==='text'&&o.bw===undefined){o.y-=o.size;o.bw=0;o.b=true;}}));
     // Original einer alten Zeichnung immer mitführen (PNG-Hintergrund = alte Zeichnung, JPEG = Foto)
     DM.orig=sc.orig||(sc.bg&&sc.bg.startsWith('data:image/png')?sc.bg:null);
@@ -4252,8 +4260,8 @@ async function saveDrawing(){
  if(CS.img)await confirmCrop();
  closeTextEditor(false);stopDrawAnim();DM.fi=0;DM.sel=-1;drawRender(false);
  const scene={v:1,tpl:DM.courtTemplate,h:DM.canvas.height,bg:DM.bg,orig:DM.orig||null,objs:DM.frames[0]};
- if(DM.frames.length>1)scene.frames=DM.frames.slice(1);
- const photoOnly=DM.frames.length===1&&!DM.objs.length&&DM.bg&&DM.bg.startsWith('data:image/jpeg');
+ if(DM.anim){scene.anim=true;if(DM.frames.length>1)scene.frames=DM.frames.slice(1);}
+ const photoOnly=!DM.anim&&DM.frames.length===1&&!DM.objs.length&&DM.bg&&DM.bg.startsWith('data:image/jpeg');
  const dataURL=photoOnly?DM.bg:pngWithScene(DM.canvas.toDataURL('image/png'),JSON.stringify(scene));
  if(!db.drillDrawings[DM.editId])db.drillDrawings[DM.editId]=[];
  const drs=db.drillDrawings[DM.editId];
