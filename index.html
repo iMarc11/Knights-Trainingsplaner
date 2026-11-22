@@ -2976,8 +2976,8 @@ function renderSessions(){
  <div class="dpill" style="flex-shrink:0;">${esc(s.totalDur)} Min.</div>
  </div>
  <div class="srow-actions" style="display:flex;gap:4px;flex-shrink:0;" onclick="event.stopPropagation()">
- ${iconBtn('print','Drucken',`printSess('${esc(s.id)}')`,'btn-out')}
  ${iconBtn('phone','Mobil',`mobileExport('${esc(s.id)}')`,'btn-out')}
+ ${iconBtn('print','Drucken',`printSess('${esc(s.id)}')`,'btn-out')}
  <span class="act-sep" aria-hidden="true"></span>
  ${iconBtn('edit','Bearbeiten',`editSessDirect('${esc(s.id)}')`)}
  ${iconBtn('dup','Duplizieren',`dupSessFromList('${esc(s.id)}')`)}
@@ -3105,7 +3105,7 @@ window.addEventListener('popstate',()=>closeMobileView(true));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobileView();});
 function viewSess(id){
  viewSessId=id;const s=db.sessions.find(s=>s.id===id);if(!s)return;
- document.getElementById('sdet-out').innerHTML=`<span class="mut" style="font-size:12px;margin-right:4px;">Ansicht:</span>${iconBtn('print','Drucken','printSess()','btn-out')}${iconBtn('phone','Mobil-Ansicht','mobileExport()','btn-out')}`;
+ document.getElementById('sdet-out').innerHTML=`<span class="mut" style="font-size:12px;margin-right:4px;">Ansicht:</span>${iconBtn('phone','Mobil-Ansicht','mobileExport()','btn-out')}${iconBtn('print','Drucken','printSess()','btn-out')}`;
  const t=getTeam(s.teamId);
  const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'';
  document.getElementById('sdet-cnt').innerHTML=`
