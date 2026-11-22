@@ -55,6 +55,8 @@ hr{border:none;border-top:1px solid var(--brd);margin:12px 0;}
 .btn-pri{background:var(--pri);color:#fff;}.btn-pri:hover{background:var(--prid);}
 .btn-sec{background:#fff;color:var(--sec);border:1px solid var(--brd);}.btn-sec:hover{border-color:#9C9CAE;}
 .btn-gho{background:transparent;color:var(--sec);border:1px solid var(--brd);}.btn-gho:hover{background:#F2F4F6;color:var(--sec);}
+.btn-out{background:transparent;color:var(--mut);border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;min-width:30px;}.btn-out:hover{background:#F2F4F6;color:var(--sec);}.btn-out .btn-label{display:none!important;}
+.act-sep{width:1px;align-self:stretch;background:var(--brd);margin:3px 6px;flex-shrink:0;}
 .btn-dan{background:#fff;color:var(--mut);border:1px solid var(--brd);font-weight:400;}.btn-dan:hover{color:#D93025;border-color:#F3C9C6;background:#FDEDEC;}
 .btn-sm{padding:7px 12px;font-size:13px;min-height:34px;}
 .btn-xs{padding:4px 9px;font-size:12px;min-height:28px;}
@@ -2973,10 +2975,11 @@ function renderSessions(){
  <div class="dpill" style="flex-shrink:0;">${esc(s.totalDur)} Min.</div>
  </div>
  <div class="srow-actions" style="display:flex;gap:4px;flex-shrink:0;" onclick="event.stopPropagation()">
+ ${iconBtn('print','Drucken',`printSess('${esc(s.id)}')`,'btn-out')}
+ ${iconBtn('phone','Mobil-Ansicht',`mobileExport('${esc(s.id)}')`,'btn-out')}
+ <span class="act-sep" aria-hidden="true"></span>
  ${iconBtn('edit','Bearbeiten',`editSessDirect('${esc(s.id)}')`)}
  ${iconBtn('dup','Duplizieren',`dupSessFromList('${esc(s.id)}')`)}
- ${iconBtn('print','Drucken',`printSess('${esc(s.id)}')`)}
- ${iconBtn('phone','Mobil',`mobileExport('${esc(s.id)}')`)}
  ${iconBtn('trash','Löschen',`deleteSessDirect('${esc(s.id)}')`,'btn-dan act-del')}
  </div>
  </div>`;
