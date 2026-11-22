@@ -55,7 +55,8 @@ hr{border:none;border-top:1px solid var(--brd);margin:12px 0;}
 .btn-pri{background:var(--pri);color:#fff;}.btn-pri:hover{background:var(--prid);}
 .btn-sec{background:#fff;color:var(--sec);border:1px solid var(--brd);}.btn-sec:hover{border-color:#9C9CAE;}
 .btn-gho{background:transparent;color:var(--sec);border:1px solid var(--brd);}.btn-gho:hover{background:#F2F4F6;color:var(--sec);}
-.btn-out{background:transparent;color:var(--mut);border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;min-width:30px;}.btn-out:hover{background:#F2F4F6;color:var(--sec);}.btn-out .btn-label{display:none!important;}
+.btn-out{background:transparent;color:var(--sec);border:1px solid transparent;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:6px;}.btn-out:hover{background:#EEF0F3;}
+.out-bar{display:flex;gap:2px;align-items:center;flex-wrap:wrap;}.out-bar .btn-label{display:inline!important;}
 .act-sep{width:1px;align-self:stretch;background:var(--brd);margin:3px 6px;flex-shrink:0;}
 .btn-dan{background:#fff;color:var(--mut);border:1px solid var(--brd);font-weight:400;}.btn-dan:hover{color:#D93025;border-color:#F3C9C6;background:#FDEDEC;}
 .btn-sm{padding:7px 12px;font-size:13px;min-height:34px;}
@@ -1331,12 +1332,12 @@ function checkPw(){
 </div></div>
 
 <div class="mbk" id="m-sdet"><div class="mdl wide">
+ <div class="out-bar" id="sdet-out" style="justify-content:flex-end;margin:-6px 0 8px;"></div>
  <div id="sdet-cnt"></div>
  <div class="mft">
  <button class="btn btn-dan btn-sm" onclick="delCurSess()">Löschen</button>
+ <button class="btn btn-sec" onclick="closeM('m-sdet')" style="margin-left:auto;">Schliessen</button>
  <button class="btn btn-sec" onclick="dupSess()">Duplizieren</button>
- <button class="btn btn-sec" onclick="closeM('m-sdet')">Schliessen</button>
- <button class="btn btn-sec btn-sm" onclick="printSess()" style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;"><svg class="i-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>Drucken</button>
  <button class="btn btn-pri" onclick="editCurSess()">Bearbeiten</button>
  </div>
 </div></div>
@@ -2976,7 +2977,7 @@ function renderSessions(){
  </div>
  <div class="srow-actions" style="display:flex;gap:4px;flex-shrink:0;" onclick="event.stopPropagation()">
  ${iconBtn('print','Drucken',`printSess('${esc(s.id)}')`,'btn-out')}
- ${iconBtn('phone','Mobil-Ansicht',`mobileExport('${esc(s.id)}')`,'btn-out')}
+ ${iconBtn('phone','Mobil',`mobileExport('${esc(s.id)}')`,'btn-out')}
  <span class="act-sep" aria-hidden="true"></span>
  ${iconBtn('edit','Bearbeiten',`editSessDirect('${esc(s.id)}')`)}
  ${iconBtn('dup','Duplizieren',`dupSessFromList('${esc(s.id)}')`)}
@@ -3104,6 +3105,7 @@ window.addEventListener('popstate',()=>closeMobileView(true));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobileView();});
 function viewSess(id){
  viewSessId=id;const s=db.sessions.find(s=>s.id===id);if(!s)return;
+ document.getElementById('sdet-out').innerHTML=`<span class="mut" style="font-size:12px;margin-right:4px;">Ansicht:</span>${iconBtn('print','Drucken','printSess()','btn-out')}${iconBtn('phone','Mobil-Ansicht','mobileExport()','btn-out')}`;
  const t=getTeam(s.teamId);
  const d=s.date?new Date(s.date+'T00:00:00').toLocaleDateString('de-CH',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}):'';
  document.getElementById('sdet-cnt').innerHTML=`
