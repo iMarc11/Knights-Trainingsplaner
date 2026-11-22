@@ -118,8 +118,8 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 
 /* Blöcke im Baukasten */
 .bli{background:#F8F9FA;border:1px solid var(--brd);border-radius:3px;padding:11px 12px;display:flex;gap:12px;align-items:flex-start;margin-bottom:6px;}
-.btt{padding:3px 8px;border-radius:2px;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;min-width:88px;text-align:center;}
-.bdur{font-family:'Barlow Condensed','Barlow',sans-serif;font-size:16px;font-weight:700;color:var(--sec);min-width:42px;padding-top:1px;}
+.btt{box-sizing:border-box;flex:0 0 112px;width:112px;padding:3px 6px;border-radius:2px;font-size:10.5px;font-weight:700;line-height:1.3;letter-spacing:.04em;text-transform:uppercase;white-space:normal;overflow-wrap:anywhere;text-align:center;}
+.bdur{font-family:'Barlow Condensed','Barlow',sans-serif;font-size:16px;font-weight:700;color:var(--sec);flex:0 0 46px;padding-top:1px;}
 .bname{font-size:14.5px;font-weight:600;margin-bottom:2px;}
 .bdesc{font-size:13px;color:var(--mut);line-height:1.55;}
 .bact{display:flex;gap:3px;flex-shrink:0;}
@@ -425,7 +425,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
   .wgrid{grid-template-columns:62px 1fr;}
   .wlbl{font-size:10px;}
   .bli{flex-wrap:wrap;}
-  .btt{min-width:0;}
+  .btt{flex:0 0 104px;width:104px;}
   .bact{width:100%;margin-left:0;}
   .bact .btn:last-child{margin-left:auto;}
   .sdt{min-width:0;}
