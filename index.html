@@ -4249,8 +4249,14 @@ function refreshDrawingViews(){
  if(currentBlocks.length)renderBlocks(true);
  if(viewSessId&&document.getElementById('m-sdet').classList.contains('open'))viewSess(viewSessId);
 }
-function newDrawing(){
- DM.drawingIdx=-1;_resetScene();_tplButtons();pushHist();drawRender();updateDrawTitle();updatePhaseUI();
+async function newDrawing(){
+ // aktuelle Zeichnung zuerst speichern, damit sie erhalten bleibt
+ const st=await _storeDrawing();
+ refreshDrawingViews();
+ if(st)await st.upload;
+ DM.drawingIdx=-1;_resetScene();
+ DM.color=DRAW_COLORS[1];initDrawColors();
+ _tplButtons();pushHist();drawRender();updateDrawTitle();updatePhaseUI();updateConvertUI();
 }
 function openDrawMdl(drillId,drawingIdx){
  DM.editId=drillId;DM.drawingIdx=(drawingIdx===undefined)?-1:drawingIdx;
@@ -4285,19 +4291,26 @@ function openDrawMdl(drillId,drawingIdx){
  },80);
 }
 async function saveDrawing(){
+ const st=await _storeDrawing();
+ closeM('m-draw');
+ refreshDrawingViews();
+ if(st)await st.upload;
+}
+// Übernimmt die offene Zeichnung (neu oder bestehend) in die Liste und startet den Upload ({upload}).
+// Leere neue Zeichnungen werden übersprungen.
+async function _storeDrawing(){
  // Bild hochgeladen, aber "Bild übernehmen" nicht gedrückt → automatisch übernehmen, statt es zu verlieren
  if(CS.img)await confirmCrop();
  closeTextEditor(false);stopDrawAnim();DM.fi=0;DM.sel=-1;drawRender(false);
+ if(DM.drawingIdx<0&&!DM.bg&&DM.frames.every(f=>!f.length))return;
  const scene={v:1,tpl:DM.courtTemplate,h:DM.canvas.height,bg:DM.bg,orig:DM.orig||null,objs:DM.frames[0]};
  if(DM.anim){scene.anim=true;if(DM.frames.length>1)scene.frames=DM.frames.slice(1);}
  const photoOnly=!DM.anim&&DM.frames.length===1&&!DM.objs.length&&DM.bg&&DM.bg.startsWith('data:image/jpeg');
  const dataURL=photoOnly?DM.bg:pngWithScene(DM.canvas.toDataURL('image/png'),JSON.stringify(scene));
  if(!db.drillDrawings[DM.editId])db.drillDrawings[DM.editId]=[];
  const drs=db.drillDrawings[DM.editId];
- if(DM.drawingIdx>=0&&DM.drawingIdx<drs.length)drs[DM.drawingIdx]=dataURL;else drs.push(dataURL);
- closeM('m-draw');
- refreshDrawingViews();
- await sbUpsert('drill_drawings',{drill_id:DM.editId,data_url:JSON.stringify(drs),updated_at:new Date().toISOString()});
+ if(DM.drawingIdx>=0&&DM.drawingIdx<drs.length)drs[DM.drawingIdx]=dataURL;else{drs.push(dataURL);DM.drawingIdx=drs.length-1;}
+ return{upload:sbUpsert('drill_drawings',{drill_id:DM.editId,data_url:JSON.stringify(drs),updated_at:new Date().toISOString()})};
 }
 async function deleteDrawing(){
  if(!confirm('Zeichnung löschen?'))return;
