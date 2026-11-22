@@ -224,6 +224,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .mdl.wide{width:720px;}.mdl.draw-mdl{width:780px;max-width:98vw;}
 .mdl h3{font-family:'Barlow Condensed','Barlow',sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:var(--sec);margin-bottom:16px;}
 .mft{display:flex;gap:9px;justify-content:flex-end;margin-top:16px;border-top:1px solid var(--brd);padding-top:14px;}
+@media(max-width:599px){#m-draw .mft{flex-wrap:wrap;}#m-draw .mft .btn-sm{flex:1 1 auto;justify-content:center;}}
 .pkl{max-height:300px;overflow-y:auto;border:1px solid var(--brd);border-radius:3px;}
 .pkr{display:flex;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid #F2F4F6;cursor:pointer;min-height:52px;}
 .pkr:last-child{border-bottom:none;}.pkr:hover{background:#F8F9FA;}
@@ -1382,6 +1383,7 @@ function checkPw(){
  <div class="mft">
  <button class="btn btn-dan btn-sm" onclick="deleteDrawing()">Zeichnung löschen</button>
  <button class="btn btn-sec btn-sm" onclick="newDrawing()">+ Neue Zeichnung</button>
+ <button class="btn btn-sec btn-sm" onclick="copyDrawing()" title="Aktuelle Zeichnung speichern und als neue Zeichnung mit allen Elementen weiterführen" style="display:inline-flex;align-items:center;gap:5px;"><svg class="i-svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>Zeichnung kopieren</button>
  <button class="btn btn-sec" onclick="closeM('m-draw')">Abbrechen</button>
  <button class="btn btn-pri" onclick="saveDrawing()">Speichern</button>
  </div>
@@ -4257,6 +4259,16 @@ async function newDrawing(){
  DM.drawingIdx=-1;_resetScene();
  DM.color=DRAW_COLORS[1];initDrawColors();
  _tplButtons();pushHist();drawRender();updateDrawTitle();updatePhaseUI();updateConvertUI();
+}
+// Kopie: aktuelle Zeichnung speichern, dann alle Elemente (inkl. Hintergrund/Phasen) als neue Zeichnung weiterführen
+async function copyDrawing(){
+ const st=await _storeDrawing();
+ refreshDrawingViews();
+ if(st)await st.upload;
+ const frames=JSON.parse(JSON.stringify(DM.frames));
+ DM.drawingIdx=-1;DM.frames=frames;DM.fi=0;DM.sel=-1;DM.drag=null;DM.draft=null;DM.history=[];
+ _tplButtons();pushHist();drawRender();updateDrawTitle();updatePhaseUI();updateConvertUI();
+ showToast('Kopie erstellt – jetzt die Progression zeichnen','ok');
 }
 function openDrawMdl(drillId,drawingIdx){
  DM.editId=drillId;DM.drawingIdx=(drawingIdx===undefined)?-1:drawingIdx;
