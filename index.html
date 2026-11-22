@@ -249,7 +249,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .dgrp+.dgrp{padding-left:8px;border-left:1px solid var(--brd);}
 .dgrp-l{font-size:9px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;padding-left:2px;}
 .dgrp-b{display:flex;gap:2px;}
-.dt{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:50px;height:50px;padding:0;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--txt);font-family:inherit;font-size:10px;font-weight:600;cursor:pointer;}
+.dt{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:47px;height:50px;padding:0;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--txt);font-family:inherit;font-size:10px;font-weight:600;cursor:pointer;}
 .dt:hover{background:#fff;border-color:var(--brd);}
 .dt[data-tool="select"]{width:62px;}
 #dtext-fmt{position:absolute;z-index:3;filter:drop-shadow(0 2px 6px rgba(0,0,0,.18));}
@@ -277,7 +277,7 @@ input[type=checkbox]{width:auto;min-height:0;accent-color:var(--pri);}
 .dact svg{width:16px;height:16px;}
 .dact:disabled{opacity:.4;cursor:default;}
 .dact-red{color:#dc2626;border-color:#fca5a5;}
-@media(max-width:599px){.dt{width:48px;height:48px;font-size:9px;}.dgrp+.dgrp{padding-left:6px;}.dbar{gap:6px;}.dopt-act{margin-left:0;}.dcsw{width:24px;height:24px;}}
+@media(max-width:599px){.dt{width:44px;height:48px;font-size:9px;}.dt[data-tool="select"]{width:50px;}.dgrp-b{gap:1px;}.dgrp+.dgrp{padding-left:6px;}.dbar{gap:6px;}.dopt-act{margin-left:0;}.dcsw{width:24px;height:24px;}}
 .draw-hint{font-size:12px;color:var(--mut);margin-top:6px;}
 
 /* Status */
@@ -3224,7 +3224,7 @@ async function toggleWlDone(id,done){
 
 // ── DRAW ──────────────────────────────────────────────────
 // ── ZEICHNEN: objektbasiert (Elemente nachträglich auswählen, verschieben, löschen) ──
-const DM={canvas:null,ctx:null,tool:'select',color:'#F5A800',size:2,editId:null,courtTemplate:'half',drawingIdx:-1,
+const DM={canvas:null,ctx:null,tool:'select',color:'#002F5F',size:2,editId:null,courtTemplate:'half',drawingIdx:-1,
  frames:[[]],fi:0,play:null,anim:false,bg:null,bgImg:null,sel:-1,drag:null,draft:null,history:[],editIdx:-1};
 // DM.objs = Elemente der aktuell angezeigten Phase
 Object.defineProperty(DM,'objs',{get(){return DM.frames[DM.fi];},set(v){DM.frames[DM.fi]=v;}});
@@ -3233,7 +3233,7 @@ const LINE_T=['arrow','dash','shot','line','screen'];
 
 function initDrawColors(){
  document.getElementById('draw-colors').innerHTML='<span class="mut" style="font-size:11px;margin-right:3px;">Farbe:</span>'+
- DRAW_COLORS.map((c,i)=>`<div class="dcsw ${i===0?'on':''}" style="background:${c};" onclick="setDrawColor(this,'${c}')"></div>`).join('');
+ DRAW_COLORS.map((c,i)=>`<div class="dcsw ${c===DM.color?'on':''}" style="background:${c};" onclick="setDrawColor(this,'${c}')"></div>`).join('');
 }
 function setDrawColor(el,c){
  DM.color=c;document.querySelectorAll('.dcsw').forEach(x=>x.classList.remove('on'));el.classList.add('on');
@@ -4254,6 +4254,7 @@ function newDrawing(){
 }
 function openDrawMdl(drillId,drawingIdx){
  DM.editId=drillId;DM.drawingIdx=(drawingIdx===undefined)?-1:drawingIdx;
+ DM.color=DRAW_COLORS[1];initDrawColors(); // Standard: dunkelblau
  const selBtn=document.querySelector('.dt[data-tool="select"]');
  setTool(selBtn,'select');
  openM('m-draw');
